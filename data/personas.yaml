@@ -1,0 +1,11 @@
+# Hand-written placeholder until the CRM spec generator exists.
+# Contract: persona ID (`role@client`) -> allowed modules
+# (licensed ∩ role-permitted, plus `core`).
+# `known_modules` is the closed set of module names; anything else aborts loading.
+known_modules: [core, contacts, deals, campaigns, reports]
+
+personas:
+  sales_manager@acme: [core, contacts, deals, campaigns, reports]
+  sales_rep@acme: [core, contacts, deals]
+  sales_rep@globex: [core, contacts, deals]
+  marketing_manager@globex: [core, contacts, campaigns]
