@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Help bot dev harness</title>
+    <link rel="stylesheet" href="/harness/harness.css" />
+  </head>
+  <body>
+    <!-- A stand-in for the CRM page that will host the widget. Dev only: not part of the build. -->
+    <header class="crm-top">
+      <span class="logo">Sample CRM</span>
+      <span class="badge">Dev harness</span>
+      <label class="persona">
+        Signed in as
+        <select id="persona" aria-label="Persona"></select>
+      </label>
+      <span id="modules" class="modules" aria-live="polite"></span>
+    </header>
+
+    <div class="crm-body">
+      <nav class="crm-nav" aria-label="CRM sections">
+        <a href="#">Contacts</a>
+        <a href="#" aria-current="page">Deals</a>
+        <a href="#">Campaigns</a>
+        <a href="#">Reports</a>
+      </nav>
+      <main class="crm-main">
+        <h1>Deals pipeline</h1>
+        <p>Placeholder CRM content. The help widget sits in the bottom-right corner.</p>
+        <p class="hint">
+          Try: “how do I email contacts when a deal changes stage” as <code>sales_manager@acme</code>, then as
+          <code>sales_rep@globex</code>. Also try “what is the meaning of life” and “simulate:error”.
+        </p>
+        <button type="button">A host-page button (styled hot pink on purpose)</button>
+      </main>
+    </div>
+
+    <crm-help-bot api-base="http://localhost:8000" heading="Help" open></crm-help-bot>
+    <script type="module" src="/harness/harness.ts"></script>
+  </body>
+</html>

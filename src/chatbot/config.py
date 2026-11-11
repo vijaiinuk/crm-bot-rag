@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     jwks_cache_ttl_s: float = 300.0
     jwt_leeway_s: int = 30
 
+    # Browser origins allowed to call the API (the widget's host page). Empty = none.
+    cors_origins: list[str] = []
+
     personas_path: Path = Path("data/personas.yaml")
     catalogue_path: Path = Path("data/module_catalogue.yaml")
     # Pause between streamed mock tokens, so streaming is visible in the UI.

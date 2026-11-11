@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from chatbot.adapters import local_jwt
@@ -11,6 +12,7 @@ from chatbot.adapters.local_entitlements import LocalEntitlementProvider
 from chatbot.adapters.mock_responder import MockResponder
 from chatbot.api import chat
 from chatbot.api.auth import AuthContext, CurrentUserDep, HttpJwksSource, JwksSource
+from chatbot.api.dev import build_dev_router
 from chatbot.config import Settings
 from chatbot.ports.catalogue import ModuleCatalogue
 from chatbot.ports.entitlements import EntitlementProvider
@@ -78,20 +80,36 @@ def create_app(
             sub=p.sub, tenant=p.tenant, role=p.role, allowed_modules=sorted(user.allowed_modules)
         )
 
+    if settings.cors_origins:
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=settings.cors_origins,
+            allow_methods=["GET", "POST"],
+            allow_headers=["Authorization", "Content-Type"],
+            allow_credentials=False,  # bearer tokens, not cookies
+        )
+
     if settings.env == "local":
-        _mount_local_jwks(app, settings)
+        _mount_local_routes(app, settings, entitlements)
 
     return app
 
 
-def _mount_local_jwks(app: FastAPI, settings: Settings) -> None:
-    """Local stand-in for the CRM issuer's JWKS endpoint. Never mounted outside local."""
+def _mount_local_routes(
+    app: FastAPI, settings: Settings, entitlements: EntitlementProvider
+) -> None:
+    """Local stand-ins for the CRM identity provider: its JWKS endpoint and the
+    harness's token minting. Never mounted outside local."""
     try:
-        public_key = local_jwt.load_private_key(settings.keys_dir).public_key()
+        key = local_jwt.load_private_key(settings.keys_dir)
     except FileNotFoundError:
         raise RuntimeError(f"no signing key in {settings.keys_dir}; run `make keys`") from None
-    body = local_jwt.jwks(public_key)
+    body = local_jwt.jwks(key.public_key())
 
     @app.get("/.well-known/jwks.json", include_in_schema=False)
     async def jwks() -> dict[str, Any]:
         return body
+
+    if not isinstance(entitlements, LocalEntitlementProvider):
+        raise RuntimeError("dev token routes need the local persona file")
+    app.include_router(build_dev_router(settings, key, entitlements))
