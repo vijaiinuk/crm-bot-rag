@@ -6,10 +6,16 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 from chatbot.adapters import local_jwt
+from chatbot.adapters.local_catalogue import check_covers, load_catalogue
 from chatbot.adapters.local_entitlements import LocalEntitlementProvider
+from chatbot.adapters.mock_responder import MockResponder
+from chatbot.api import chat
 from chatbot.api.auth import AuthContext, CurrentUserDep, HttpJwksSource, JwksSource
 from chatbot.config import Settings
+from chatbot.ports.catalogue import ModuleCatalogue
 from chatbot.ports.entitlements import EntitlementProvider
+from chatbot.ports.responder import Responder
+from chatbot.tracing.log import configure_logging
 
 
 class MeResponse(BaseModel):
@@ -24,13 +30,26 @@ def create_app(
     *,
     jwks_source: JwksSource | None = None,
     entitlements: EntitlementProvider | None = None,
+    catalogue: ModuleCatalogue | None = None,
+    responder: Responder | None = None,
 ) -> FastAPI:
     settings = settings or Settings()
+    configure_logging()
 
     if entitlements is None:
         if settings.env == "prod":
             raise RuntimeError("no production entitlement provider configured")
         entitlements = LocalEntitlementProvider.from_file(settings.personas_path)
+
+    if catalogue is None:
+        catalogue = load_catalogue(settings.catalogue_path)
+    if isinstance(entitlements, LocalEntitlementProvider):
+        check_covers(catalogue, entitlements.modules)
+
+    if responder is None:
+        if settings.env == "prod":
+            raise RuntimeError("no production responder configured")
+        responder = MockResponder(catalogue, token_delay_s=settings.mock_token_delay_s)
 
     owned_jwks: HttpJwksSource | None = None
     if jwks_source is None:
@@ -45,6 +64,8 @@ def create_app(
 
     app = FastAPI(title="CRM help bot", lifespan=lifespan)
     app.state.auth = AuthContext(settings=settings, jwks=jwks_source, entitlements=entitlements)
+    app.state.responder = responder
+    app.include_router(chat.router)
 
     @app.get("/healthz")
     async def healthz() -> dict[str, str]:

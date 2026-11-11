@@ -12,7 +12,9 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 
 from chatbot.adapters import local_jwt
+from chatbot.adapters.local_catalogue import load_catalogue
 from chatbot.adapters.local_entitlements import LocalEntitlementProvider
+from chatbot.adapters.mock_responder import MockResponder
 from chatbot.api.app import create_app
 from chatbot.config import Settings
 from tests.conftest import AUDIENCE, ISSUER, MintToken
@@ -182,7 +184,13 @@ async def test_unreachable_jwks_fails_closed(
 
 
 def _app_client(settings: Settings) -> httpx.AsyncClient:
-    app = create_app(settings, entitlements=LocalEntitlementProvider({}))
+    catalogue = load_catalogue(settings.catalogue_path)
+    app = create_app(
+        settings,
+        entitlements=LocalEntitlementProvider({}),
+        catalogue=catalogue,
+        responder=MockResponder(catalogue),
+    )
     return httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://api.test")
 
 
@@ -204,3 +212,8 @@ async def test_jwks_endpoint_only_in_local(env: str) -> None:
 def test_prod_without_entitlement_provider_refuses_to_start() -> None:
     with pytest.raises(RuntimeError, match="entitlement provider"):
         create_app(Settings(env="prod"))
+
+
+def test_prod_without_responder_refuses_to_start() -> None:
+    with pytest.raises(RuntimeError, match="responder"):
+        create_app(Settings(env="prod"), entitlements=LocalEntitlementProvider({}))

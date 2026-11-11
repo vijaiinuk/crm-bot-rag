@@ -16,5 +16,8 @@ class Settings(BaseSettings):
     jwt_leeway_s: int = 30
 
     personas_path: Path = Path("data/personas.yaml")
+    catalogue_path: Path = Path("data/module_catalogue.yaml")
+    # Pause between streamed mock tokens, so streaming is visible in the UI.
+    mock_token_delay_s: float = 0.03
     # Local signing keys; only read when env == "local".
     keys_dir: Path = Path(".local/keys")

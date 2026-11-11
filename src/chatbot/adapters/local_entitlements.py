@@ -32,6 +32,11 @@ class LocalEntitlementProvider:
     def persona_ids(self) -> frozenset[str]:
         return frozenset(self._personas)
 
+    @property
+    def modules(self) -> frozenset[str]:
+        """Every module any persona can hold."""
+        return frozenset().union(*self._personas.values())
+
     async def resolve(self, principal: Principal) -> frozenset[str]:
         persona_id = f"{principal.role}@{principal.tenant}"
         try:

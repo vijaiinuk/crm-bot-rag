@@ -1,4 +1,4 @@
-.PHONY: keys token run test lint fmt
+.PHONY: keys token run test lint fmt chat
 
 PERSONA ?= sales_rep@globex
 TTL ?= 3600
@@ -23,3 +23,11 @@ lint:          ## ruff + mypy (strict)
 fmt:
 	uv run ruff check --fix .
 	uv run ruff format .
+
+Q ?= how do I email contacts when a deal changes stage
+
+chat:          ## stream a mock answer: make chat PERSONA=sales_rep@globex Q="..."
+	@curl -sN -X POST localhost:8000/chat \
+	  -H "Authorization: Bearer $$(uv run python -m tools.mint_token --persona $(PERSONA))" \
+	  -H "Content-Type: application/json" \
+	  -d "$$(uv run python -c 'import json, sys; print(json.dumps({"message": sys.argv[1]}))' "$(Q)")"

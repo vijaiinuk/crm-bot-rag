@@ -1,0 +1,21 @@
+# Public module descriptions. Safe to show any user, including in
+# restricted-module refusals (CLAUDE.md rule 7). Must cover every module
+# in personas.yaml; startup aborts otherwise.
+restricted_contact: "If you need it, ask your CRM administrator about access."
+
+modules:
+  core:
+    display_name: CRM basics
+    description: Navigation, search, notifications and personal settings.
+  contacts:
+    display_name: Contacts
+    description: People and companies, imports, and contact fields.
+  deals:
+    display_name: Deals
+    description: Pipelines, deal stages and stage automation.
+  campaigns:
+    display_name: Campaigns
+    description: Email campaigns, audiences and triggered emails.
+  reports:
+    display_name: Reports
+    description: Dashboards, saved reports and scheduled exports.

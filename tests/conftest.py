@@ -1,3 +1,4 @@
+import json
 from collections.abc import AsyncIterator, Callable
 from typing import Any
 
@@ -33,7 +34,13 @@ def other_key() -> rsa.RSAPrivateKey:
 
 @pytest.fixture
 def settings() -> Settings:
-    return Settings(env="test", jwt_issuer=ISSUER, jwt_audience=AUDIENCE, jwks_url=JWKS_URL)
+    return Settings(
+        env="test",
+        jwt_issuer=ISSUER,
+        jwt_audience=AUDIENCE,
+        jwks_url=JWKS_URL,
+        mock_token_delay_s=0.0,
+    )
 
 
 @pytest.fixture
@@ -67,6 +74,17 @@ async def client(
     transport = httpx.ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="http://api.test") as c:
         yield c
+
+
+def parse_sse(body: str) -> list[tuple[str, dict[str, Any]]]:
+    """Parse an SSE body into (event name, JSON data) pairs."""
+    events = []
+    for block in body.split("\n\n"):
+        if not block.strip():
+            continue
+        fields = dict(line.split(": ", 1) for line in block.splitlines())
+        events.append((fields["event"], json.loads(fields["data"])))
+    return events
 
 
 MintToken = Callable[..., str]
