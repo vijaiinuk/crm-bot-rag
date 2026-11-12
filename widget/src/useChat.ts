@@ -43,7 +43,9 @@ export function useChat(apiBase: string, getToken: TokenProvider) {
         }
         if (!ctrl.signal.aborted) dispatch({ type: "ended", id });
       } catch (err) {
-        if (!ctrl.signal.aborted) dispatch({ type: "failed", id, message: describe(err) });
+        if (ctrl.signal.aborted) return;
+        if (err instanceof HttpError && err.status === 404) dispatch({ type: "conversationReset" });
+        dispatch({ type: "failed", id, message: describe(err) });
       }
     },
     [apiBase, getToken],
@@ -66,6 +68,8 @@ function describe(err: unknown): string {
         return "Your session has expired. Please sign in again.";
       case 403:
         return "You don't have access to the help assistant.";
+      case 404:
+        return "That conversation has ended. Your next question starts a new one.";
       case 422:
         return "That message couldn't be sent. Try a shorter question.";
       case 429:

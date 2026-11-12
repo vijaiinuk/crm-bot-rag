@@ -16,6 +16,7 @@ from chatbot.events import (
     ErrorEvent,
     Meta,
     Refusal,
+    Token,
     TokenUsage,
     Usage,
     WireEvent,
@@ -51,7 +52,10 @@ async def stream_events(
     *,
     trace_id: str,
     emit: Callable[[TraceRecord], None] = emit_trace,
+    on_complete: Callable[[TraceRecord, str], None] | None = None,
 ) -> AsyncGenerator[WireEvent, None]:
+    """`on_complete(trace, answer_text)` runs once after the trace is emitted, on
+    every outcome. It must not raise; the answer may be partial or a refusal."""
     versions = responder.versions
     record = TraceRecord(
         trace_id=trace_id,
@@ -66,6 +70,7 @@ async def stream_events(
         message_chars=len(query.message),
     )
     started = time.perf_counter()
+    answer: list[str] = []
     try:
         yield Meta(
             trace_id=trace_id,
@@ -89,6 +94,9 @@ async def stream_events(
                     state = next_state
                     if isinstance(event, Refusal):
                         refusal_kind = event.kind
+                        answer.append(event.message)
+                    elif isinstance(event, Token):
+                        answer.append(event.text)
                     yield event
             if state == "start":
                 raise ProtocolViolation("responder produced no content")
@@ -106,3 +114,8 @@ async def stream_events(
         # Runs on success, error and client disconnect (GeneratorExit/CancelledError).
         record.latency_ms = round((time.perf_counter() - started) * 1000, 1)
         emit(record)
+        if on_complete is not None:
+            try:
+                on_complete(record, "".join(answer))
+            except Exception:  # recording must never break the stream or hide the trace
+                log.exception("on_complete failed (trace_id=%s)", trace_id)

@@ -58,10 +58,19 @@ async def test_answer_stream(client: httpx.AsyncClient, mint: MintToken) -> None
     assert "type" not in meta, "the event name carries the type"
 
 
-async def test_conversation_id_is_echoed(client: httpx.AsyncClient, mint: MintToken) -> None:
+async def test_conversation_id_is_server_issued_and_reusable(
+    client: httpx.AsyncClient, mint: MintToken
+) -> None:
+    first = parse_sse((await chat(client, mint(), {"message": QUESTION})).text)[0][1]
+    conv = first["conversation_id"]
+    again = await chat(client, mint(), {"message": QUESTION, "conversation_id": conv})
+    assert parse_sse(again.text)[0][1]["conversation_id"] == conv
+
+
+async def test_made_up_conversation_id_is_404(client: httpx.AsyncClient, mint: MintToken) -> None:
     conv = "7b0ad6a4-6c0e-4f3a-9a76-1f2d0c4e8b11"
     r = await chat(client, mint(), {"message": QUESTION, "conversation_id": conv})
-    assert parse_sse(r.text)[0][1]["conversation_id"] == conv
+    assert r.status_code == 404
 
 
 async def test_restricted_stream(client: httpx.AsyncClient, mint: MintToken) -> None:

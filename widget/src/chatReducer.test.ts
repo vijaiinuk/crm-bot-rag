@@ -81,6 +81,13 @@ describe("chatReducer", () => {
     expect(a.error).toBe("Session expired.");
   });
 
+  it("conversationReset forgets the conversation id but keeps the messages", () => {
+    const before = reduce(send, ev(META), ev(DONE));
+    const after = chatReducer(before, { type: "conversationReset" });
+    expect(after.conversationId).toBeNull();
+    expect(after.messages).toBe(before.messages);
+  });
+
   it("ended after done changes nothing", () => {
     const before = reduce(send, ev(META), tok("x"), ev(DONE));
     expect(chatReducer(before, { type: "ended", id: "a1" })).toBe(before);

@@ -15,10 +15,10 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 
 from chatbot.adapters.mock_admin.repository import InMemoryAdminRepository
+from chatbot.adapters.mock_admin.seed_activity import seed_activity
 from chatbot.admin.models import (
     Document,
     DocumentVersionContent,
-    EvalLabelRef,
     Release,
     ReleaseStatus,
     VersionStatus,
@@ -107,18 +107,6 @@ RELEASES = [
 ]
 DRAFT_CHANGES = {"deals-stage-automation": 3, "deals-forecasting": 2, "core-search-tips": 1}
 
-EVAL_LABELS = [
-    ("q-0001", ["deals-stage-automation#triggers"]),
-    ("q-0002", ["campaigns-triggered-emails#setup"]),
-    (
-        "q-0003",
-        ["deals-stage-automation#actions", "campaigns-deal-triggers#connect-a-stage-to-a-campaign"],
-    ),
-    ("q-0004", ["contacts-import#csv"]),
-    ("q-0005", ["reports-dashboards#create-a-dashboard"]),
-    ("q-0006", ["core-navigation#search"]),
-]
-
 
 def _markdown(doc_id: str, title: str, version: int, v: V) -> str:
     body = "\n\n".join(
@@ -182,4 +170,4 @@ def seed(repo: InMemoryAdminRepository, now: datetime) -> None:
         created_by=UPLOADER,
         created_at=now - timedelta(days=1),
     )
-    repo.eval_labels = [EvalLabelRef(question_id=q, labels=labels) for q, labels in EVAL_LABELS]
+    seed_activity(repo, now)

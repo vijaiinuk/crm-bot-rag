@@ -33,6 +33,10 @@ class LocalEntitlementProvider:
         return frozenset(self._personas)
 
     @property
+    def personas(self) -> dict[str, frozenset[str]]:
+        return dict(self._personas)
+
+    @property
     def modules(self) -> frozenset[str]:
         """Every module any persona can hold."""
         return frozenset().union(*self._personas.values())

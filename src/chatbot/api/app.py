@@ -9,10 +9,11 @@ from pydantic import BaseModel
 from chatbot.adapters import local_jwt
 from chatbot.adapters.local_catalogue import check_covers, load_catalogue
 from chatbot.adapters.local_entitlements import LocalEntitlementProvider
-from chatbot.adapters.mock_admin import build_mock_admin_service
+from chatbot.adapters.mock_admin import build_mock_admin
 from chatbot.adapters.mock_responder import MockResponder
+from chatbot.adapters.regex_redactor import RegexRedactor
+from chatbot.admin import AdminBundle
 from chatbot.admin.routes import build_admin_router
-from chatbot.admin.service import AdminService
 from chatbot.api import chat
 from chatbot.api.auth import AuthContext, CurrentUserDep, HttpJwksSource, JwksSource
 from chatbot.api.dev import build_dev_router, load_admins
@@ -37,7 +38,7 @@ def create_app(
     entitlements: EntitlementProvider | None = None,
     catalogue: ModuleCatalogue | None = None,
     responder: Responder | None = None,
-    admin: AdminService | None = None,
+    admin: AdminBundle | None = None,
 ) -> FastAPI:
     settings = settings or Settings()
     configure_logging()
@@ -60,8 +61,12 @@ def create_app(
     if admin is None:
         if settings.env == "prod":
             raise RuntimeError("no production admin repository configured")
-        admin = build_mock_admin_service(
-            frozenset(catalogue.modules), job_step_s=settings.mock_job_step_s
+        admin = build_mock_admin(
+            frozenset(catalogue.modules),
+            personas=entitlements.personas
+            if isinstance(entitlements, LocalEntitlementProvider)
+            else None,
+            job_step_s=settings.mock_job_step_s,
         )
 
     owned_jwks: HttpJwksSource | None = None
@@ -78,7 +83,10 @@ def create_app(
     app = FastAPI(title="CRM help bot", lifespan=lifespan)
     app.state.auth = AuthContext(settings=settings, jwks=jwks_source, entitlements=entitlements)
     app.state.responder = responder
-    app.state.admin = admin
+    app.state.admin = admin.service
+    app.state.insights = admin.insights
+    app.state.conversations = admin.conversations
+    app.state.redactor = RegexRedactor()
     app.include_router(chat.router)
     app.include_router(build_admin_router())
 

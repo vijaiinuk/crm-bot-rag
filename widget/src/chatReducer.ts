@@ -38,13 +38,19 @@ export type ChatAction =
   | { type: "event"; id: string; event: ChatEvent }
   | { type: "failed"; id: string; message: string }
   | { type: "ended"; id: string }
-  | { type: "stopped"; id: string };
+  | { type: "stopped"; id: string }
+  /** The server no longer knows this conversation (404): the next question starts a new one. */
+  | { type: "conversationReset" };
 
 export const initialChatState: ChatState = { conversationId: null, messages: [], activeId: null };
 
 const INTERRUPTED = "The connection was interrupted. Please try again.";
 
 export function chatReducer(state: ChatState, action: ChatAction): ChatState {
+  if (action.type === "conversationReset") {
+    return { ...state, conversationId: null };
+  }
+
   if (action.type === "send") {
     return {
       ...state,

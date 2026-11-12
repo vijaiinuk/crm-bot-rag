@@ -93,6 +93,24 @@ describe("ChatPanel", () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
+  it("a 404 for the conversation resets it, and the next question starts fresh", async () => {
+    const { user, fetchMock } = setup([
+      () => streamResponse([sse(META), sse({ type: "token", text: "first answer" }), sse(DONE)]),
+      () => new Response("{}", { status: 404 }),
+      () => streamResponse([sse({ ...META, conversation_id: "c-2" } as typeof META), sse({ type: "token", text: "fresh" }), sse(DONE)]),
+    ]);
+    await ask(user, "first");
+    await screen.findByText("first answer");
+    await ask(user, "second");
+    expect(await screen.findByText(/conversation has ended/i)).toBeTruthy();
+    await ask(user, "third");
+    await screen.findByText("fresh");
+    const ids = fetchMock.mock.calls.map(
+      (c) => JSON.parse((c as unknown as [string, RequestInit])[1].body as string).conversation_id,
+    );
+    expect(ids).toEqual([null, "c-1", null]);
+  });
+
   it("stop ends the stream and keeps partial text", async () => {
     const open = openResponse();
     const { user } = setup([() => open.response]);

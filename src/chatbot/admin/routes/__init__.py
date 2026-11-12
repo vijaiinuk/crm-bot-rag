@@ -14,9 +14,11 @@ def http_error(e: NotFound | Conflict) -> HTTPException:
 
 
 def build_admin_router() -> APIRouter:
-    from chatbot.admin.routes import documents, releases
+    from chatbot.admin.routes import activity, documents, evals, releases
 
     router = APIRouter(prefix="/admin", tags=["admin"])
     router.include_router(documents.router)
     router.include_router(releases.router)
+    router.include_router(evals.router)
+    router.include_router(activity.router)
     return router
