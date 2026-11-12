@@ -122,3 +122,20 @@ async def test_cors_off_by_default(signing_key: rsa.RSAPrivateKey) -> None:
     async with make_client(Settings(env="test"), signing_key) as c:
         r = await c.options("/chat", headers=preflight(ORIGIN))
     assert "access-control-allow-origin" not in r.headers
+
+
+@pytest.mark.parametrize("method", ["GET", "POST", "PUT", "PATCH", "DELETE"])
+async def test_cors_allows_every_method_the_admin_app_uses(
+    local_settings: Settings, signing_key: rsa.RSAPrivateKey, method: str
+) -> None:
+    async with make_client(local_settings, signing_key) as c:
+        r = await c.options(
+            "/admin/eval-questions/q-1",
+            headers={
+                "Origin": ORIGIN,
+                "Access-Control-Request-Method": method,
+                "Access-Control-Request-Headers": "authorization,content-type",
+            },
+        )
+    assert r.status_code == 200, f"{method} preflight rejected"
+    assert method in r.headers["access-control-allow-methods"]

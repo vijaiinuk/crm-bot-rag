@@ -1,4 +1,4 @@
-.PHONY: keys token run test lint fmt chat check widget-install widget-dev widget-test widget-build
+.PHONY: keys token run test lint fmt chat check widget-install widget-dev widget-test widget-build admin-install admin-dev admin-test admin-build admin-types
 
 PERSONA ?= sales_rep@globex
 TTL ?= 3600
@@ -10,9 +10,10 @@ token:         ## mint a JWT: make token PERSONA=sales_manager@acme, or ADMIN=ed
 	@uv run python -m tools.mint_token $(if $(ADMIN),--admin $(ADMIN),--persona $(PERSONA)) --ttl $(TTL)
 
 WIDGET_ORIGIN ?= http://localhost:5173
+ADMIN_ORIGIN ?= http://localhost:5174
 
-run:           ## run the API locally (CORS open to the widget dev server only)
-	CHATBOT_CORS_ORIGINS='["$(WIDGET_ORIGIN)"]' \
+run:           ## run the API locally (CORS open to the widget and admin dev servers only)
+	CHATBOT_CORS_ORIGINS='["$(WIDGET_ORIGIN)","$(ADMIN_ORIGIN)"]' \
 	  uv run uvicorn --factory chatbot.api.app:create_app --reload --reload-dir src --port 8000
 
 test:          ## unit tests
@@ -47,4 +48,20 @@ widget-test:   ## widget unit tests + typecheck
 widget-build:  ## build widget/dist/crm-help-bot.js
 	cd widget && npm run build
 
-check: lint test widget-test  ## everything CI would run
+admin-install: ## install admin app dependencies (exact versions from package-lock.json)
+	cd admin && npm ci
+
+admin-dev:     ## admin app on http://localhost:5174 (needs `make run`)
+	cd admin && npm run dev
+
+admin-test:    ## admin app unit tests + typecheck
+	cd admin && npm test && npm run typecheck
+
+admin-build:   ## build admin/dist
+	cd admin && npm run build
+
+admin-types:   ## regenerate admin/src/api/schema.d.ts from the API's OpenAPI schema
+	uv run python -m tools.dump_openapi admin/openapi.json
+	cd admin && npm run types
+
+check: lint test widget-test admin-test  ## everything CI would run
