@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRM Help Bot Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout: a narrow reading column with a sticky contents rail on wide screens; diagrams and tables may run wider. */
+:root {
+  --bg: #f5f6f4;
+  --surface: #ffffff;
+  --ink: #1b2228;
+  --muted: #5b6670;
+  --line: #d9ded9;
+  --accent: #0e6b66;
+  --accent-soft: #e2f0ee;
+  --ok: #1f7a3d;
+  --ok-soft: #e3f3e8;
+  --warn: #9a5b00;
+  --warn-soft: #fbf0dc;
+  --crit: #b3261e;
+  --crit-soft: #fbe5e3;
+  --font-display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --font-body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12171b;
+    --surface: #1a2126;
+    --ink: #e4e9ec;
+    --muted: #9aa6ae;
+    --line: #2d373e;
+    --accent: #5cc4bb;
+    --accent-soft: #173a38;
+    --ok: #6fcf8f;
+    --ok-soft: #173826;
+    --warn: #f0b860;
+    --warn-soft: #3a2c14;
+    --crit: #f2867d;
+    --crit-soft: #3d1d1b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12171b;
+  --surface: #1a2126;
+  --ink: #e4e9ec;
+  --muted: #9aa6ae;
+  --line: #2d373e;
+  --accent: #5cc4bb;
+  --accent-soft: #173a38;
+  --ok: #6fcf8f;
+  --ok-soft: #173826;
+  --warn: #f0b860;
+  --warn-soft: #3a2c14;
+  --crit: #f2867d;
+  --crit-soft: #3d1d1b;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+}
+a { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+.shell {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+@media (min-width: 980px) {
+  .shell { grid-template-columns: 200px minmax(0, 1fr); }
+}
+
+nav.toc { display: none; }
+@media (min-width: 980px) {
+  nav.toc { display: block; position: sticky; top: 32px; align-self: start; font-size: 14px; }
+}
+nav.toc p { margin: 0 0 8px; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+nav.toc a { color: var(--muted); text-decoration: none; display: block; padding: 2px 0 2px 10px; border-left: 2px solid var(--line); }
+nav.toc a:hover { color: var(--ink); border-left-color: var(--accent); }
+
+main { min-width: 0; }
+.prose { max-width: 68ch; }
+
+header.doc { display: grid; gap: 12px; padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; text-wrap: balance; line-height: 1.2; }
+h1 { font-size: clamp(32px, 5vw, 44px); margin: 0; letter-spacing: -.01em; }
+h2 { font-size: 28px; margin: 56px 0 12px; scroll-margin-top: 24px; }
+h3 { font-size: 20px; margin: 28px 0 8px; }
+.lede { font-size: 18px; color: var(--ink); margin: 0; max-width: 64ch; }
+p { margin: 0 0 14px; }
+.sec-num { font-family: var(--font-mono); font-size: 14px; color: var(--accent); font-weight: 500; margin-right: 10px; vertical-align: 3px; }
+
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; line-height: 1;
+  padding: 5px 9px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--muted);
+  white-space: nowrap;
+}
+.pill.accent { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+.pill.ok { background: var(--ok-soft); color: var(--ok); border-color: transparent; }
+.pill.warn { background: var(--warn-soft); color: var(--warn); border-color: transparent; }
+.pill.crit { background: var(--crit-soft); color: var(--crit); border-color: transparent; }
+
+.decisions { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin: 20px 0 8px; }
+.decision { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; align-content: start; }
+.decision .k { font-size: 12px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.decision .v { font-weight: 600; }
+.decision .why { font-size: 14px; color: var(--muted); }
+.decision .adr { font-family: var(--font-mono); font-size: 12px; color: var(--accent); }
+
+.callout { border-left: 3px solid var(--warn); background: var(--warn-soft); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; max-width: 68ch; }
+.callout strong { color: var(--warn); }
+.callout ol { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 6px; }
+
+.table-wrap { overflow-x: auto; margin: 16px 0 20px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--bg); }
+tr:last-child td { border-bottom: 0; }
+td code, p code, li code { font-family: var(--font-mono); font-size: .86em; background: var(--accent-soft); color: var(--ink); padding: 1px 5px; border-radius: 4px; }
+.new { color: var(--accent); font-weight: 600; }
+
+pre {
+  font-family: var(--font-mono); font-size: 13px; line-height: 1.55;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  padding: 14px 16px; overflow-x: auto; margin: 12px 0 20px;
+}
+pre .c { color: var(--muted); }
+pre .hl { color: var(--accent); font-weight: 500; }
+
+figure { margin: 20px 0 28px; }
+figure .canvas { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+figure svg { display: block; width: 100%; min-width: 680px; height: auto; color: var(--ink); }
+svg .s-accent { stroke: var(--accent); }
+svg .f-accent { fill: var(--accent); }
+svg .s-ok { stroke: var(--ok); }
+svg .s-crit { stroke: var(--crit); }
+svg .s-warn { stroke: var(--warn); }
+figcaption { font-size: 14px; color: var(--muted); margin-top: 8px; max-width: 68ch; }
+
+ol.steps { padding-left: 0; list-style: none; counter-reset: s; display: grid; gap: 8px; max-width: 68ch; margin: 12px 0 20px; }
+ol.steps > li { counter-increment: s; display: grid; grid-template-columns: 32px 1fr; gap: 10px; }
+ol.steps > li::before { content: counter(s); font-family: var(--font-mono); font-size: 13px; color: var(--accent); background: var(--accent-soft); border-radius: 6px; height: 24px; display: grid; place-items: center; margin-top: 1px; }
+ol.steps.from0 > li { counter-increment: none; }
+ol.steps > li[data-n]::before { content: attr(data-n); }
+ol.steps > li.added::before { background: var(--accent); color: var(--surface); }
+
+.gate { display: grid; gap: 10px; margin: 16px 0 20px; max-width: 76ch; }
+.gate-row { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.gate-row p { margin: 0; font-size: 15px; }
+.gate-row .t { font-weight: 600; }
+
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin: 16px 0; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.panel h3 { margin: 0 0 6px; font-size: 17px; }
+.panel p, .panel li { font-size: 15px; }
+.panel ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+
+.yes { color: var(--ok); font-weight: 600; }
+.no { color: var(--muted); }
+
+footer { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 14px; color: var(--muted); display: grid; gap: 6px; }
+footer code { font-family: var(--font-mono); font-size: 13px; }
+
+@media (max-width: 480px) {
+  h2 { font-size: 24px; }
+  .lede { font-size: 17px; }
+  th, td { padding: 8px 10px; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="toc" aria-label="Contents">
+    <p>Contents</p>
+    <ol>
+      <li><a href="#decisions">Decisions</a></li>
+      <li><a href="#scope">Scope</a></li>
+      <li><a href="#overview">System overview</a></li>
+      <li><a href="#query">Query path</a></li>
+      <li><a href="#lifecycle">Content lifecycle</a></li>
+      <li><a href="#cost">Observability &amp; cost</a></li>
+      <li><a href="#evals">Evals</a></li>
+      <li><a href="#models">Models</a></li>
+      <li><a href="#admin">Admin app</a></li>
+      <li><a href="#data">Data model</a></li>
+      <li><a href="#plan">Build order</a></li>
+      <li><a href="#open">Open questions</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <div class="meta">
+        <span class="pill warn">Proposed</span>
+        <span>12 Nov 2026</span>
+        <span aria-hidden="true">·</span>
+        <span>MVP, solo build, local first, production on AWS</span>
+      </div>
+      <h1>CRM Help Bot Architecture</h1>
+      <p class="lede">A help chatbot inside the CRM that answers “how do I…” questions from product documentation, with citations. It answers only from the CRM modules each user is licensed for. Ops admins upload versioned docs, publish them through an automatic safety gate, run evals and watch LLM cost per client company.</p>
+    </header>
+
+    <section id="decisions" aria-labelledby="h-decisions">
+      <h2 id="h-decisions"><span class="sec-num">01</span>Decisions at a glance</h2>
+      <div class="decisions">
+        <div class="decision">
+          <span class="k">Store</span>
+          <span class="v">One Postgres: pgvector + full-text search</span>
+          <span class="why">~100 docs → exact vector search. Module filter inside every query.</span>
+          <span class="adr">ADR-0001</span>
+        </div>
+        <div class="decision">
+          <span class="k">Keyword search</span>
+          <span class="v">Postgres full-text, fused with vectors by RRF</span>
+          <span class="why">Real BM25 (<code>pg_search</code>) only if keyword-recall evals ask for it.</span>
+          <span class="adr">ADR-0001</span>
+        </div>
+        <div class="decision">
+          <span class="k">LLM provider</span>
+          <span class="v">OpenRouter in development, Bedrock in production</span>
+          <span class="why">Bake-off only compares models available on both, so results carry over.</span>
+          <span class="adr">ADR-0002</span>
+        </div>
+        <div class="decision">
+          <span class="k">Background work</span>
+          <span class="v">A job queue in Postgres, one worker</span>
+          <span class="why">No Redis or broker for a few jobs a day.</span>
+          <span class="adr">ADR-0003</span>
+        </div>
+        <div class="decision">
+          <span class="k">Who controls access</span>
+          <span class="v">Modules come from the doc’s frontmatter only</span>
+          <span class="why">Publishing goes through an automatic gate; any widening of access needs a person to confirm.</span>
+          <span class="adr">ADR-0004</span>
+        </div>
+        <div class="decision">
+          <span class="k">Cost</span>
+          <span class="v">Estimated per LLM call, per client and per chat</span>
+          <span class="why">Tokens × a dated price table. No message text kept in cost records.</span>
+          <span class="adr">ADR-0005</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="scope" aria-labelledby="h-scope">
+      <h2 id="h-scope"><span class="sec-num">02</span>Scope</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>In the MVP</th><th>Later</th></tr></thead>
+          <tbody>
+            <tr><td>Chat widget embedded in the CRM <span class="pill ok">built</span></td><td>PDF upload (via Docling), then Word</td></tr>
+            <tr><td>Hybrid retrieval with the module filter inside the database query</td><td>Real BM25 if evals show keyword gaps</td></tr>
+            <tr><td>Admin app: upload markdown docs, see processing status, publish and roll back</td><td>Assigning modules in the admin UI; two-person approval</td></tr>
+            <tr><td>Eval questions written by admins and generated synthetically, then reviewed</td><td>Component-level generation evals</td></tr>
+            <tr><td>Admins label answers to calibrate the LLM judge</td><td>Per-client budgets and alerts</td></tr>
+            <tr><td>Cost dashboard per client company and per chat session</td><td>Client-company admins see their own users’ chats</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout" role="note">
+        <strong>Assumptions.</strong> If any of these is wrong, the design changes.
+        <ol>
+          <li>Docs are our product documentation, shared by every client company. Clients don’t upload their own.</li>
+          <li>All client companies run the same CRM release (confirmed), so keeping edit history is enough.</li>
+          <li>At most about 100 docs, roughly 3,000–5,000 chunks.</li>
+          <li>Production runs on AWS.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="overview" aria-labelledby="h-overview">
+      <h2 id="h-overview"><span class="sec-num">03</span>System overview</h2>
+      <p class="prose">Two front ends, one API, one worker and one database. Every permission decision happens in the API and inside the database query, never in a prompt.</p>
+      <figure>
+        <div class="canvas">
+          <svg viewBox="0 0 840 430" role="img" aria-label="Widget and admin app call the API with JWTs; the API and worker use one Postgres database for search, jobs and costs, call LLMs through LiteLLM, and send traces to Phoenix.">
+            <defs>
+              <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+              </marker>
+            </defs>
+            <g font-family="Instrument Sans, system-ui, sans-serif" font-size="13" fill="currentColor">
+              <!-- column A: clients -->
+              <rect x="20" y="40" width="190" height="70" rx="10" fill="none" stroke="currentColor"/>
+              <text x="115" y="70" text-anchor="middle" font-weight="600">Chat widget</text>
+              <text x="115" y="90" text-anchor="middle" font-size="12" opacity=".7">inside the CRM page</text>
+
+              <rect x="20" y="200" width="190" height="70" rx="10" fill="none" stroke="currentColor"/>
+              <text x="115" y="230" text-anchor="middle" font-weight="600">Admin app</text>
+              <text x="115" y="250" text-anchor="middle" font-size="12" opacity=".7">ops admins only</text>
+
+              <rect x="20" y="340" width="190" height="60" rx="10" fill="none" stroke="currentColor" stroke-dasharray="5 4"/>
+              <text x="115" y="366" text-anchor="middle" font-weight="600">Phoenix</text>
+              <text x="115" y="384" text-anchor="middle" font-size="12" opacity=".7">traces, for engineers</text>
+
+              <!-- column B: service -->
+              <rect x="300" y="20" width="200" height="215" rx="12" fill="none" stroke="currentColor" stroke-width="1.5"/>
+              <text x="400" y="42" text-anchor="middle" font-size="12" opacity=".7">FastAPI service</text>
+              <rect x="315" y="55" width="170" height="55" rx="8" fill="none" stroke="currentColor"/>
+              <text x="400" y="80" text-anchor="middle" font-weight="600">/chat</text>
+              <text x="400" y="98" text-anchor="middle" font-size="12" opacity=".7">streams answers (SSE)</text>
+              <rect x="315" y="150" width="170" height="55" rx="8" fill="none" stroke="currentColor"/>
+              <text x="400" y="175" text-anchor="middle" font-weight="600">/admin/*</text>
+              <text x="400" y="193" text-anchor="middle" font-size="12" opacity=".7">docs, releases, evals, costs</text>
+
+              <rect x="300" y="300" width="200" height="70" rx="12" fill="none" stroke="currentColor" stroke-width="1.5"/>
+              <text x="400" y="330" text-anchor="middle" font-weight="600">Worker</text>
+              <text x="400" y="350" text-anchor="middle" font-size="12" opacity=".7">build release · run evals</text>
+
+              <!-- column C: dependencies, ordered so no arrows cross -->
+              <rect x="610" y="14" width="210" height="56" rx="10" fill="none" stroke="currentColor"/>
+              <text x="715" y="38" text-anchor="middle" font-weight="600">Local models</text>
+              <text x="715" y="57" text-anchor="middle" font-size="12" opacity=".7">bge-m3 · bge-reranker</text>
+
+              <rect x="610" y="95" width="210" height="60" rx="10" fill="none" stroke="currentColor"/>
+              <text x="715" y="120" text-anchor="middle" font-weight="600">LiteLLM</text>
+              <text x="715" y="140" text-anchor="middle" font-size="12" opacity=".7">OpenRouter (dev) · Bedrock (prod)</text>
+
+              <rect x="610" y="185" width="210" height="185" rx="12" fill="none" class="s-accent" stroke="#0e6b66" stroke-width="2"/>
+              <text x="715" y="214" text-anchor="middle" font-weight="600">Postgres 16</text>
+              <text x="715" y="238" text-anchor="middle" font-size="12" opacity=".75">pgvector + full-text search</text>
+              <text x="715" y="258" text-anchor="middle" font-size="12" opacity=".75">docs · releases · job queue</text>
+              <text x="715" y="278" text-anchor="middle" font-size="12" opacity=".75">llm_calls (cost) · audit log</text>
+              <text x="715" y="345" text-anchor="middle" font-size="12" font-family="JetBrains Mono, monospace" class="f-accent" fill="#0e6b66">modules &lt;@ allowed</text>
+
+              <!-- arrows -->
+              <g stroke="currentColor" fill="none" stroke-width="1.3">
+                <line x1="210" y1="80" x2="312" y2="80" marker-end="url(#arr)"/>
+                <line x1="210" y1="235" x2="312" y2="182" marker-end="url(#arr)"/>
+                <line x1="485" y1="66" x2="606" y2="46" marker-end="url(#arr)"/>
+                <line x1="485" y1="85" x2="606" y2="124" marker-end="url(#arr)"/>
+                <line x1="485" y1="104" x2="606" y2="205" marker-end="url(#arr)"/>
+                <line x1="485" y1="185" x2="606" y2="245" marker-end="url(#arr)"/>
+                <line x1="500" y1="335" x2="606" y2="325" marker-end="url(#arr)"/>
+              </g>
+              <g stroke="currentColor" fill="none" stroke-width="1.2" stroke-dasharray="5 4" opacity=".7">
+                <line x1="300" y1="225" x2="214" y2="352" marker-end="url(#arr)"/>
+                <line x1="300" y1="350" x2="214" y2="372" marker-end="url(#arr)"/>
+              </g>
+
+              <!-- arrow labels, set along their arrows -->
+              <g font-size="11.5" opacity=".85" text-anchor="middle">
+                <text x="261" y="72">JWT + question</text>
+                <text x="257" y="201" transform="rotate(-27.5 257 201)">admin JWT</text>
+                <text x="544" y="48" transform="rotate(-9.4 544 48)">embed, rerank</text>
+                <text x="548" y="96" transform="rotate(17.9 548 96)">rewrite, answer</text>
+                <text x="550" y="148" transform="rotate(39.9 550 148)">filtered search</text>
+                <text x="549" y="208" transform="rotate(26.4 549 208)">content, costs</text>
+                <text x="552" y="322" transform="rotate(-5.4 552 322)">jobs, chunks</text>
+                <text x="268" y="300" opacity=".8">spans</text>
+              </g>
+            </g>
+          </svg>
+        </div>
+        <figcaption>Permissions are enforced in the API (verified JWT → allowed modules) and inside every database query (<code>modules &lt;@ allowed</code>). The worker also embeds chunks when it builds a release, and calls the LLM for synthetic questions and eval runs (arrows omitted for clarity).</figcaption>
+      </figure>
+    </section>
+
+    <section id="query" aria-labelledby="h-query">
+      <h2 id="h-query"><span class="sec-num">04</span>Query path</h2>
+      <p class="prose">The same pipeline as the walking skeleton built in M0.1–M0.3, with the mock responder replaced step by step. Two steps are new.</p>
+      <ol class="steps from0">
+        <li class="added" data-n="0"><span><strong>Conversation ownership.</strong> A conversation ID must belong to the caller, otherwise the server answers 404. A missing ID gets a new server-created conversation.</span></li>
+        <li data-n="1"><span>Validate the JWT; resolve allowed modules on the server.</span></li>
+        <li data-n="2"><span>Input guardrails; redact PII before anything is stored.</span></li>
+        <li data-n="3"><span>Rewrite follow-ups into a standalone question, split cross-module questions (small model).</span></li>
+        <li data-n="4"><span>Hybrid search for each sub-question, module filter inside the query, fused by rank.</span></li>
+        <li data-n="5"><span>Rerank, keep module diversity, expand to the parent section.</span></li>
+        <li data-n="6"><span>Weak match: a templated refusal with no LLM call.</span></li>
+        <li data-n="7"><span>Generate the answer from a versioned prompt.</span></li>
+        <li data-n="8"><span>Drop any citation that wasn’t in the context.</span></li>
+        <li data-n="9"><span>Stream events to the widget.</span></li>
+        <li class="added" data-n="10"><span><strong>Record</strong> one cost row per LLM call, the trace and the redacted message.</span></li>
+      </ol>
+      <h3>Hybrid retrieval</h3>
+      <p class="prose">Two searches run side by side and are fused by rank. Both apply the module filter before ranking, so a restricted chunk is never a candidate. Modules are the only metadata filter. There’s no upload-date filter: only the latest published version of a doc is searchable at all.</p>
+<pre><code><span class="c">-- per (sub-)question; :allowed = the caller's resolved modules</span>
+vec AS (SELECT chunk_id, row_number() OVER (ORDER BY embedding &lt;=&gt; :qvec) r
+        FROM live_chunks WHERE <span class="hl">modules &lt;@ :allowed</span> ORDER BY embedding &lt;=&gt; :qvec LIMIT :k),
+kw  AS (SELECT chunk_id, row_number() OVER (ORDER BY ts_rank_cd(tsv, q) DESC) r
+        FROM live_chunks, websearch_to_tsquery('english', :qtext) q
+        WHERE <span class="hl">modules &lt;@ :allowed</span> AND tsv @@ q ORDER BY ts_rank_cd(tsv, q) DESC LIMIT :k)
+SELECT chunk_id, sum(1.0 / (60 + r)) AS rrf          <span class="c">-- reciprocal rank fusion</span>
+FROM (SELECT * FROM vec UNION ALL SELECT * FROM kw) u GROUP BY chunk_id ORDER BY rrf DESC</code></pre>
+    </section>
+
+    <section id="lifecycle" aria-labelledby="h-lifecycle">
+      <h2 id="h-lifecycle"><span class="sec-num">05</span>Content lifecycle</h2>
+      <p class="prose">Admins upload markdown. Each upload is a new, immutable version of the doc. Nothing changes for chat users until someone <strong>publishes a release</strong>: a complete new search index built from a chosen set of document versions, promoted only if the gate passes. Rolling back points the index at the previous release.</p>
+      <figure>
+        <div class="canvas">
+          <svg viewBox="0 0 880 280" role="img" aria-label="A document moves from uploaded to validated to draft, then a publish builds the index and runs the gate; passing makes it live, widening access waits for confirmation, failures stop the release, and rollback re-points to the previous release.">
+            <defs>
+              <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+              </marker>
+            </defs>
+            <g font-family="Instrument Sans, system-ui, sans-serif" font-size="13" fill="currentColor">
+              <g fill="none" stroke="currentColor">
+                <rect x="20" y="118" width="104" height="44" rx="8"/>
+                <rect x="160" y="118" width="104" height="44" rx="8"/>
+                <rect x="300" y="118" width="104" height="44" rx="8"/>
+                <rect x="440" y="118" width="104" height="44" rx="8"/>
+                <rect x="580" y="118" width="104" height="44" rx="8" class="s-accent" stroke="#0e6b66" stroke-width="2"/>
+                <rect x="736" y="118" width="124" height="44" rx="8" class="s-ok" stroke="#1f7a3d" stroke-width="2"/>
+                <rect x="160" y="224" width="104" height="40" rx="8" class="s-crit" stroke="#b3261e" stroke-dasharray="4 3"/>
+                <rect x="580" y="224" width="104" height="40" rx="8" class="s-crit" stroke="#b3261e" stroke-dasharray="4 3"/>
+                <rect x="700" y="16" width="160" height="44" rx="8" class="s-warn" stroke="#9a5b00" stroke-width="1.5"/>
+                <rect x="736" y="224" width="124" height="40" rx="8" opacity=".7"/>
+              </g>
+              <g text-anchor="middle">
+                <text x="72" y="145" font-weight="600">Uploaded</text>
+                <text x="212" y="145" font-weight="600">Validated</text>
+                <text x="352" y="145" font-weight="600">In draft</text>
+                <text x="492" y="145" font-weight="600">Building</text>
+                <text x="632" y="145" font-weight="600">Gate</text>
+                <text x="798" y="145" font-weight="600">Live</text>
+                <text x="212" y="249">Rejected</text>
+                <text x="632" y="249">Failed</text>
+                <text x="780" y="43">Awaiting confirmation</text>
+                <text x="798" y="249" opacity=".8">Superseded</text>
+              </g>
+              <g stroke="currentColor" fill="none" stroke-width="1.3">
+                <line x1="124" y1="140" x2="156" y2="140" marker-end="url(#arr2)"/>
+                <line x1="264" y1="140" x2="296" y2="140" marker-end="url(#arr2)"/>
+                <line x1="404" y1="140" x2="436" y2="140" marker-end="url(#arr2)"/>
+                <line x1="544" y1="140" x2="576" y2="140" marker-end="url(#arr2)"/>
+                <line x1="684" y1="140" x2="732" y2="140" marker-end="url(#arr2)"/>
+                <line x1="212" y1="162" x2="212" y2="220" marker-end="url(#arr2)"/>
+                <line x1="632" y1="162" x2="632" y2="220" marker-end="url(#arr2)"/>
+                <polyline points="632,118 632,38 696,38" marker-end="url(#arr2)"/>
+                <line x1="798" y1="60" x2="798" y2="114" marker-end="url(#arr2)"/>
+                <line x1="786" y1="162" x2="786" y2="220" marker-end="url(#arr2)"/>
+                <line x1="810" y1="224" x2="810" y2="166" marker-end="url(#arr2)"/>
+              </g>
+              <g font-size="11.5" opacity=".85">
+                <text x="352" y="106" text-anchor="middle">editor adds docs</text>
+                <text x="492" y="106" text-anchor="middle">publisher publishes</text>
+                <text x="708" y="132" text-anchor="middle">pass</text>
+                <text x="644" y="88">access widened</text>
+                <text x="806" y="92">confirm</text>
+                <text x="222" y="196">bad frontmatter</text>
+                <text x="642" y="196">leak · regression</text>
+                <text x="642" y="210">orphaned label</text>
+                <text x="780" y="182" text-anchor="end" opacity=".9">next release</text>
+                <text x="818" y="196">rollback</text>
+              </g>
+            </g>
+          </svg>
+        </div>
+        <figcaption>Validation runs at upload, so bad docs fail early. Building a release is all-or-nothing. With about 100 docs and an embedding cache, a full rebuild takes seconds.</figcaption>
+      </figure>
+
+      <h3>The publish gate</h3>
+      <p class="prose">Automatic, with no LLM calls, on every publish:</p>
+      <div class="gate">
+        <div class="gate-row"><span class="pill crit">Zero tolerance</span><p><span class="t">Permission suite.</span> For every persona and every eval question, each retrieved chunk’s modules must be within that persona’s allowed set. One leak blocks the release. It needs no labelled answers, so it protects brand-new docs too.</p></div>
+        <div class="gate-row"><span class="pill warn">Threshold</span><p><span class="t">Retrieval evals.</span> Recall@k and complete recall@k may not regress beyond threshold compared with the live release.</p></div>
+        <div class="gate-row"><span class="pill warn">Blocks</span><p><span class="t">Orphaned eval labels.</span> An eval question pointing at a section that no longer exists (a renamed heading) blocks publishing until an admin re-points it.</p></div>
+        <div class="gate-row"><span class="pill accent">Needs a person</span><p><span class="t">Access widening.</span> If a doc’s modules change so that more users can see it (for example Deals → shared core), a publisher must confirm. The confirmation is audit-logged. Narrowing access passes automatically.</p></div>
+      </div>
+      <p class="prose">Modules come only from each doc’s frontmatter. The admin app has no module assignment in the MVP, so the doc stays the single source of truth for access.</p>
+    </section>
+
+    <section id="cost" aria-labelledby="h-cost">
+      <h2 id="h-cost"><span class="sec-num">06</span>Observability and cost</h2>
+      <div class="two">
+        <div class="panel">
+          <h3>Phoenix, for engineers</h3>
+          <ul>
+            <li>OpenTelemetry spans for every request and job</li>
+            <li>Retrieval candidates, rerank scores, redacted prompts, latency per stage</li>
+            <li>For debugging; not shown to admins</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3><code>llm_calls</code>, for admins</h3>
+          <ul>
+            <li>One row per LLM call: client company, conversation, stage, model, tokens, cost</li>
+            <li>No message text, so it’s kept long-term</li>
+            <li>The cost dashboard reads only this table</li>
+          </ul>
+        </div>
+      </div>
+      <p class="prose"><strong>Estimated cost</strong> = tokens × the model price in effect at call time. Prices are dated, so past costs never change.</p>
+<pre><code><span class="c">-- per client company, per month</span>
+SELECT tenant, date_trunc('month', created_at), sum(cost_usd) FROM llm_calls WHERE bucket = 'chat' GROUP BY 1, 2;
+<span class="c">-- per chat session</span>
+SELECT conversation_id, sum(cost_usd) FROM llm_calls GROUP BY 1;</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Bucket</th><th>What it covers</th><th>Charged to a client?</th></tr></thead>
+          <tbody>
+            <tr><td><code>chat</code></td><td>Question rewrite and answer generation</td><td><span class="yes">Yes</span></td></tr>
+            <tr><td><code>eval</code></td><td>End-to-end eval runs and the LLM judge</td><td><span class="no">No, internal</span></td></tr>
+            <tr><td><code>ingest</code></td><td>Synthetic eval-question generation</td><td><span class="no">No, internal</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">Embedding and reranking run on our own compute and count as infrastructure, not per request. <strong>Privacy:</strong> PII is redacted before storage, including traces. Message text is kept 30 days. In the MVP only ops admins can see transcripts. Letting a client company’s admin see their own users’ chats is planned for later: every conversation already records its client company, so it needs a client-scoped admin role, a filter on that company in every transcript query, and a notice to users.</p>
+    </section>
+
+    <section id="evals" aria-labelledby="h-evals">
+      <h2 id="h-evals"><span class="sec-num">07</span>Evals</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Layer</th><th>Runs</th><th>Uses an LLM</th><th>Blocks publishing</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Permission suite</strong>: retrieved chunks stay within allowed modules, across all personas and random entitlement sets</td><td>Every publish and CI run</td><td>No</td><td><span class="pill crit">Yes, zero tolerance</span></td></tr>
+            <tr><td><strong>Retrieval</strong>: recall@k, complete recall@k, MRR</td><td>Every publish</td><td>No</td><td><span class="pill warn">Yes, threshold</span></td></tr>
+            <tr><td><strong>End-to-end</strong>: faithfulness, correctness, refusals, citations, scored by an LLM judge</td><td>Manual, from the admin app</td><td>Yes</td><td><span class="pill">No, reported</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">End-to-end evals can’t stand in for the permission suite. If a restricted chunk reaches the prompt and the model happens not to mention it, an end-to-end eval passes even though a leak occurred.</p>
+      <div class="two">
+        <div class="panel">
+          <h3>Where questions come from</h3>
+          <ul>
+            <li>Written by admins in the UI, against sections of the live docs</li>
+            <li>Generated synthetically per doc by a different model than the answer generator; they arrive as <em>proposed</em> and count only once an admin accepts them</li>
+            <li>Every successful red-team attack</li>
+            <li>Imported from the golden YAML files</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>Calibrating the judge</h3>
+          <ul>
+            <li>Admins label a sample of end-to-end answers as faithful and correct</li>
+            <li>Each run reports how often the judge agrees with the admin labels</li>
+            <li>Plan on 50–100 labels before trusting the judge’s scores</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="models" aria-labelledby="h-models">
+      <h2 id="h-models"><span class="sec-num">08</span>Models</h2>
+      <p class="prose">Start with the smallest model that passes, and move up only when evals say so. The judge is the exception: it must be strong, and from a different vendor than the answer model.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Role</th><th>Starting point</th><th>Rule</th></tr></thead>
+          <tbody>
+            <tr><td>Rewrite and split questions</td><td>Smallest model with reliable structured output</td><td>Falls back to the raw question if the output fails validation</td></tr>
+            <tr><td>Answer generation</td><td>Bake-off, smallest candidate first</td><td>No reasoning models; pinned versions only</td></tr>
+            <tr><td>LLM judge</td><td>A strong model</td><td>Different vendor from the answer model</td></tr>
+            <tr><td>Synthetic questions</td><td>Any capable model</td><td>Different from the answer model</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose"><strong>OpenRouter in development, Bedrock in production.</strong> The bake-off only compares models offered on both, and OpenRouter is pinned to each vendor’s own endpoint with fallbacks off, so results carry over to production. Only synthetic docs and users go to OpenRouter. Real questions can contain personal data and real docs are confidential, so once real content arrives, development moves to Bedrock, which the production AWS agreements already cover.</p>
+      <p class="prose"><strong>Production compute to settle:</strong> the reranker scoring 30–50 candidates on CPU takes 1–2 seconds. Options: a small GPU instance, a lighter reranker, or Cohere Rerank on Bedrock. The bake-off’s latency numbers decide.</p>
+    </section>
+
+    <section id="admin" aria-labelledby="h-admin">
+      <h2 id="h-admin"><span class="sec-num">09</span>Admin app (MVP)</h2>
+      <p class="prose">A separate app from the chat widget, never bundled with it. Admins sign in with the same identity provider; their role comes from the verified token.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Screen</th><th>Viewer</th><th>Editor</th><th>Publisher</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Documents</strong>: versions, validation errors, upload</td><td>View</td><td>Upload</td><td>Upload</td></tr>
+            <tr><td><strong>Releases</strong>: draft contents, build progress, gate report, module changes</td><td>View</td><td>Choose docs for the draft</td><td>Publish, confirm widening, roll back</td></tr>
+            <tr><td><strong>Evals</strong>: questions, synthetic proposals, results, labelling</td><td>View</td><td>Write, accept, label</td><td>All of that, plus run end-to-end</td></tr>
+            <tr><td><strong>Costs</strong>: per client per month, per chat session, internal spend</td><td>View</td><td>View</td><td>View</td></tr>
+            <tr><td><strong>Staleness report</strong>: docs not updated for a while</td><td>View</td><td>View</td><td>View</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="data" aria-labelledby="h-data">
+      <h2 id="h-data"><span class="sec-num">10</span>Data model</h2>
+      <p class="prose">Everything lives in one Postgres database. Tables new to this design are marked <span class="new">new</span>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Table</th><th>Holds</th></tr></thead>
+          <tbody>
+            <tr><td><code>documents</code> <span class="new">new</span> · <code>document_versions</code> <span class="new">new</span></td><td>Each doc and its full edit history: raw markdown, frontmatter, modules, validation result, who uploaded it</td></tr>
+            <tr><td><code>index_versions</code> · <code>release_documents</code> <span class="new">new</span> · <code>active_index</code></td><td>Releases: which doc versions they contain, the gate report, who published, and which release is live</td></tr>
+            <tr><td><code>chunks</code> · <code>embedding_cache</code></td><td>Searchable chunks with modules, vector and full-text index; embeddings cached by content hash</td></tr>
+            <tr><td><code>jobs</code> <span class="new">new</span></td><td>The background queue, with progress for the status screens</td></tr>
+            <tr><td><code>conversations</code> · <code>messages</code></td><td>Server-owned chat sessions; redacted messages, deleted after 30 days</td></tr>
+            <tr><td><code>llm_calls</code> <span class="new">new</span> · <code>model_prices</code> <span class="new">new</span></td><td>One row per LLM call with estimated cost; dated price table</td></tr>
+            <tr><td><code>eval_questions</code> · <code>eval_runs</code> · <code>eval_results</code> · <code>labels</code> <span class="new">new</span></td><td>Questions and their review status, gate and end-to-end results, admin labels</td></tr>
+            <tr><td><code>audit_log</code> <span class="new">new</span></td><td>Uploads, publishes, widening confirmations, rollbacks. Append-only.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="plan" aria-labelledby="h-plan">
+      <h2 id="h-plan"><span class="sec-num">11</span>Build order</h2>
+      <p class="prose">The admin work slots in between the existing pipeline stories. IDs are placeholders.</p>
+      <ol class="steps">
+        <li><span><strong>A1 Content store.</strong> Docs, versions, and upload with validation. Builds on fail-closed validation (S2.1.1).</span></li>
+        <li><span><strong>A2 Releases and the worker.</strong> Build, gate, publish and rollback. Reuses chunking and embedding (S2.1.2, S2.1.3) and the permission suite (S2.3.2).</span></li>
+        <li><span><strong>A3 Admin app shell.</strong> Sign-in, roles, and the Documents and Releases screens.</span></li>
+        <li><span><strong>A4 Cost accounting.</strong> Cost rows, price table, server-owned conversations, Costs screen. Follows tracing (S3.1.4).</span></li>
+        <li><span><strong>A5 Eval workflow.</strong> Authoring, synthetic proposals, the end-to-end run button and labelling. Builds on S2.3.1 and S3.2.1.</span></li>
+      </ol>
+    </section>
+
+    <section id="open" aria-labelledby="h-open">
+      <h2 id="h-open"><span class="sec-num">12</span>Open questions</h2>
+      <ol class="steps">
+        <li><span><strong>Reranker compute on AWS:</strong> a small GPU instance, a lighter reranker on CPU, or Cohere Rerank on Bedrock. The bake-off’s latency and cost numbers decide.</span></li>
+        <li><span><strong>When real CRM docs arrive:</strong> move development from OpenRouter to Bedrock (recommended), or sign a data processing agreement with OpenRouter first.</span></li>
+      </ol>
+      <p class="prose">Settled on 12 Nov: all client companies share one CRM release; production is AWS; client-admin chat access is a later nice-to-have.</p>
+    </section>
+
+    <footer>
+      <span>Source of truth: <code>docs/architecture.md</code> in the repository, with decisions in <code>docs/adr/0001</code>–<code>0005</code>.</span>
+      <span>Rules this design must never relax: permissions come only from the verified token, filtering happens inside the query, restricted content never enters the prompt, and the system fails closed.</span>
+    </footer>
+  </main>
+</div>
+</body>
+</html>

@@ -8,3 +8,4 @@ __pycache__/
 .local/
 node_modules/
 dist/
+.DS_Store
