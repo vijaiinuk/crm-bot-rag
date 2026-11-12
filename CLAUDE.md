@@ -157,6 +157,7 @@ make eval      # retrieval metrics + permission suite (fast, no LLM)
 make eval-gen  # generation evals (LLM + judge; slower, costs money)
 make test      # unit tests
 make run       # API locally
+make start / stop / restart / status / logs   # all dev servers (API :8000, widget :5173, admin :5174) in the background; S=api to pick one
 make worker    # job worker (planned)
 make widget-dev   # widget + fake-CRM harness on :5173
 make admin-dev    # admin app on :5174 (dev sign-in per role)

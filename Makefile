@@ -1,4 +1,4 @@
-.PHONY: keys token run test lint fmt chat check widget-install widget-dev widget-test widget-build admin-install admin-dev admin-test admin-build admin-types
+.PHONY: keys token run test lint fmt chat check widget-install widget-dev widget-test widget-build admin-install admin-dev admin-test admin-build admin-types start stop restart status logs
 
 PERSONA ?= sales_rep@globex
 TTL ?= 3600
@@ -65,3 +65,22 @@ admin-types:   ## regenerate admin/src/api/schema.d.ts from the API's OpenAPI sc
 	cd admin && npm run types
 
 check: lint test widget-test admin-test  ## everything CI would run
+
+# --- all dev servers at once (API :8000, widget :5173, admin :5174) ---------------
+# Pick a subset with S, e.g. `make restart S=api`.
+S ?=
+
+start:         ## start the API, widget and admin app in the background
+	@scripts/dev.sh start $(S)
+
+stop:          ## stop them (also stops a `make run` etc. of this repo started elsewhere)
+	@scripts/dev.sh stop $(S)
+
+restart:       ## stop, then start
+	@scripts/dev.sh restart $(S)
+
+status:        ## what's running, and where
+	@scripts/dev.sh status
+
+logs:          ## follow server logs (Ctrl-C to quit)
+	@scripts/dev.sh logs $(S)

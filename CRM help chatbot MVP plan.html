@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CRM help chatbot MVP plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style id="css">
+:root{
+  --bg:#EEF2F6;--surface:#FFFFFF;--ink:#152230;--muted:#5A6A7B;--line:#D3DCE5;--line-strong:#AEBBC8;
+  --accent:#2950D6;--accent-soft:#E3E9FB;--done:#1F7A55;--done-soft:#DDF0E6;--cell:#D9E0E8;--now:#B4560F;
+  color-scheme:light;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E151D;--surface:#151F2A;--ink:#E2E9F0;--muted:#93A2B2;--line:#263443;--line-strong:#3A4B5D;
+    --accent:#86A2FF;--accent-soft:#1D2A4A;--done:#4FC58F;--done-soft:#14321F;--cell:#2A3846;--now:#F0A35E;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E151D;--surface:#151F2A;--ink:#E2E9F0;--muted:#93A2B2;--line:#263443;--line-strong:#3A4B5D;
+  --accent:#86A2FF;--accent-soft:#1D2A4A;--done:#4FC58F;--done-soft:#14321F;--cell:#2A3846;--now:#F0A35E;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 16px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 "Source Sans 3","Segoe UI",system-ui,-apple-system,sans-serif}
+h1,h2,h3{font-family:"Familjen Grotesk","Helvetica Neue",Arial,sans-serif;margin:0;line-height:1.15}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.wrap{max-width:1080px;margin:0 auto;padding:32px 20px 64px}
+header.top{display:grid;gap:18px;margin-bottom:28px}
+.titlebar{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:12px}
+h1{font-size:clamp(28px,4.5vw,40px);font-weight:700;letter-spacing:-0.01em}
+.lede{color:var(--muted);max-width:62ch;margin:6px 0 0}
+.status{font-size:14px;color:var(--muted);padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface);white-space:nowrap}
+.status.saving{color:var(--accent);border-color:var(--accent)}
+.status.ro{color:var(--now);border-color:var(--now)}
+.overall{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.overall .pct{font-family:"Familjen Grotesk",Arial,sans-serif;font-size:56px;font-weight:700;line-height:1;letter-spacing:-0.02em}
+.overall .meta{color:var(--muted)}
+.strip{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start}
+.seg{display:grid;gap:6px}
+.seg a{color:var(--muted);font-size:13px;text-decoration:none}
+.seg a:hover{color:var(--ink)}
+.seg.now a{color:var(--now);font-weight:600}
+.cells{display:flex;flex-wrap:wrap;gap:3px;max-width:340px}
+.cell{width:10px;height:22px;border-radius:2px;background:var(--cell)}
+.cell.on{background:var(--done)}
+.seg.now .cells{outline:1px dashed var(--now);outline-offset:3px;border-radius:2px}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.controls label{display:flex;align-items:center;gap:8px;font-size:15px;color:var(--muted)}
+.controls input[type=date],.controls input[type=search]{border:1px solid var(--line-strong);border-radius:6px;padding:6px 8px;background:var(--bg)}
+.controls input[type=search]{min-width:200px;flex:1}
+.btn{border:1px solid var(--line-strong);background:transparent;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:15px}
+.btn:hover{border-color:var(--ink)}
+.btn.warn{border-color:var(--now);color:var(--now)}
+.spacer{flex:1}
+.week{display:grid;grid-template-columns:200px 1fr;gap:28px;padding:28px 0;border-top:1px solid var(--line-strong)}
+.week aside{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);align-self:start}
+.wnum{font-family:"Familjen Grotesk",Arial,sans-serif;font-size:72px;font-weight:700;line-height:.9;color:var(--accent);letter-spacing:-0.03em}
+.week.now .wnum{color:var(--now)}
+.wname{font-size:22px;margin-top:8px}
+.wdates{color:var(--muted);font-size:14px;margin-top:4px}
+.wnow{display:inline-block;margin-top:6px;font-size:13px;color:var(--now);font-weight:600}
+.wgoal{font-size:15px;color:var(--muted);margin:10px 0 12px}
+.bar{height:6px;background:var(--cell);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--done);width:0;transition:width .3s ease}
+.wpct{font-size:14px;color:var(--muted);margin-top:6px}
+.feature{margin-bottom:26px}
+.feature:last-child{margin-bottom:0}
+.fhead{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
+.fid{color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
+.fhead h3{font-size:19px;font-weight:600}
+.ffrac{margin-left:auto;color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
+details.story{background:var(--surface);border:1px solid var(--line);border-radius:8px;margin-bottom:8px}
+details.story[open]{border-color:var(--line-strong)}
+details.story.is-done{background:var(--done-soft);border-color:transparent}
+summary{list-style:none;display:grid;grid-template-columns:22px 1fr auto;gap:12px;align-items:center;padding:12px 14px;cursor:pointer}
+summary::-webkit-details-marker{display:none}
+.ring{width:18px;height:18px;border-radius:50%;border:2px solid var(--line-strong);position:relative}
+.ring.part{border-color:var(--accent);background:conic-gradient(var(--accent) var(--p,0%),transparent 0)}
+.ring.full{border-color:var(--done);background:var(--done)}
+.stitle{font-weight:600}
+.sid{color:var(--muted);font-weight:400;font-size:14px;margin-right:6px;font-variant-numeric:tabular-nums}
+.smeta{color:var(--muted);font-size:14px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.sbody{padding:0 14px 14px 48px}
+.donewhen{font-size:15px;color:var(--muted);margin:0 0 10px;max-width:70ch}
+.donewhen b{color:var(--ink);font-weight:600}
+ul.tasks{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+ul.tasks li label{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:start;padding:5px 6px;border-radius:6px;cursor:pointer}
+ul.tasks li label:hover{background:var(--bg)}
+ul.tasks input{width:17px;height:17px;margin:3px 0 0;accent-color:var(--done);cursor:pointer}
+ul.tasks li.is-done span{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line-strong)}
+.ro-mode ul.tasks input{cursor:not-allowed}
+.hide-done li.is-done,.hide-done details.story.is-done{display:none}
+.empty{color:var(--muted);padding:24px 0}
+footer{color:var(--muted);font-size:14px;margin-top:36px;border-top:1px solid var(--line);padding-top:16px;max-width:70ch}
+input[type=file]{display:none}
+@media (max-width:760px){
+  .week{grid-template-columns:1fr;gap:14px}
+  .week aside{position:static;display:grid;grid-template-columns:auto 1fr;column-gap:16px;align-items:end}
+  .wnum{font-size:56px;grid-row:span 3}
+  .wgoal,.bar,.wpct{grid-column:1 / -1}
+  .sbody{padding-left:14px}
+  .overall .pct{font-size:44px}
+}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap" id="root"><p class="empty">Loading the plan…</p></div>
+<script type="application/json" id="plan">
+{"weeks":[
+{"id":"W0","n":0,"name":"Prerequisites","goal":"Access, tools and an agreed scope before any code.","features":[
+ {"id":"F0.1","title":"Accounts and access","stories":[
+  {"id":"S0.1.1","title":"AWS Bedrock ready","est":0.5,"done":"A test Converse call succeeds for every shortlisted model in the chosen region.","tasks":[
+   "Confirm the AWS account has MFA; create a least-privilege IAM role or user for Bedrock",
+   "Enable model access for the shortlisted models and record eu-west-2 availability for each",
+   "Request RPM/TPM quota increases where defaults are too low for eval runs",
+   "Set an AWS Budgets alert (for example $50 a month)",
+   "Smoke-test one Converse API call per model and note the pinned model IDs"]},
+  {"id":"S0.1.2","title":"Local environment ready","est":0.5,"done":"Docker, Python, Node and Ollama all run, and the repo lints on commit.","tasks":[
+   "Install uv, Python 3.12, Node LTS and Docker Desktop; cap the Docker VM at about 3 GB",
+   "Install Ollama natively, pull an 8B instruct model and verify num_ctx 8192",
+   "Create the Git repo with pre-commit (ruff, mypy) and a README skeleton"]}]},
+ {"id":"F0.2","title":"Scope and decisions","stories":[
+  {"id":"S0.2.1","title":"Agree MVP scope and exit criteria","est":0.5,"done":"A one-page scope with measurable exit criteria is shared with stakeholders.","tasks":[
+   "Write the in-scope and out-of-scope lists",
+   "Set exit criteria: zero permission leaks, faithfulness, refusal accuracy, time to first token, cost per query",
+   "Decide the restricted-module response: silent or transparent",
+   "Ask the CRM devs for real module names and roles (optional, makes the demo more convincing)"]}]}]},
+{"id":"W1","n":1,"name":"Synthetic data and skeleton","goal":"A reviewed synthetic corpus, a golden eval set, and a stack that starts with one command.","features":[
+ {"id":"F1.1","title":"Fictional CRM spec","stories":[
+  {"id":"S1.1.1","title":"Author crm_spec.yaml","est":1,"done":"The spec validates against its JSON Schema and covers every module, role, client and workflow.","tasks":[
+   "Define 8–10 modules with their entities and UI labels",
+   "Define 3–4 roles and the modules each role can use",
+   "Define 3–4 client companies and their licensed modules",
+   "Define 5–8 cross-module workflows with their prerequisites",
+   "Write a JSON Schema for the spec and a validation script"]}]},
+ {"id":"F1.2","title":"Synthetic documentation","stories":[
+  {"id":"S1.2.1","title":"Generate module docs from the spec","est":1,"done":"40–60 reviewed markdown docs with valid frontmatter and stable anchors are committed.","tasks":[
+   "Define the frontmatter schema (doc_id, title, modules, version) and the section-anchor convention",
+   "Write the doc generator with versioned prompts and a fixed seed",
+   "Generate per-module docs plus cross-module workflow guides",
+   "Add hard cases: near-duplicate procedures, cross-references, deliberate gaps",
+   "Hand-review 10 docs, fix issues, and commit the docs with the generator version"]}]},
+ {"id":"F1.3","title":"Golden eval set","stories":[
+  {"id":"S1.3.1","title":"Build and curate the question set","est":1.5,"done":"150+ reviewed questions with per-persona expected outcomes, and every anchor resolves.","tasks":[
+   "Define the eval YAML schema: id, question, category, per-persona outcome, required sections",
+   "Generate questions from the spec and personas with a different model than the docs",
+   "Cover single-chunk, multi-hop, unanswerable, out-of-scope, restricted and adversarial questions",
+   "Hand-review 10–15% and rewrite or drop questions that copy the docs’ phrasing",
+   "Script check: every required section anchor exists in the corpus",
+   "Commit the set with its generator version"]}]},
+ {"id":"F1.4","title":"Project skeleton","stories":[
+  {"id":"S1.4.1","title":"Runnable local stack","est":0.75,"done":"make up starts Postgres and Phoenix, and the API health check passes.","tasks":[
+   "docker-compose with Postgres + pgvector and Phoenix",
+   "FastAPI app with a health endpoint and pydantic-settings config",
+   "Makefile targets: up, down, ingest, eval, test, run",
+   "Package layout with interfaces: EntitlementProvider, Retriever, Reranker, LLMClient, Guardrail"]},
+  {"id":"S1.4.2","title":"Local identity and personas","est":0.5,"done":"A persona JWT minted by the CLI validates against the local JWKS endpoint.","tasks":[
+   "Generate an RSA keypair and serve a JWKS endpoint",
+   "CLI that mints a JWT for each persona",
+   "personas.yaml derived from the spec (client and role mapped to allowed modules)",
+   "Stub EntitlementProvider that reads personas.yaml"]}]}]},
+{"id":"W2","n":2,"name":"Ingestion and retrieval","goal":"A versioned, permission-tagged index and a retrieval baseline you can quote.","features":[
+ {"id":"F2.1","title":"Ingestion pipeline","stories":[
+  {"id":"S2.1.1","title":"Fail-closed validation","est":0.5,"done":"An untagged or mis-tagged doc aborts the run with a clear error.","tasks":[
+   "Validate frontmatter against the schema; unknown module names abort the run",
+   "Test that an untagged doc makes ingestion fail"]},
+  {"id":"S2.1.2","title":"Heading-aware chunking","est":1,"done":"Chunker snapshot tests pass and no numbered procedure is split.","tasks":[
+   "Markdown chunker that splits on headings and prefixes the breadcrumb",
+   "Keep numbered steps together and carry section anchors onto chunks",
+   "Snapshot tests on fixture docs"]},
+  {"id":"S2.1.3","title":"Embeddings and index versions","est":1.5,"done":"Two ingest runs produce two index versions, promote and rollback both work, and unchanged chunks reuse cached embeddings.","tasks":[
+   "Alembic migrations: index_versions, active_index, chunks, embedding_cache, module_catalogue",
+   "Content hashing with an embedding cache (bge-m3 on MPS)",
+   "Build a complete new index version, then promote the active pointer",
+   "Rollback command",
+   "Generated tsvector column and a GIN index on modules"]}]},
+ {"id":"F2.2","title":"Retrieval","stories":[
+  {"id":"S2.2.1","title":"Module-filtered hybrid search","est":1,"done":"Hybrid search returns reranked results containing only allowed modules.","tasks":[
+   "Exact vector search with the modules filter (no ANN index)",
+   "Full-text search with the same filter",
+   "Reciprocal rank fusion of both result lists",
+   "Cross-encoder reranker (bge-reranker-v2-m3)",
+   "Unit tests for filter construction"]}]},
+ {"id":"F2.3","title":"Retrieval evals","stories":[
+  {"id":"S2.3.1","title":"Eval harness","est":0.75,"done":"make eval prints recall@k, complete recall@k and MRR by category and saves results for each run.","tasks":[
+   "Resolve section anchors to chunk IDs for the active index version",
+   "Compute recall@k, complete recall@k and MRR per category",
+   "Save JSON results per run and a readable report"]},
+  {"id":"S2.3.2","title":"Permission suite (zero tolerance)","est":0.5,"done":"Zero violations across the persona matrix and property tests; any leak fails the build.","tasks":[
+   "Assert every retrieved chunk’s modules are within the persona’s allowed set, across the matrix",
+   "Hypothesis property test with random entitlement sets",
+   "Record the retrieval baseline in the repo"]}]}]},
+{"id":"W3","n":3,"name":"Query path and model bake-off","goal":"Grounded, cited, streamed answers through the API, and a model choice backed by data.","features":[
+ {"id":"F3.1","title":"Chat API","stories":[
+  {"id":"S3.1.1","title":"Auth and entitlements","est":0.5,"done":"Requests without a valid token get 401, and entitlements come only from the token.","tasks":[
+   "Validate JWTs against the JWKS; reject missing or expired tokens",
+   "Resolve entitlements server-side with a short TTL cache"]},
+  {"id":"S3.1.2","title":"Query understanding","est":1,"done":"Cross-module questions retrieve chunks from every relevant module.","tasks":[
+   "Rewrite call returning a standalone query and sub-queries, validated with Pydantic",
+   "Skip rewriting on the first turn",
+   "Parallel retrieval per sub-query; merge, dedupe and rerank against the standalone query",
+   "Per-module diversity and parent-section expansion"]},
+  {"id":"S3.1.3","title":"Grounded generation","est":1.5,"done":"Answers stream with verified citations, and low-confidence and restricted cases get the right response.","tasks":[
+   "LiteLLM config for Bedrock with pinned model IDs",
+   "Prompt v1 in Git, with the static prefix first for caching",
+   "Structured answer: answer, steps, citations",
+   "Verify that cited chunk IDs were in the context",
+   "Refusal threshold and restricted-module response from module_catalogue",
+   "SSE streaming endpoint",
+   "Conversation history in Postgres"]},
+  {"id":"S3.1.4","title":"Tracing","est":0.5,"done":"Every request appears in Phoenix with per-step spans and version metadata.","tasks":[
+   "OpenTelemetry spans per pipeline step, exported to Phoenix",
+   "Record the entitlement set, index, prompt and model versions, and token counts"]}]},
+ {"id":"F3.2","title":"Generation evals","stories":[
+  {"id":"S3.2.1","title":"Judge and metrics","est":1,"done":"Faithfulness, correctness, refusal and citation scores run from make eval-gen.","tasks":[
+   "Metrics: faithfulness, answer correctness, refusal accuracy, citation accuracy",
+   "Judge on a top-tier model from a different provider than the generator",
+   "Calibrate the judge against 30 hand-labelled answers",
+   "Use Bedrock batch inference for eval runs"]}]},
+ {"id":"F3.3","title":"Model bake-off","stories":[
+  {"id":"S3.3.1","title":"Compare candidate models","est":0.75,"done":"An ADR records the chosen model with quality, latency and cost evidence.","tasks":[
+   "Run the evals on the small, mid-tier and top-tier models and the OpenAI model",
+   "Run the evals on open-weight 8B and 14B via Bedrock, and the 4-bit 8B via Ollama",
+   "Capture time to first token and cost per query for each",
+   "Write the model-choice ADR"]}]}]},
+{"id":"W4","n":4,"name":"UI, guardrails and demo","goal":"A demo that proves correctness, permission safety and measurability.","features":[
+ {"id":"F4.1","title":"Chat widget","stories":[
+  {"id":"S4.1.1","title":"React widget","est":1.5,"done":"The widget streams answers, shows sources and records feedback.","tasks":[
+   "Vite + React standalone component with streaming render",
+   "Sources panel with citation links",
+   "Persona switcher for the demo",
+   "Thumbs up/down with an optional reason, posted to a feedback API"]}]},
+ {"id":"F4.2","title":"Guardrails","stories":[
+  {"id":"S4.2.1","title":"Basic guardrails","est":1,"done":"Rate limits, output caps and off-topic handling work, and red-team findings are eval cases.","tasks":[
+   "Rate limiting per user and per tenant",
+   "Output length cap and an off-topic response",
+   "Red-team session on prompt injection and cross-module leakage",
+   "Add every successful attack as a permanent eval case"]}]},
+ {"id":"F4.3","title":"Demo","stories":[
+  {"id":"S4.3.1","title":"Demo script","est":1,"done":"A dry run finishes in under 10 minutes without surprises.","tasks":[
+   "Scenario: the same question as two personas, with two correct answers",
+   "Phoenix trace walkthrough showing sources and the module filter",
+   "Eval scores slide",
+   "Full dry run, then fix what broke"]}]}]},
+{"id":"W5","n":5,"name":"Buffer and path to production","goal":"Absorb slippage and hand over a clear route to production.","features":[
+ {"id":"F5.1","title":"Stabilise","stories":[
+  {"id":"S5.1.1","title":"Fix and polish","est":2,"done":"No open eval regressions, and setup works from a clean clone with one command.","tasks":[
+   "Fix eval regressions and flaky tests",
+   "Test setup from a clean clone and update the README"]}]},
+ {"id":"F5.2","title":"Path to production","stories":[
+  {"id":"S5.2.1","title":"Production handover doc","est":1,"done":"Stakeholders can see what is stubbed and what replaces each stub.","tasks":[
+   "Architecture summary and stub-replacement table",
+   "ADRs: vector store, model choice, no orchestration framework",
+   "Real-data swap checklist (doc, manifest and eval formats)",
+   "Production backlog: Word/PDF, entitlement API, CRM embedding, Azure deployment"]}]}]}
+]}
+</script>
+<script type="application/json" id="state">{"start":"2026-10-29","done":{}}</script>
+<script id="app">
+(function(){
+  var $ = function(s, r){ return (r || document).querySelector(s); };
+  var $$ = function(s, r){ return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var PLAN = JSON.parse($('#plan').textContent);
+  var embedded = {};
+  try { embedded = JSON.parse($('#state').textContent || '{}'); } catch (e) {}
+  var state = { start: embedded.start || '', done: embedded.done || {} };
+  var LS_KEY = 'crm-mvp-plan-state';
+  var UI_KEY = 'crm-mvp-plan-ui';
+  var mode = 'pending';
+  var art = null, dl = null;
+  var dirty = false, saveTimer = null, retried = false;
+  var ui = { open: [], hideDone: false, q: '', y: 0 };
+  try { Object.assign(ui, JSON.parse(sessionStorage.getItem(UI_KEY) || '{}')); sessionStorage.removeItem(UI_KEY); } catch (e) {}
+
+  var allTasks = [];
+  PLAN.weeks.forEach(function(w){ w.features.forEach(function(f){ f.stories.forEach(function(s){
+    s.items = s.tasks.map(function(t, i){
+      var task = { id: s.id.replace(/^S/, 'T') + '.' + (i + 1), t: t, story: s, week: w };
+      allTasks.push(task); return task;
+    });
+  }); }); });
+
+  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function isDone(id){ return !!state.done[id]; }
+  function count(tasks){ var d = 0; tasks.forEach(function(t){ if (isDone(t.id)) d++; }); return { d: d, n: tasks.length }; }
+  function storyTasks(s){ return s.items; }
+  function featureTasks(f){ var a = []; f.stories.forEach(function(s){ a = a.concat(s.items); }); return a; }
+  function weekTasks(w){ var a = []; w.features.forEach(function(f){ a = a.concat(featureTasks(f)); }); return a; }
+  function weekDays(w){ var e = 0; w.features.forEach(function(f){ f.stories.forEach(function(s){ e += s.est; }); }); return e; }
+  function pct(c){ return c.n ? Math.round(100 * c.d / c.n) : 0; }
+
+  function parseDate(s){ if (!s) return null; var p = s.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function addDays(d, n){ var x = new Date(d.getTime()); x.setDate(x.getDate() + n); return x; }
+  var fmt = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' });
+  function weekRange(w){ var s = parseDate(state.start); if (!s) return ''; var a = addDays(s, w.n * 7), b = addDays(a, 4); return fmt.format(a) + ' – ' + fmt.format(b); }
+  function isNow(w){ var s = parseDate(state.start); if (!s) return false; var a = addDays(s, w.n * 7), b = addDays(a, 7), t = new Date(); return t >= a && t < b; }
+
+  function shell(){
+    var total = 0; PLAN.weeks.forEach(function(w){ total += weekDays(w); });
+    var h = '';
+    h += '<header class="top">';
+    h += '<div class="titlebar"><div><h1>CRM help chatbot MVP</h1>';
+    h += '<p class="lede">Week 0 to week 5 for one developer, about ' + total + ' days of estimated work. Tick tasks as you finish them; progress is saved to this page.</p></div>';
+    h += '<span class="status" id="status" role="status" aria-live="polite">Connecting…</span></div>';
+    h += '<div class="overall"><span class="pct" id="ov-pct">0%</span><span class="meta" id="ov-meta"></span></div>';
+    h += '<div class="strip" id="strip" aria-label="Task progress by week">';
+    PLAN.weeks.forEach(function(w){
+      h += '<div class="seg" data-week="' + w.id + '"><div class="cells">';
+      weekTasks(w).forEach(function(t){ h += '<span class="cell" data-cell="' + t.id + '" title="' + esc(t.id + ': ' + t.t) + '"></span>'; });
+      h += '</div><a href="#' + w.id.toLowerCase() + '">Week ' + w.n + '</a></div>';
+    });
+    h += '</div>';
+    h += '<div class="controls">';
+    h += '<label>Start date <input type="date" id="start" value="' + esc(state.start) + '"></label>';
+    h += '<input type="search" id="q" placeholder="Search tasks and stories" aria-label="Search tasks and stories" value="' + esc(ui.q) + '">';
+    h += '<label><input type="checkbox" id="hide"' + (ui.hideDone ? ' checked' : '') + '> Hide finished</label>';
+    h += '<button class="btn" id="expand" type="button">Expand all</button>';
+    h += '<button class="btn" id="collapse" type="button">Collapse all</button>';
+    h += '<span class="spacer"></span>';
+    h += '<button class="btn" id="export" type="button">Export progress</button>';
+    h += '<button class="btn" id="import" type="button">Import progress</button><input type="file" id="file" accept="application/json,.json">';
+    h += '<button class="btn" id="reset" type="button">Reset</button>';
+    h += '</div></header>';
+
+    PLAN.weeks.forEach(function(w){
+      h += '<section class="week" id="' + w.id.toLowerCase() + '" data-week="' + w.id + '">';
+      h += '<aside><div class="wnum">' + w.n + '</div><h2 class="wname">' + esc(w.name) + '</h2>';
+      h += '<div class="wdates" data-dates="' + w.id + '"></div><div data-nowtag="' + w.id + '"></div>';
+      h += '<p class="wgoal">' + esc(w.goal) + '</p>';
+      h += '<div class="bar"><i data-wbar="' + w.id + '"></i></div><div class="wpct" data-wpct="' + w.id + '"></div></aside><div>';
+      w.features.forEach(function(f){
+        h += '<div class="feature" data-feature="' + f.id + '"><div class="fhead"><span class="fid">' + f.id + '</span><h3>' + esc(f.title) + '</h3><span class="ffrac" data-ffrac="' + f.id + '"></span></div>';
+        f.stories.forEach(function(s){
+          var open = ui.open.indexOf(s.id) > -1 ? ' open' : '';
+          h += '<details class="story" data-story="' + s.id + '"' + open + '><summary><span class="ring" data-ring="' + s.id + '" aria-hidden="true"></span>';
+          h += '<span class="stitle"><span class="sid">' + s.id + '</span>' + esc(s.title) + '</span>';
+          h += '<span class="smeta"><span data-sfrac="' + s.id + '"></span> · ' + s.est + (s.est === 1 ? ' day' : ' days') + '</span></summary>';
+          h += '<div class="sbody"><p class="donewhen"><b>Done when:</b> ' + esc(s.done) + '</p><ul class="tasks">';
+          s.items.forEach(function(t){
+            h += '<li data-task="' + t.id + '"><label><input type="checkbox" data-id="' + t.id + '"' + (isDone(t.id) ? ' checked' : '') + '><span>' + esc(t.t) + '</span></label></li>';
+          });
+          h += '</ul></div></details>';
+        });
+        h += '</div>';
+      });
+      h += '</div></section>';
+    });
+    h += '<p class="empty" id="nomatch" hidden>No tasks match that search.</p>';
+    h += '<footer>Task IDs follow week, feature, story and position (T2.1.3.4 is the fourth task of story S2.1.3). Export your progress before editing the plan’s task order, because IDs come from position.</footer>';
+    $('#root').innerHTML = h;
+  }
+
+  function update(){
+    var all = count(allTasks);
+    $('#ov-pct').textContent = pct(all) + '%';
+    $('#ov-meta').textContent = all.d + ' of ' + all.n + ' tasks finished';
+    allTasks.forEach(function(t){
+      var on = isDone(t.id);
+      var c = $('[data-cell="' + t.id + '"]'); if (c) c.classList.toggle('on', on);
+      var li = $('[data-task="' + t.id + '"]'); if (li) li.classList.toggle('is-done', on);
+      var cb = $('input[data-id="' + t.id + '"]'); if (cb && cb.checked !== on) cb.checked = on;
+    });
+    PLAN.weeks.forEach(function(w){
+      var c = count(weekTasks(w)), now = isNow(w);
+      $('[data-wbar="' + w.id + '"]').style.width = pct(c) + '%';
+      $('[data-wpct="' + w.id + '"]').textContent = pct(c) + '% · ' + c.d + '/' + c.n + ' tasks · ' + weekDays(w) + ' days est.';
+      $('[data-dates="' + w.id + '"]').textContent = weekRange(w);
+      $('[data-nowtag="' + w.id + '"]').innerHTML = now ? '<span class="wnow">This week</span>' : '';
+      $('section[data-week="' + w.id + '"]').classList.toggle('now', now);
+      $('.seg[data-week="' + w.id + '"]').classList.toggle('now', now);
+      w.features.forEach(function(f){
+        var fc = count(featureTasks(f));
+        $('[data-ffrac="' + f.id + '"]').textContent = fc.d + '/' + fc.n;
+        f.stories.forEach(function(s){
+          var sc = count(storyTasks(s)), ring = $('[data-ring="' + s.id + '"]');
+          $('[data-sfrac="' + s.id + '"]').textContent = sc.d + '/' + sc.n;
+          ring.classList.toggle('full', sc.d === sc.n);
+          ring.classList.toggle('part', sc.d > 0 && sc.d < sc.n);
+          ring.style.setProperty('--p', pct(sc) + '%');
+          $('[data-story="' + s.id + '"]').classList.toggle('is-done', sc.d === sc.n);
+        });
+      });
+    });
+  }
+
+  function applyFilter(){
+    var q = ui.q.trim().toLowerCase(), any = false;
+    document.body.classList.toggle('hide-done', ui.hideDone);
+    PLAN.weeks.forEach(function(w){
+      var wHit = false;
+      w.features.forEach(function(f){
+        var fHit = false;
+        f.stories.forEach(function(s){
+          var sText = (s.id + ' ' + s.title + ' ' + s.done).toLowerCase();
+          var storyMatch = !q || sText.indexOf(q) > -1, taskHit = false;
+          s.items.forEach(function(t){
+            var m = !q || storyMatch || (t.id + ' ' + t.t).toLowerCase().indexOf(q) > -1;
+            $('[data-task="' + t.id + '"]').hidden = !m;
+            if (m) taskHit = true;
+          });
+          var el = $('[data-story="' + s.id + '"]');
+          el.hidden = !taskHit;
+          if (q && taskHit) el.open = true;
+          if (taskHit) fHit = true;
+        });
+        $('[data-feature="' + f.id + '"]').hidden = !fHit;
+        if (fHit) wHit = true;
+      });
+      $('section[data-week="' + w.id + '"]').hidden = !wHit;
+      if (wHit) any = true;
+    });
+    $('#nomatch').hidden = any;
+  }
+
+  function setStatus(text, cls){ var s = $('#status'); if (!s) return; s.textContent = text; s.className = 'status' + (cls ? ' ' + cls : ''); }
+
+  function readOnly(){
+    mode = 'readonly';
+    document.body.classList.add('ro-mode');
+    $$('ul.tasks input, #start, #import, #reset').forEach(function(el){ el.disabled = true; });
+    setStatus('Read-only view', 'ro');
+  }
+
+  function stashUi(){
+    var open = $$('details.story[open]').map(function(d){ return d.dataset.story; });
+    try { sessionStorage.setItem(UI_KEY, JSON.stringify({ open: open, hideDone: ui.hideDone, q: ui.q, y: window.scrollY })); } catch (e) {}
+  }
+
+  function buildDoc(){
+    var css = $('#css').textContent, plan = $('#plan').textContent, app = $('#app').textContent;
+    var st = JSON.stringify({ start: state.start, done: state.done }).replace(/</g, '\\u003c');
+    return '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
+      + '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
+      + '<title>CRM help chatbot MVP plan</title>\n'
+      + '<link rel="preconnect" href="https://fonts.googleapis.com">\n'
+      + '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
+      + '<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">\n'
+      + '<style id="css">' + css + '<\/style>\n</head>\n<body>\n'
+      + '<div class="wrap" id="root"><p class="empty">Loading the plan…</p></div>\n'
+      + '<script type="application/json" id="plan">' + plan + '<\/script>\n'
+      + '<script type="application/json" id="state">' + st + '<\/script>\n'
+      + '<script id="app">' + app + '<\/script>\n</body>\n</html>\n';
+  }
+
+  function save(){
+    saveTimer = null;
+    if (mode !== 'artifact' || !dirty) return;
+    stashUi();
+    setStatus('Saving…', 'saving');
+    art.publish(buildDoc()).then(function(){
+      dirty = false; setStatus('All changes saved');
+    }).catch(function(e){
+      var code = e && e.code;
+      if (code === 'conflict') { setStatus('Updated elsewhere, reloading'); return; }
+      if (['not_writer','not_granted','consent_required','not_declared','capability_disabled','capability_removed'].indexOf(code) > -1) { readOnly(); return; }
+      if (code === 'rate_limited') { setStatus('Saving shortly…', 'saving'); saveTimer = setTimeout(save, 15000); return; }
+      if ((code === 'upstream_error' || !code) && !retried) { retried = true; saveTimer = setTimeout(save, 1500 + Math.random() * 1500); return; }
+      setStatus('Couldn’t save: ' + ((e && e.message) || 'unknown error'), 'ro');
+    });
+  }
+
+  function changed(){
+    dirty = true;
+    if (mode === 'local') {
+      try { localStorage.setItem(LS_KEY, JSON.stringify(state)); setStatus('Saved in this browser only'); }
+      catch (e) { setStatus('Couldn’t save in this browser', 'ro'); }
+      dirty = false; return;
+    }
+    if (mode === 'artifact') {
+      setStatus('Saving shortly…', 'saving');
+      clearTimeout(saveTimer); retried = false;
+      saveTimer = setTimeout(save, 2500);
+    }
+  }
+
+  function loadLocal(){
+    mode = 'local';
+    try {
+      var s = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+      if (s && s.done) { state.start = s.start || state.start; state.done = s.done; }
+    } catch (e) {}
+    $('#start').value = state.start;
+    update();
+    setStatus(dirty ? 'Saved in this browser only' : 'Saving in this browser only');
+    if (dirty) changed();
+  }
+
+  function initCapability(){
+    if (!(window.claude && typeof window.claude.use === 'function')) { loadLocal(); return; }
+    window.claude.use('artifact').then(function(a){
+      if (!a) { loadLocal(); return; }
+      art = a; mode = 'artifact';
+      setStatus(dirty ? 'Saving shortly…' : 'All changes saved', dirty ? 'saving' : '');
+      if (dirty) changed();
+    }).catch(function(){ loadLocal(); });
+    window.claude.use('downloads').then(function(d){ dl = d; }).catch(function(){});
+  }
+
+  function exportProgress(){
+    var data = JSON.stringify({ start: state.start, done: state.done }, null, 2);
+    var name = 'crm-mvp-plan-progress.json';
+    if (dl) { dl.save({ filename: name, data: data }).catch(function(){}); return; }
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
+    a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  }
+
+  function bind(){
+    var root = $('#root');
+    root.addEventListener('change', function(e){
+      var t = e.target;
+      if (t.matches('ul.tasks input[type=checkbox]')) {
+        if (mode === 'readonly') { t.checked = !t.checked; return; }
+        if (t.checked) state.done[t.dataset.id] = new Date().toISOString().slice(0, 10); else delete state.done[t.dataset.id];
+        update(); changed();
+      } else if (t.id === 'start') {
+        state.start = t.value; update(); changed();
+      } else if (t.id === 'hide') {
+        ui.hideDone = t.checked; applyFilter();
+      } else if (t.id === 'file') {
+        var f = t.files && t.files[0]; if (!f) return;
+        f.text().then(function(txt){
+          var s = JSON.parse(txt);
+          if (!s || typeof s.done !== 'object') throw new Error('bad');
+          state.start = s.start || ''; state.done = s.done;
+          $('#start').value = state.start; update(); changed();
+        }).catch(function(){ setStatus('That file isn’t a progress export', 'ro'); });
+        t.value = '';
+      }
+    });
+    var qTimer = null;
+    root.addEventListener('input', function(e){
+      if (e.target.id !== 'q') return;
+      clearTimeout(qTimer);
+      qTimer = setTimeout(function(){ ui.q = e.target.value; applyFilter(); }, 120);
+    });
+    var resetArmed = null;
+    root.addEventListener('click', function(e){
+      var id = e.target.id;
+      if (id === 'expand') $$('details.story').forEach(function(d){ if (!d.hidden) d.open = true; });
+      else if (id === 'collapse') $$('details.story').forEach(function(d){ d.open = false; });
+      else if (id === 'export') exportProgress();
+      else if (id === 'import') $('#file').click();
+      else if (id === 'reset') {
+        var b = e.target;
+        if (!resetArmed) {
+          b.textContent = 'Click again to reset'; b.classList.add('warn');
+          resetArmed = setTimeout(function(){ resetArmed = null; b.textContent = 'Reset'; b.classList.remove('warn'); }, 3500);
+        } else {
+          clearTimeout(resetArmed); resetArmed = null; b.textContent = 'Reset'; b.classList.remove('warn');
+          state.done = {}; update(); changed();
+        }
+      }
+    });
+  }
+
+  shell();
+  bind();
+  update();
+  applyFilter();
+  if (ui.y) window.scrollTo(0, ui.y);
+  initCapability();
+})();
+</script>
+</body>
+</html>
