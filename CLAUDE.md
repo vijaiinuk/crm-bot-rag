@@ -159,7 +159,9 @@ make test      # unit tests
 make run       # API locally
 make worker    # job worker (planned)
 make widget-dev   # widget + fake-CRM harness on :5173
-make check     # lint + tests + widget tests
+make admin-dev    # admin app on :5174 (dev sign-in per role)
+make admin-types  # regenerate admin API types from the OpenAPI schema
+make check     # lint + tests + widget tests + admin tests
 ```
 
 ## Environment constraints (MacBook Air M4, 16 GB)
@@ -199,5 +201,5 @@ Word/PDF parsing (PDF next, via Docling), module assignment in the admin UI, two
 
 Record significant decisions in `docs/adr/NNNN-title.md` (context, decision, alternatives, consequences).
 
-Recorded: 0001 Postgres for vector + keyword search · 0002 OpenRouter (dev) then Bedrock (prod) · 0003 Postgres job queue · 0004 content releases, modules controlled in docs · 0005 cost accounting.
+Recorded: 0001 Postgres for vector + keyword search · 0002 OpenRouter (dev) then Bedrock (prod) · 0003 Postgres job queue · 0004 content releases, modules controlled in docs · 0005 cost accounting · 0006 admin identity and roles.
 Still to record: no orchestration framework, synthetic data strategy, model choice (after bake-off), reranker production compute.

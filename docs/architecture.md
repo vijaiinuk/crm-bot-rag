@@ -148,10 +148,10 @@ stateDiagram-v2
    - **Permission suite:** for every persona and every golden question, each retrieved chunk's modules ⊆ allowed. **Zero tolerance.**
    - **Retrieval evals:** recall@k and complete recall@k must not regress beyond threshold compared with the live release.
    - **Orphaned eval labels:** any accepted eval question pointing at a `doc_id#anchor` that no longer exists blocks publishing until an admin re-points it. Without this check, renaming a heading silently breaks evals.
-   - **Module diff:** if any doc's modules changed in a way that **widens access** (for example `[deals]` → `[core]`), the release pauses for explicit publisher confirmation, recorded in `audit_log`. Narrowing access needs no confirmation.
+   - **Module diff:** if any doc's modules changed in a way that **widens access** (for example `[deals]` → `[core]`), the release pauses for explicit publisher confirmation, recorded in `audit_log`. Narrowing access needs no confirmation. **Definition:** a new version widens access if it **drops any module** the live version required, because a chunk is visible only to holders of all its modules. So `[deals]→[campaigns]` counts as widened even though a module was added; adding modules only narrows; a brand-new doc is shown as "new" (the permission suite covers it).
 5. Repoint `active_index`. **Rollback** points it at the previous release, instantly.
 
-**Retire** a doc: leave it out of the next release. A **staleness report** in admin lists docs whose live version hasn't changed in N days, or since a given date, for a human to review. It is a report, not a retrieval filter.
+**Retire** a doc: leave it out of the next release. A **staleness report** in admin lists docs whose live version was uploaded more than N days ago (default 90, adjustable in the UI), for a human to review. It is a report, not a retrieval filter.
 
 The CLI (`make ingest`) stays: it runs the same build-and-gate code against `data/docs/` for development and CI.
 
@@ -206,7 +206,8 @@ Two sinks, two audiences:
 **Privacy defaults:**
 - PII is redacted before anything is stored, including Phoenix spans.
 - Message text is kept for 30 days; `llm_calls` (no text) is kept long-term.
-- In the MVP, only your ops admins can see transcripts.
+- In the MVP, only your ops admins can see transcripts (Conversations screen).
+- Redaction is an interim regex (emails, phone numbers, long digit runs) behind a `Redactor` port; the guardrails story replaces it. Names and addresses are **not** caught yet.
 
 **Later (nice to have): client-company admins see their own users' transcripts.** The data model already supports it, because every conversation stores `tenant`. What it needs:
 - a tenant-scoped admin role, whose tenant comes from the verified token. Every transcript query then filters `tenant = :caller_tenant` in SQL, the same pattern as rule 2.
@@ -256,7 +257,7 @@ Model IDs, providers and prices live in `config/models.yaml`.
 
 ## 11. Admin app (MVP)
 
-A separate React app in `admin/`. Signed in with the same JWT issuer and an `admin_role` claim (`viewer` / `editor` / `publisher`), checked on every `/admin/*` route. Admin access never comes from request data, the same as rule 1.
+A separate React app in `admin/` (built as a mock in AD1–AD3 over an in-memory store; see [ADR-0006](adr/0006-admin-identity-and-roles.md)). Admin tokens come from the same JWT issuer with `tenant: "ops"`, `role: "ops_admin"` and an `admin_role` claim (`viewer` / `editor` / `publisher`), checked on every `/admin/*` route. Admin access never comes from request data, the same as rule 1. Client-company tokens get 403 on `/admin/*`; admin tokens get 403 on `/chat`.
 
 | Screen | viewer | editor | publisher |
 |---|---|---|---|
@@ -264,7 +265,8 @@ A separate React app in `admin/`. Signed in with the same JWT issuer and an `adm
 | **Releases**: draft contents, build progress, gate report, module diff | view | add/remove docs in the draft | publish, confirm widening, roll back |
 | **Evals**: questions (accept / edit synthetic ones), run end-to-end, results, labelling | view | author, accept, label | + run end-to-end |
 | **Costs**: per client company per month, per chat session, internal spend | view | view | view |
-| **Staleness report** | view | view | view |
+| **Conversations**: sessions by client, user, turns, outcome and cost; redacted transcript with per-call cost | view | view | view |
+| **Staleness report** (Documents filter) | view | view | view |
 
 ## 12. Proposed story order
 
