@@ -40,6 +40,7 @@ def settings() -> Settings:
         jwt_audience=AUDIENCE,
         jwks_url=JWKS_URL,
         mock_token_delay_s=0.0,
+        mock_job_step_s=0.0,
     )
 
 

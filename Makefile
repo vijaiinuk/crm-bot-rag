@@ -6,8 +6,8 @@ TTL ?= 3600
 keys:          ## generate the local RSA signing keypair into .local/keys/
 	uv run python -m tools.keys
 
-token:         ## mint a persona JWT: make token PERSONA=sales_manager@acme
-	@uv run python -m tools.mint_token --persona $(PERSONA) --ttl $(TTL)
+token:         ## mint a JWT: make token PERSONA=sales_manager@acme, or ADMIN=editor@ops
+	@uv run python -m tools.mint_token $(if $(ADMIN),--admin $(ADMIN),--persona $(PERSONA)) --ttl $(TTL)
 
 WIDGET_ORIGIN ?= http://localhost:5173
 

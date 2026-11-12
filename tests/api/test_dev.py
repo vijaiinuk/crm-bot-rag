@@ -8,6 +8,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from chatbot.adapters import local_jwt
 from chatbot.adapters.local_catalogue import load_catalogue
 from chatbot.adapters.local_entitlements import LocalEntitlementProvider
+from chatbot.adapters.mock_admin import build_mock_admin_service
 from chatbot.adapters.mock_responder import MockResponder
 from chatbot.api.app import create_app
 from chatbot.api.auth import AuthError
@@ -40,6 +41,7 @@ def make_client(settings: Settings, key: rsa.RSAPrivateKey) -> httpx.AsyncClient
         entitlements=LocalEntitlementProvider(PERSONAS),
         catalogue=catalogue,
         responder=MockResponder(catalogue),
+        admin=build_mock_admin_service(frozenset(catalogue.modules), job_step_s=0),
     )
     return httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://api.test")
 

@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     jwks_cache_ttl_s: float = 300.0
     jwt_leeway_s: int = 30
 
+    # Admin tokens carry this tenant plus an `admin_role` claim.
+    admin_tenant: str = "ops"
+    admins_path: Path = Path("data/admins.yaml")
+
     # Browser origins allowed to call the API (the widget's host page). Empty = none.
     cors_origins: list[str] = []
 
@@ -22,5 +26,7 @@ class Settings(BaseSettings):
     catalogue_path: Path = Path("data/module_catalogue.yaml")
     # Pause between streamed mock tokens, so streaming is visible in the UI.
     mock_token_delay_s: float = 0.03
+    # Pause per simulated build stage in the admin mock, so progress is visible.
+    mock_job_step_s: float = 0.8
     # Local signing keys; only read when env == "local".
     keys_dir: Path = Path(".local/keys")

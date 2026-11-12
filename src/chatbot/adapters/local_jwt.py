@@ -64,6 +64,7 @@ def mint_token(
     audience: str,
     ttl_s: int = 3600,
     now: float | None = None,
+    extra_claims: dict[str, Any] | None = None,
 ) -> str:
     iat = int(now if now is not None else time.time())
     claims = {
@@ -75,5 +76,5 @@ def mint_token(
         "iat": iat,
         "exp": iat + ttl_s,
         "jti": str(uuid.uuid4()),
-    }
+    } | (extra_claims or {})
     return jwt.encode(claims, key, algorithm="RS256", headers={"kid": key_id(key.public_key())})

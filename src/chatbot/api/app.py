@@ -9,10 +9,13 @@ from pydantic import BaseModel
 from chatbot.adapters import local_jwt
 from chatbot.adapters.local_catalogue import check_covers, load_catalogue
 from chatbot.adapters.local_entitlements import LocalEntitlementProvider
+from chatbot.adapters.mock_admin import build_mock_admin_service
 from chatbot.adapters.mock_responder import MockResponder
+from chatbot.admin.routes import build_admin_router
+from chatbot.admin.service import AdminService
 from chatbot.api import chat
 from chatbot.api.auth import AuthContext, CurrentUserDep, HttpJwksSource, JwksSource
-from chatbot.api.dev import build_dev_router
+from chatbot.api.dev import build_dev_router, load_admins
 from chatbot.config import Settings
 from chatbot.ports.catalogue import ModuleCatalogue
 from chatbot.ports.entitlements import EntitlementProvider
@@ -34,6 +37,7 @@ def create_app(
     entitlements: EntitlementProvider | None = None,
     catalogue: ModuleCatalogue | None = None,
     responder: Responder | None = None,
+    admin: AdminService | None = None,
 ) -> FastAPI:
     settings = settings or Settings()
     configure_logging()
@@ -53,6 +57,13 @@ def create_app(
             raise RuntimeError("no production responder configured")
         responder = MockResponder(catalogue, token_delay_s=settings.mock_token_delay_s)
 
+    if admin is None:
+        if settings.env == "prod":
+            raise RuntimeError("no production admin repository configured")
+        admin = build_mock_admin_service(
+            frozenset(catalogue.modules), job_step_s=settings.mock_job_step_s
+        )
+
     owned_jwks: HttpJwksSource | None = None
     if jwks_source is None:
         owned_jwks = HttpJwksSource(settings.jwks_url, ttl_s=settings.jwks_cache_ttl_s)
@@ -67,7 +78,9 @@ def create_app(
     app = FastAPI(title="CRM help bot", lifespan=lifespan)
     app.state.auth = AuthContext(settings=settings, jwks=jwks_source, entitlements=entitlements)
     app.state.responder = responder
+    app.state.admin = admin
     app.include_router(chat.router)
+    app.include_router(build_admin_router())
 
     @app.get("/healthz")
     async def healthz() -> dict[str, str]:
@@ -84,7 +97,7 @@ def create_app(
         app.add_middleware(
             CORSMiddleware,
             allow_origins=settings.cors_origins,
-            allow_methods=["GET", "POST"],
+            allow_methods=["GET", "POST", "PUT", "DELETE"],
             allow_headers=["Authorization", "Content-Type"],
             allow_credentials=False,  # bearer tokens, not cookies
         )
@@ -112,4 +125,6 @@ def _mount_local_routes(
 
     if not isinstance(entitlements, LocalEntitlementProvider):
         raise RuntimeError("dev token routes need the local persona file")
-    app.include_router(build_dev_router(settings, key, entitlements))
+    app.include_router(
+        build_dev_router(settings, key, entitlements, load_admins(settings.admins_path))
+    )

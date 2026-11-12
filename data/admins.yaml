@@ -1,0 +1,7 @@
+# Local admin identities for the dev sign-in and `make token`.
+# In production these come from SSO: the API trusts only the verified
+# `admin_role` claim (viewer | editor | publisher) on an ops-tenant token.
+admins:
+  viewer@ops: viewer
+  editor@ops: editor
+  publisher@ops: publisher

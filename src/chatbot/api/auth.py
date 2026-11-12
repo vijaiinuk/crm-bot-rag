@@ -9,7 +9,7 @@ import asyncio
 import logging
 import time
 from dataclasses import dataclass
-from typing import Annotated, Protocol
+from typing import Annotated, Any, Protocol
 
 import httpx
 import jwt
@@ -93,7 +93,10 @@ class HttpJwksSource:
             return self._keys
 
 
-async def verify_token(token: str, jwks: JwksSource, settings: Settings) -> Principal:
+async def decode_verified_claims(
+    token: str, jwks: JwksSource, settings: Settings
+) -> dict[str, Any]:
+    """Verify signature, algorithm, issuer, audience and expiry; return the claims."""
     try:
         header = jwt.get_unverified_header(token)
     except jwt.InvalidTokenError as e:
@@ -118,12 +121,19 @@ async def verify_token(token: str, jwks: JwksSource, settings: Settings) -> Prin
         )
     except jwt.InvalidTokenError as e:
         raise AuthError(type(e).__name__) from e
+    return claims
 
+
+def principal_from_claims(claims: dict[str, Any]) -> Principal:
     values = {name: claims.get(name) for name in ("sub", "tenant", "role")}
     for name, value in values.items():
         if not isinstance(value, str) or not value:
             raise AuthError(f"claim {name!r} missing or not a string")
     return Principal(sub=values["sub"], tenant=values["tenant"], role=values["role"])  # type: ignore[arg-type]
+
+
+async def verify_token(token: str, jwks: JwksSource, settings: Settings) -> Principal:
+    return principal_from_claims(await decode_verified_claims(token, jwks, settings))
 
 
 @dataclass(frozen=True, slots=True)
@@ -148,21 +158,35 @@ def _unauthorized() -> HTTPException:
     )
 
 
-async def current_user(
-    request: Request,
-    creds: Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer)],
-) -> CurrentUser:
+Bearer = Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer)]
+
+
+@dataclass(frozen=True, slots=True)
+class Claims:
+    principal: Principal
+    raw: dict[str, Any]
+
+
+async def authenticate(request: Request, creds: HTTPAuthorizationCredentials | None) -> Claims:
+    """Verified claims, or 401 (bad/missing token) / 503 (keys unavailable)."""
     ctx: AuthContext = request.app.state.auth
     if creds is None:
         raise _unauthorized()
     try:
-        principal = await verify_token(creds.credentials, ctx.jwks, ctx.settings)
+        claims = await decode_verified_claims(creds.credentials, ctx.jwks, ctx.settings)
+        principal = principal_from_claims(claims)
     except AuthError as e:
         log.info("auth rejected: %s", e)
         raise _unauthorized() from None
     except AuthUnavailable as e:
         log.error("auth unavailable: %s", e)
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "auth unavailable") from None
+    return Claims(principal=principal, raw=claims)
+
+
+async def current_user(request: Request, creds: Bearer) -> CurrentUser:
+    ctx: AuthContext = request.app.state.auth
+    principal = (await authenticate(request, creds)).principal
 
     try:
         allowed = await ctx.entitlements.resolve(principal)
