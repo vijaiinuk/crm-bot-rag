@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Persona × module matrix (S1.1.1 draft)</title>
+<style>
+:root{--ink:#152230;--muted:#5A6A7B;--line:#D3DCE5;--bg:#FFFFFF;--soft:#F1F4F8;--accent:#2950D6;--accent-wash:#E8EDFB;--ok:#1F7A55;--warn:#B4560F;--bad:#B42318;color-scheme:light dark}
+@media (prefers-color-scheme:dark){:root{--ink:#E2E9F0;--muted:#93A2B2;--line:#2C3B4B;--bg:#0E151D;--soft:#151F2A;--accent:#86A2FF;--accent-wash:#1D2A4A;--ok:#4FC58F;--warn:#F0A35E;--bad:#F97066}}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:28px 20px 48px}
+h1{font-size:22px;font-weight:600;margin:0 0 4px}
+p.lede{color:var(--muted);margin:0 0 18px}
+.controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+select{font:inherit;color:inherit;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;flex:1;min-width:260px}
+.leg{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:8px 0 12px}
+table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px}
+th{font-weight:400;color:var(--muted);font-size:12px;padding:6px 0;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+th.hl{color:var(--accent);font-weight:600}
+td{border-top:1px solid var(--line);padding:6px 0;text-align:center}
+td.p{text-align:left;font-family:ui-monospace,Menlo,monospace;font-size:12px;padding-left:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;color:var(--muted);border-left:3px solid transparent}
+td.p.ex{color:var(--ink);font-weight:600}
+tr.sel td{background:var(--soft)}
+tr.full td.p{border-left-color:var(--ok)}
+tr.miss td.p{border-left-color:var(--warn)}
+td.hl{background:var(--accent-wash)}
+.dot{display:inline-block;width:12px;height:12px;border-radius:3px;background:var(--accent);vertical-align:-2px}
+.lic{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px dashed var(--muted);box-sizing:border-box;vertical-align:-2px}
+#detail,#summary{font-size:14px;margin-top:12px;color:var(--muted)}
+.mono{font-family:ui-monospace,Menlo,monospace;color:var(--ink)}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Persona × module matrix</h1>
+<p class="lede">Draft for S1.1.1. Allowed modules = what the client licenses ∩ what the role grants, plus <code>core</code>. Pick a workflow to see which personas hold all of its modules and which are missing exactly one. The source of truth is <code>data/spec/crm_spec.yaml</code> once it exists; this page mirrors the draft in <code>docs/backlog.md</code>.</p>
+<div class="controls"><label for="wf">Workflow</label><select id="wf"></select></div>
+<div class="leg">
+<span><span class="dot"></span> allowed</span>
+<span><span class="lic"></span> licensed, but the role doesn't grant it</span>
+<span style="border-left:3px solid var(--ok);padding-left:6px">holds all workflow modules</span>
+<span style="border-left:3px solid var(--warn);padding-left:6px">missing exactly one</span>
+</div>
+<table id="pm"></table>
+<div id="detail"></div>
+<div id="summary"></div>
+</div>
+<script>
+const M=['core','contacts','deals','campaigns','reports','activities','quotes','products','support'];
+const R={sales_rep:['contacts','deals','activities','quotes','products'],sales_manager:['contacts','deals','campaigns','reports','activities','quotes','products'],marketing_manager:['contacts','campaigns','reports'],support_agent:['contacts','support','activities']};
+const C={acme:['contacts','deals','campaigns','reports','support'],globex:['contacts','deals','campaigns'],kestrel:['contacts','deals','activities','quotes','reports','support'],orbit:M.slice(1)};
+const W=[['None selected',[]],['Deal stage change → triggered email',['deals','campaigns']],['Quote from a deal',['deals','quotes','products']],['Escalate a ticket to the account owner',['support','contacts']],['Campaign performance report',['campaigns','reports']],['Follow-up tasks from a deal',['deals','activities']],['Import contacts into an audience',['contacts','campaigns']]];
+const EXIST=['sales_manager@acme','sales_rep@acme','sales_rep@globex','marketing_manager@globex'];
+const P=[];for(const r in R)for(const c in C)P.push({id:r+'@'+c,r,c,lic:C[c],a:['core',...R[r].filter(m=>C[c].includes(m))]});
+const wf=document.getElementById('wf');W.forEach((w,i)=>{const o=document.createElement('option');o.value=i;o.textContent=w[0];wf.appendChild(o);});
+let sel=null;
+function render(){
+  const need=W[+wf.value][1],full=[],miss=[];
+  let h='<colgroup><col style="width:200px">'+M.map(()=>'<col>').join('')+'</colgroup><tr><th style="text-align:left;padding-left:8px">persona</th>'+M.map(m=>'<th class="'+(need.includes(m)?'hl':'')+'" title="'+m+'">'+m+'</th>').join('')+'</tr>';
+  P.forEach((p,i)=>{
+    const lack=need.filter(m=>!p.a.includes(m));let cls='';
+    if(need.length){if(!lack.length){cls='full';full.push(p.id);}else if(lack.length===1){cls='miss';miss.push(p.id+' (no '+lack[0]+')');}}
+    h+='<tr class="'+cls+(sel===i?' sel':'')+'" data-i="'+i+'"><td class="p'+(EXIST.includes(p.id)?' ex':'')+'" title="'+p.id+'">'+p.id+'</td>';
+    M.forEach(m=>{const on=p.a.includes(m),l=!on&&p.lic.includes(m);h+='<td class="'+(need.includes(m)?'hl':'')+'">'+(on?'<span class="dot"></span>':l?'<span class="lic"></span>':'')+'</td>';});
+    h+='</tr>';
+  });
+  document.getElementById('pm').innerHTML=h;
+  document.querySelectorAll('#pm tr[data-i]').forEach(tr=>tr.onclick=()=>{sel=+tr.dataset.i;render();});
+  const d=document.getElementById('detail');
+  if(sel===null)d.innerHTML='Click a persona to see how its modules are derived. Bold rows are the 4 existing personas; their modules stay exactly as they are today.';
+  else{const p=P[sel];d.innerHTML='<span class="mono">'+p.id+'</span>: client <b>'+p.c+'</b> licenses ['+p.lic.join(', ')+'] ∩ role <b>'+p.r+'</b> grants ['+R[p.r].join(', ')+'] + core = <span class="mono">['+p.a.join(', ')+']</span>';}
+  const s=document.getElementById('summary');
+  if(!need.length)s.innerHTML='';
+  else{const ok=full.length&&miss.length;s.innerHTML='<span class="'+(ok?'ok':'bad')+'">'+(ok?'Coverage check passes':'Coverage check fails')+'</span><br>Full access: '+(full.join(', ')||'none')+'<br>Missing exactly one: '+(miss.join(', ')||'none');}
+}
+wf.onchange=render;render();
+</script>
+</body>
+</html>
