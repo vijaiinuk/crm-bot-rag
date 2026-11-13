@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crm_spec.schema.json",
+  "title": "Fictional CRM spec",
+  "description": "Structure only. Cross-references, the core rule and workflow coverage are checked by tools/spec.py.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["spec_version", "restricted_contact", "modules", "roles", "clients", "workflows"],
+  "properties": {
+    "spec_version": { "type": "integer", "minimum": 1 },
+    "restricted_contact": { "$ref": "#/$defs/text" },
+    "modules": {
+      "type": "object",
+      "minProperties": 2,
+      "propertyNames": { "$ref": "#/$defs/id" },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["display_name", "description", "entities", "ui_labels"],
+        "properties": {
+          "display_name": { "$ref": "#/$defs/text" },
+          "description": { "$ref": "#/$defs/text" },
+          "entities": { "$ref": "#/$defs/texts" },
+          "ui_labels": { "$ref": "#/$defs/texts" }
+        }
+      }
+    },
+    "roles": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "$ref": "#/$defs/id" },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["modules"],
+        "properties": { "modules": { "$ref": "#/$defs/module_refs" } }
+      }
+    },
+    "clients": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "$ref": "#/$defs/id" },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "licensed"],
+        "properties": {
+          "name": { "$ref": "#/$defs/text" },
+          "licensed": { "$ref": "#/$defs/module_refs" }
+        }
+      }
+    },
+    "workflows": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "modules", "prerequisites"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+          "title": { "$ref": "#/$defs/text" },
+          "modules": { "allOf": [{ "$ref": "#/$defs/module_refs" }, { "minItems": 2 }] },
+          "prerequisites": { "type": "array", "items": { "$ref": "#/$defs/text" }, "uniqueItems": true }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "text": { "type": "string", "minLength": 1, "pattern": "\\S" },
+    "texts": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/text" } },
+    "module_refs": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }
+  }
+}

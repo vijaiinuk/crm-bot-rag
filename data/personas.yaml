@@ -1,11 +1,23 @@
-# Hand-written placeholder until the CRM spec generator exists.
+# GENERATED from data/spec/crm_spec.yaml by `make spec`. Do not edit by hand.
 # Contract: persona ID (`role@client`) -> allowed modules
 # (licensed ∩ role-permitted, plus `core`).
 # `known_modules` is the closed set of module names; anything else aborts loading.
-known_modules: [core, contacts, deals, campaigns, reports]
+known_modules: [core, contacts, deals, campaigns, reports, activities, quotes, products, support]
 
 personas:
-  sales_manager@acme: [core, contacts, deals, campaigns, reports]
   sales_rep@acme: [core, contacts, deals]
   sales_rep@globex: [core, contacts, deals]
+  sales_rep@kestrel: [core, contacts, deals, activities, quotes]
+  sales_rep@orbit: [core, contacts, deals, activities, quotes, products]
+  sales_manager@acme: [core, contacts, deals, campaigns, reports]
+  sales_manager@globex: [core, contacts, deals, campaigns]
+  sales_manager@kestrel: [core, contacts, deals, reports, activities, quotes]
+  sales_manager@orbit: [core, contacts, deals, campaigns, reports, activities, quotes, products]
+  marketing_manager@acme: [core, contacts, campaigns, reports]
   marketing_manager@globex: [core, contacts, campaigns]
+  marketing_manager@kestrel: [core, contacts, reports]
+  marketing_manager@orbit: [core, contacts, campaigns, reports]
+  support_agent@acme: [core, contacts, support]
+  support_agent@globex: [core, contacts]
+  support_agent@kestrel: [core, contacts, activities, support]
+  support_agent@orbit: [core, contacts, activities, support]

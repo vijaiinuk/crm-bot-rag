@@ -54,12 +54,12 @@ Done when: a one-page scope with measurable exit criteria is shared with stakeho
 
 ### S1.1.1 `crm_spec.yaml` and JSON Schema · est. 1 · [Delegate] + review
 Done when: the spec validates against its schema and covers every module, role, client and workflow; `personas.yaml` and `module_catalogue.yaml` come from it and a check fails if they drift.
-- [ ] 8–10 modules with entities and UI labels
-- [ ] 3–4 roles → permitted modules
-- [ ] 3–4 client companies → licensed modules
-- [ ] 5–8 cross-module workflows with prerequisites
-- [ ] `crm_spec.schema.json` and a validation script
-- [ ] Derive `personas.yaml` (licensed ∩ role-permitted, plus `core`) and `module_catalogue.yaml` from the spec; add a sync check
+- [x] 8–10 modules with entities and UI labels
+- [x] 3–4 roles → permitted modules
+- [x] 3–4 client companies → licensed modules
+- [x] 5–8 cross-module workflows with prerequisites
+- [x] `crm_spec.schema.json` and a validation script
+- [x] Derive `personas.yaml` (licensed ∩ role-permitted, plus `core`) and `module_catalogue.yaml` from the spec; add a sync check
 
 #### S1.1.1 design (approved 2026-11-13)
 

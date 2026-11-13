@@ -1,0 +1,118 @@
+# The fictional CRM: the ground truth for synthetic docs, personas and evals.
+#
+# Hand-written and reviewed; never LLM-generated. Validated by
+# crm_spec.schema.json (structure) and `make spec-check` (references, coverage).
+# data/personas.yaml and data/module_catalogue.yaml are generated from this
+# file with `make spec`; edit here, not there.
+#
+# Derivation: persona `role@client` -> (client licences ∩ role grants) + core.
+# Design notes and the persona matrix: docs/backlog.md, S1.1.1 design.
+spec_version: 1
+
+# Shown in every restricted-module refusal (CLAUDE.md rule 7).
+restricted_contact: "If you need it, ask your CRM administrator about access."
+
+# Closed set. `core` is shared content every persona gets; it is never granted
+# by a role or licensed by a client. Order here is the order in generated files.
+modules:
+  core:
+    display_name: CRM basics
+    description: Navigation, search, notifications and personal settings.
+    entities: [user profile, notification, saved search]
+    ui_labels: [Home, Global search, Notifications, My settings]
+  contacts:
+    display_name: Contacts
+    description: People and companies, imports, and contact fields.
+    entities: [contact, company, custom field, import]
+    ui_labels: [Contacts, Companies, Import contacts, Field settings]
+  deals:
+    display_name: Deals
+    description: Pipelines, deal stages and stage automation.
+    entities: [deal, pipeline, stage, stage automation]
+    ui_labels: [Deals, Pipeline board, Stage settings, Automations]
+  campaigns:
+    display_name: Campaigns
+    description: Email campaigns, audiences and triggered emails.
+    entities: [campaign, audience, email template, triggered email]
+    ui_labels: [Campaigns, Audiences, Templates, Triggered emails]
+  reports:
+    display_name: Reports
+    description: Dashboards, saved reports and scheduled exports.
+    entities: [report, dashboard, widget, scheduled export]
+    ui_labels: [Reports, Dashboards, Report builder, Scheduled exports]
+  activities:
+    display_name: Activities
+    description: Tasks, calls, meetings and reminders linked to records.
+    entities: [task, call log, meeting, reminder]
+    ui_labels: [Activities, My tasks, Log a call, Calendar]
+  quotes:
+    display_name: Quotes
+    description: Quotes built from deals, approvals and PDF sending.
+    entities: [quote, line item, discount, approval]
+    ui_labels: [Quotes, Quote builder, Approvals, Send quote]
+  products:
+    display_name: Products
+    description: The product catalogue, price books and product bundles.
+    entities: [product, price book, bundle]
+    ui_labels: [Products, Price books, Bundles]
+  support:
+    display_name: Support
+    description: Tickets, queues, SLAs and escalations.
+    entities: [ticket, queue, SLA policy, escalation]
+    ui_labels: [Tickets, Queues, SLA policies, Escalations]
+
+# Modules each role may use (before client licensing).
+roles:
+  sales_rep:
+    modules: [contacts, deals, activities, quotes, products]
+  sales_manager:
+    modules: [contacts, deals, campaigns, reports, activities, quotes, products]
+  marketing_manager:
+    modules: [contacts, campaigns, reports]
+  support_agent:
+    modules: [contacts, support, activities]
+
+# Modules each client company has licensed.
+clients:
+  acme:
+    name: Acme Corp
+    licensed: [contacts, deals, campaigns, reports, support]
+  globex:
+    name: Globex Ltd
+    licensed: [contacts, deals, campaigns]
+  kestrel:
+    name: Kestrel Logistics
+    # No products, on purpose: sales_rep@kestrel is the "missing exactly one"
+    # persona for quote-from-deal.
+    licensed: [contacts, deals, activities, quotes, reports, support]
+  orbit:
+    name: Orbit Health
+    licensed: [contacts, deals, campaigns, reports, activities, quotes, products, support]
+
+# Cross-module tasks. Each needs >= 2 modules, at least one persona holding all
+# of them, and at least one persona missing exactly one (`make spec-check`).
+workflows:
+  - id: deal-stage-email
+    title: Email contacts when a deal changes stage
+    modules: [deals, campaigns]
+    prerequisites: [a pipeline with stages, an email template, contacts linked to the deal]
+  - id: quote-from-deal
+    title: Create and send a quote from a deal
+    modules: [deals, quotes, products]
+    prerequisites: [an open deal, products in a price book]
+  - id: ticket-escalation
+    title: Escalate a support ticket to the account owner
+    modules: [support, contacts]
+    prerequisites: [a ticket linked to a contact, an account owner on the company]
+  - id: campaign-report
+    title: Report on campaign performance
+    modules: [campaigns, reports]
+    prerequisites: [a sent campaign]
+  - id: deal-follow-ups
+    title: Create follow-up tasks when a deal changes stage
+    modules: [deals, activities]
+    prerequisites: [a pipeline with stages]
+  - id: contacts-to-audience
+    title: Import contacts into a campaign audience
+    modules: [contacts, campaigns]
+    prerequisites: [a CSV file of contacts]

@@ -50,7 +50,9 @@ Use `make status`, `make logs` and `make stop` to check on them, follow their lo
 
 ## Personas and roles (local only)
 
-Chat personas, from `data/personas.yaml`:
+Chat personas come from the fictional CRM spec, `data/spec/crm_spec.yaml`. Every role × client pair is a persona, allowed (client licences ∩ role grants) + `core`. That gives 16 personas across 4 roles and 4 clients (acme, globex, kestrel, orbit). `make spec` regenerates `data/personas.yaml` and `data/module_catalogue.yaml` from the spec; don't edit those two by hand. `make check` fails if they drift. The full matrix is in [docs/backlog.md](docs/backlog.md) (S1.1.1 design) and [docs/diagrams/persona-matrix.html](docs/diagrams/persona-matrix.html).
+
+The ones used in the walkthrough above:
 
 | Persona | Allowed modules |
 |---|---|
