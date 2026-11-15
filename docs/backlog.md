@@ -204,12 +204,13 @@ selector: [diagrams/persona-matrix.html](diagrams/persona-matrix.html).
 
 **Out of scope:** docs, eval questions, LLM calls, changes to the runtime loaders.
 
-### S1.2.1 Synthetic docs · est. 1
+### S1.2.1 Synthetic docs · est. 1 · ✅ done
 Done when: 40–60 docs with valid frontmatter are committed, every doc's headings match its planned anchors, `make docs-check` passes in `make check`, and 10 docs are hand-reviewed.
 - [x] **Step A** (no LLM): frontmatter schema, anchor convention, `data/docs/plan.yaml` and its checks
 - [x] **Step B**: minimal LLM client (pulled forward from S3.1.3a): `config/models.yaml`, `LLMClient` port, LiteLLM adapter, key setting, one live smoke call
-- [ ] **Step C**: `prompts/docgen_v1.md` and the generator; pilot of 3 docs, reviewed before spending more
-- [ ] **Step D**: generate the full corpus, `docs-check` validates the docs, hand-review 10 (sampled, including any the leak lint flags); commit with `MANIFEST.yaml`
+- [x] **Step C**: the generator and prompt; 3-doc pilot. v1 docs contradicted each other on shared details, so `facts:` were added to the spec (v2); v2 padded docs with core facts, so core facts now go only to core docs (v3)
+- [x] **Step D**: generate the full corpus (42 docs with `docgen_v3`, all on the first attempt); `make docs-check` requires every planned doc
+- [x] Hand-review the 10 docs from `make docs-sample` (flagged ones first); fix and commit
 
 #### S1.2.1 design (approved 2026-11-13)
 
@@ -257,6 +258,12 @@ triggered-email setup would hand campaigns know-how to users without
 Campaigns, and the permission filter can't catch it. The prompt allows
 cross-references but forbids other modules' procedures; `docs-check` flags
 docs that mention another module's UI labels, and those go into the review sample.
+
+**Canonical facts (added during the pilot).** Docs written separately invented
+conflicting details (5 vs. 10 automations per stage, Paused vs. Active
+defaults). The spec now has `facts:` per module and per workflow (menu paths,
+limits, defaults), and each doc gets only its own modules' facts. Evals can
+label `single` questions against them.
 
 **Required labels** (already referenced by the mock responder and CLAUDE.md):
 `deals-stage-automation#triggers`, `campaigns-triggered-emails#setup`,

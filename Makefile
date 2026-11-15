@@ -1,4 +1,4 @@
-.PHONY: keys token spec spec-check docs-check llm-smoke run test lint fmt chat check widget-install widget-dev widget-test widget-build admin-install admin-dev admin-test admin-build admin-types start stop restart status logs
+.PHONY: keys token spec spec-check docs-check docs-gen docs-sample llm-smoke run test lint fmt chat check widget-install widget-dev widget-test widget-build admin-install admin-dev admin-test admin-build admin-types start stop restart status logs
 
 PERSONA ?= sales_rep@globex
 TTL ?= 3600
@@ -15,8 +15,16 @@ spec:          ## regenerate data/personas.yaml and data/module_catalogue.yaml f
 spec-check:    ## validate the CRM spec and fail if the generated files are stale
 	uv run python -m tools.spec check
 
-docs-check:    ## validate the synthetic doc plan (and, from S1.2.1 step C, the docs)
-	uv run python -m tools.docgen check
+docs-check:    ## validate the doc plan and the synthetic corpus (every planned doc must exist)
+	uv run python -m tools.docgen check --require-all
+
+DOCS ?=
+
+docs-gen:      ## write missing synthetic docs with the LLM (costs money): make docs-gen DOCS="id id"
+	uv run python -m tools.docgen generate $(if $(DOCS),--only $(DOCS))
+
+docs-sample:   ## list the docs to hand-review (flagged ones first)
+	@uv run python -m tools.docgen sample
 
 ROLE ?=
 

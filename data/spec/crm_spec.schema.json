@@ -16,12 +16,13 @@
       "additionalProperties": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["display_name", "description", "entities", "ui_labels"],
+        "required": ["display_name", "description", "entities", "ui_labels", "facts"],
         "properties": {
           "display_name": { "$ref": "#/$defs/text" },
           "description": { "$ref": "#/$defs/text" },
           "entities": { "$ref": "#/$defs/texts" },
-          "ui_labels": { "$ref": "#/$defs/texts" }
+          "ui_labels": { "$ref": "#/$defs/texts" },
+          "facts": { "allOf": [{ "$ref": "#/$defs/texts" }, { "minItems": 3 }] }
         }
       }
     },
@@ -56,12 +57,13 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "title", "modules", "prerequisites"],
+        "required": ["id", "title", "modules", "prerequisites", "facts"],
         "properties": {
           "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
           "title": { "$ref": "#/$defs/text" },
           "modules": { "allOf": [{ "$ref": "#/$defs/module_refs" }, { "minItems": 2 }] },
-          "prerequisites": { "type": "array", "items": { "$ref": "#/$defs/text" }, "uniqueItems": true }
+          "prerequisites": { "type": "array", "items": { "$ref": "#/$defs/text" }, "uniqueItems": true },
+          "facts": { "$ref": "#/$defs/texts" }
         }
       }
     }

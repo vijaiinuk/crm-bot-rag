@@ -39,6 +39,9 @@ class Module:
     name: str
     display_name: str
     description: str
+    entities: tuple[str, ...] = ()
+    ui_labels: tuple[str, ...] = ()
+    facts: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -46,6 +49,8 @@ class Workflow:
     id: str
     title: str
     modules: frozenset[str]
+    prerequisites: tuple[str, ...] = ()
+    facts: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -100,12 +105,28 @@ def parse(raw: Any, schema: dict[str, Any]) -> Spec:
         raise SpecError([f"{_where(e.absolute_path)}: {e.message}" for e in structural])
 
     modules = {
-        name: Module(name, m["display_name"], m["description"])
+        name: Module(
+            name,
+            m["display_name"],
+            m["description"],
+            tuple(m["entities"]),
+            tuple(m["ui_labels"]),
+            tuple(m["facts"]),
+        )
         for name, m in raw["modules"].items()
     }
     roles = {name: frozenset(r["modules"]) for name, r in raw["roles"].items()}
     clients = {name: frozenset(c["licensed"]) for name, c in raw["clients"].items()}
-    workflows = [Workflow(w["id"], w["title"], frozenset(w["modules"])) for w in raw["workflows"]]
+    workflows = [
+        Workflow(
+            w["id"],
+            w["title"],
+            frozenset(w["modules"]),
+            tuple(w["prerequisites"]),
+            tuple(w["facts"]),
+        )
+        for w in raw["workflows"]
+    ]
     spec = Spec(raw["restricted_contact"], modules, roles, clients, workflows)
 
     errors = _reference_errors(spec)

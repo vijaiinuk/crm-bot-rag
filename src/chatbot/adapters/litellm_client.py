@@ -12,6 +12,10 @@ from chatbot.ports.llm import Completion, LLMError, Message, Usage
 
 NUM_RETRIES = 3  # LiteLLM retries rate limits and 5xx with backoff
 
+# LiteLLM prints a "Give Feedback / Get Help" banner on every error, which
+# buries the actual message. Errors reach callers as LLMError instead.
+litellm.suppress_debug_info = True
+
 
 class LiteLLMClient:
     def __init__(self, config: ModelsConfig, *, openrouter_api_key: SecretStr | None) -> None:

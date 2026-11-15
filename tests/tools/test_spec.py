@@ -24,6 +24,7 @@ TINY: dict[str, Any] = {
             "description": "d",
             "entities": ["e"],
             "ui_labels": ["l"],
+            "facts": ["f1", "f2", "f3"],
         }
         for name in ["core", "deals", "campaigns"]
     },
@@ -33,7 +34,13 @@ TINY: dict[str, Any] = {
         "globex": {"name": "Globex", "licensed": ["deals"]},
     },
     "workflows": [
-        {"id": "deal-email", "title": "t", "modules": ["deals", "campaigns"], "prerequisites": []}
+        {
+            "id": "deal-email",
+            "title": "t",
+            "modules": ["deals", "campaigns"],
+            "prerequisites": [],
+            "facts": ["f"],
+        }
     ],
 }
 
@@ -140,6 +147,7 @@ def test_duplicate_yaml_key_is_rejected() -> None:
         (lambda r: r["workflows"][0].update(modules=["deals"]), "is too short"),
         (lambda r: r["roles"]["rep"].update(modules=[]), "should be non-empty"),
         (lambda r: r.update(extra=1), "Additional properties"),
+        (lambda r: r["modules"]["deals"].update(facts=["only one"]), "is too short"),
     ],
     ids=[
         "no-roles",
@@ -148,6 +156,7 @@ def test_duplicate_yaml_key_is_rejected() -> None:
         "one-module-workflow",
         "empty-grants",
         "extra-key",
+        "too-few-facts",
     ],
 )
 def test_schema_rejects_bad_structure(mutate: Any, reason: str) -> None:

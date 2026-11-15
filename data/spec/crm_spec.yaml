@@ -14,52 +14,119 @@ restricted_contact: "If you need it, ask your CRM administrator about access."
 
 # Closed set. `core` is shared content every persona gets; it is never granted
 # by a role or licensed by a client. Order here is the order in generated files.
+# `facts` are the canonical details every doc about a module must agree with
+# (menu paths, limits, defaults). The doc generator gives each doc only the
+# facts for its own modules, and S1.3.1 can label questions against them.
 modules:
   core:
     display_name: CRM basics
     description: Navigation, search, notifications and personal settings.
     entities: [user profile, notification, saved search]
     ui_labels: [Home, Global search, Notifications, My settings]
+    facts:
+      - "The main menu runs down the left side of every page, with one entry per module you can use, for example **Deals** or **Support**."
+      - "**Global search** is the search bar at the top of every page. It only finds records in modules you can use."
+      - "You can pin up to 20 records or pages to **Favourites**."
+      - "**My settings** opens from your profile picture in the top-right corner."
+      - "In-app notifications appear under the bell icon (**Notifications**) and are kept for 90 days."
+      - "Each user can keep up to 50 saved searches."
   contacts:
     display_name: Contacts
     description: People and companies, imports, and contact fields.
     entities: [contact, company, custom field, import]
     ui_labels: [Contacts, Companies, Import contacts, Field settings]
+    facts:
+      - "Menu: **Contacts** lists people; **Contacts → Companies** lists companies."
+      - "Every contact has exactly one owner. A new contact is owned by the user who creates it, unless an import sets the owner."
+      - "A CSV import can have up to 50,000 rows and 25 MB, encoded as UTF-8. Start one from **Contacts → Import contacts**."
+      - "On import, duplicates are matched by email address. The choices are **Skip**, **Update existing** or **Create new**; the default is **Skip**."
+      - "Imports run in the background and send a notification when they finish. **Contacts → Import contacts → History** keeps 30 days of imports."
+      - "An account can have up to 100 custom contact fields. Field types: text, number, date, dropdown, checkbox and URL."
   deals:
     display_name: Deals
     description: Pipelines, deal stages and stage automation.
     entities: [deal, pipeline, stage, stage automation]
     ui_labels: [Deals, Pipeline board, Stage settings, Automations]
+    facts:
+      - "Menu: **Deals** opens the **Pipeline board**. Pipelines, stages and stage automations are configured in **Deals → Stage settings**, where you pick a pipeline and then a stage."
+      - "An account can have up to 10 pipelines, each with up to 20 stages. Every stage has a probability from 0 to 100%."
+      - "Stage automations live on a stage's **Automations** tab. A stage can have up to 10 automations, each with one trigger and up to 5 actions."
+      - "The triggers are **Deal enters this stage** and **Deal leaves this stage**."
+      - "New automations are saved as **Paused** and only run after you switch them to **Active**."
+      - "Automations run within 1 minute of the stage change. **Run history** on the **Automations** tab shows the last 90 days of runs."
+      - "The built-in actions are **Update a field**, **Change owner** and **Notify a user**. Other modules can add actions to the **Add action** list when your account has them."
+      - "Deals closed as won or lost leave the board; find them with the **Closed** filter."
   campaigns:
     display_name: Campaigns
     description: Email campaigns, audiences and triggered emails.
     entities: [campaign, audience, email template, triggered email]
     ui_labels: [Campaigns, Audiences, Templates, Triggered emails]
+    facts:
+      - "Menu: **Campaigns**, with the tabs **Campaigns**, **Audiences**, **Templates** and **Triggered emails**."
+      - "An audience is built from contact filters, updates automatically, and holds up to 100,000 contacts."
+      - "Every email uses a template. Templates use merge fields in double braces, for example `{{contact.first_name}}`."
+      - "New triggered emails are saved as **Draft**. Selecting **Activate** sets them to **Active**, and only active triggered emails send."
+      - "A triggered email sends a given contact at most one email per 24 hours. An account can send up to 10,000 triggered emails a day."
+      - "Every email gets an unsubscribe link automatically. Unsubscribed contacts never receive campaign or triggered emails."
+      - "A hard bounce marks the contact **Bounced** and excludes them from future sends."
   reports:
     display_name: Reports
     description: Dashboards, saved reports and scheduled exports.
     entities: [report, dashboard, widget, scheduled export]
     ui_labels: [Reports, Dashboards, Report builder, Scheduled exports]
+    facts:
+      - "Menu: **Reports**, with **Dashboards**, **Report builder** and **Scheduled exports**."
+      - "A dashboard holds up to 24 widgets. Widget types: number, bar chart, line chart, table and funnel."
+      - "A report only shows data from modules the person viewing it can use."
+      - "New reports and dashboards are private until shared. You can share with users or teams as **Can view** or **Can edit**."
+      - "Report data refreshes every 15 minutes."
+      - "Scheduled exports run daily, weekly or monthly, as CSV or XLSX, emailed to up to 10 recipients. An account can have up to 100 scheduled exports."
   activities:
     display_name: Activities
     description: Tasks, calls, meetings and reminders linked to records.
     entities: [task, call log, meeting, reminder]
     ui_labels: [Activities, My tasks, Log a call, Calendar]
+    facts:
+      - "Menu: **Activities**, with **My tasks** and **Calendar**. **Log a call** is in the activity panel on every record page."
+      - "A task has one assignee, a due date and an optional reminder from 5 minutes to 7 days before it is due."
+      - "Overdue tasks show in red in **My tasks**."
+      - "**Calendar sync** connects a Google or Microsoft 365 calendar, both ways, every 5 minutes."
+      - "Recurring tasks repeat daily, weekly or monthly, with up to 52 occurrences created ahead."
+      - "Call outcomes are **Connected**, **Left voicemail**, **No answer** and **Wrong number**."
   quotes:
     display_name: Quotes
     description: Quotes built from deals, approvals and PDF sending.
     entities: [quote, line item, discount, approval]
     ui_labels: [Quotes, Quote builder, Approvals, Send quote]
+    facts:
+      - "Menu: **Quotes**, with **Quote builder** and **Approvals**."
+      - "Quotes are numbered automatically in the format Q-00001 and can have up to 200 line items."
+      - "A quote is valid for 30 days by default; the expiry can be set from 1 to 365 days."
+      - "Any discount above 20% needs approval. Approvers are set in **Quotes → Approvals → Approval rules**."
+      - "Quote statuses: **Draft**, **Pending approval**, **Approved**, **Sent**, **Accepted**, **Declined** and **Expired**."
+      - "Quotes are sent by email as PDF attachments."
   products:
     display_name: Products
     description: The product catalogue, price books and product bundles.
     entities: [product, price book, bundle]
     ui_labels: [Products, Price books, Bundles]
+    facts:
+      - "Menu: **Products**, with **Price books** and **Bundles**."
+      - "Every product has a unique SKU. An archived product can't be added to new quotes but stays on existing ones."
+      - "An account can have up to 20 price books. Exactly one is the default, and each has one price per currency."
+      - "A bundle contains 2 to 50 products. Its price is either the sum of its products' prices or a fixed bundle price."
   support:
     display_name: Support
     description: Tickets, queues, SLAs and escalations.
     entities: [ticket, queue, SLA policy, escalation]
     ui_labels: [Tickets, Queues, SLA policies, Escalations]
+    facts:
+      - "Menu: **Support**, with **Tickets**, **Queues**, **SLA policies** and **Escalations**."
+      - "Ticket statuses: **New**, **Open**, **Waiting on customer**, **Resolved** and **Closed**. Resolved tickets close automatically after 7 days."
+      - "Every ticket is in exactly one queue. Queue assignment rules are **Round robin** or **Least busy**."
+      - "An SLA policy sets first response and resolution targets per priority (**Urgent**, **High**, **Normal**, **Low**). It applies to new tickets only, and the first matching policy by order wins."
+      - "Default business hours are Monday to Friday, 09:00 to 17:30, in the account's time zone."
+      - "Escalation rules have up to 3 levels and can notify a team lead or move the ticket to another queue."
 
 # Modules each role may use (before client licensing).
 roles:
@@ -96,23 +163,41 @@ workflows:
     title: Email contacts when a deal changes stage
     modules: [deals, campaigns]
     prerequisites: [a pipeline with stages, an email template, contacts linked to the deal]
+    facts:
+      - "On a stage's **Automations** tab, the **Add action** list includes **Send triggered email** only when the account has Campaigns."
+      - "The selected triggered email must be **Active** to send. Recipients are the deal's linked contacts: all of them, or the primary contact only."
   - id: quote-from-deal
     title: Create and send a quote from a deal
     modules: [deals, quotes, products]
     prerequisites: [an open deal, products in a price book]
+    facts:
+      - "An open deal has a **Create quote** button when the account has Quotes. The quote copies the deal's name, company and amount."
+      - "Products are added from the deal's price book, which is the default price book unless the deal sets another."
   - id: ticket-escalation
     title: Escalate a support ticket to the account owner
     modules: [support, contacts]
     prerequisites: [a ticket linked to a contact, an account owner on the company]
+    facts:
+      - "The account owner is the owner of the company linked to the ticket's contact."
+      - "A ticket has an **Escalate to account owner** action; the owner gets an in-app and an email notification."
   - id: campaign-report
     title: Report on campaign performance
     modules: [campaigns, reports]
     prerequisites: [a sent campaign]
+    facts:
+      - "**Report builder** offers a **Campaign performance** data source when the account has Campaigns."
+      - "Its metrics: sent, delivered, opened, clicked, unsubscribed and bounced."
   - id: deal-follow-ups
     title: Create follow-up tasks when a deal changes stage
     modules: [deals, activities]
     prerequisites: [a pipeline with stages]
+    facts:
+      - "Stage automations offer a **Create task** action when the account has Activities."
+      - "The task is assigned to the deal owner by default and is due a set number of days after the stage change."
   - id: contacts-to-audience
     title: Import contacts into a campaign audience
     modules: [contacts, campaigns]
     prerequisites: [a CSV file of contacts]
+    facts:
+      - "The last step of a contact import offers **Add to audience** when the account has Campaigns."
+      - "Only rows whose consent column is Yes are added to the audience; the file must include a consent column."

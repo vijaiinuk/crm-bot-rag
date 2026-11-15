@@ -1,0 +1,384 @@
+# Provenance of the synthetic docs, written by `make docs-gen`.
+# sha256 is of the file as generated; a different hash means it was edited by hand.
+generator:
+  plan_version: 1
+  seed: 20261113
+docs:
+  core-navigation:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1414
+    output_tokens: 1397
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: 4b08cbae643741e18dfada577d1d486d4db78db38c6db5ee1414332cb01d1975
+  core-notifications:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1390
+    output_tokens: 1056
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: 34d9b46a07b9ed322b900cf1cce460a2ec7585b0c38f07544490e4a4a429f290
+  core-search-tips:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1411
+    output_tokens: 740
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: 3857ce47bc85b0d5a121bdde3dd533f892cafa6280cab9cededff676269dbfeb
+  core-personal-settings:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1386
+    output_tokens: 683
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: 53b032ae13df3455dd03cf38018955ab70fbb5454b91e0dfd90018427cc5572f
+  contacts-records:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1469
+    output_tokens: 725
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: 12730e60b2cd8275ac00a07e32f19b241bab08b88b6b2ffea5b6f7438a812cd9
+  contacts-import:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1539
+    output_tokens: 869
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: ecf016eedb06d992166182acbbc911711988cb014cfc70fc38e2f4ebd1715fb4
+  contacts-custom-fields:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1457
+    output_tokens: 1022
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: 684afe1ab68ad84f5a4070fd004f70e8edc484f4613c47e2bc5e0c6fc6526dbd
+  contacts-ownership:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1517
+    output_tokens: 1223
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: f8689e24693f85a6ddc07fdc39c6cfa1f3ca5d69de7fbdfc94f594d9f541fbf4
+  deals-pipeline-setup:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1569
+    output_tokens: 847
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: f1bb07c20955e45da8d19dc779cf10599281ab64879fdf862cbfe1b33f72b009
+  deals-records:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1581
+    output_tokens: 1185
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: b5e9f09c65cf46b899262fc372f5220d0318ed04b0610ee93cc20bc674e82391
+  deals-stage-automation:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1675
+    output_tokens: 1712
+    generated_at: '2026-11-15T19:05:50+00:00'
+    sha256: b1e9dab898f17b6a9de4a547b0ffed3cbb2d19bdb3afdb50f44f06a52715391f
+  deals-forecasting:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1844
+    output_tokens: 1066
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: 9c6cea3805960bd9969c22870a7e18490f2638585154a223f14cbe907d627bde
+  deals-board-view:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1575
+    output_tokens: 1057
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: af53968374276a494e250ed413836969ad34aa1f66add085ff2f705248c2f8e6
+  campaigns-audiences:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1499
+    output_tokens: 1098
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: ca4977ce821f7428d451e13f727dbb72101cd450609e316e02b0ea243cc155c9
+  campaigns-triggered-emails:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1578
+    output_tokens: 1566
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: d1209405ae849a7c679712b72ac1bc17df8c037b3bd1e490c5a94f780cc0c0ce
+  campaigns-email-templates:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1495
+    output_tokens: 772
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: da664ae2d78855f78707c4ab0dcf422dd40cc58588dbd6441b3dbb5f1348c5aa
+  campaigns-sending:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1493
+    output_tokens: 695
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: c777e79c9a61f48cbeece4b98321961313326de50bd5c9a860d38e16b29b940f
+  reports-dashboards:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1438
+    output_tokens: 792
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: 0e586bef19051afed091a2f7adfb9765669004e246b7eaeba3a5515dde891a8f
+  reports-builder:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1446
+    output_tokens: 1066
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: 8fd6636c6e01442cf3a5e3d9c6f8940bd69fef9630ea6f2912ad83bc891eddc3
+  reports-scheduled-exports:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1439
+    output_tokens: 770
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: ba3a19024f629eec79835dbb0e83f73a5db6bd6a899485e258da1f1235dded89
+  reports-sharing:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1403
+    output_tokens: 491
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: 545e471ab26fd0576cf762a4c46a61314674a9194ff19ab778df3f83c4ca3a49
+  activities-tasks:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1454
+    output_tokens: 1218
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: c6fc8882e3f73d5e44619e38279d384ab8d19292fc64f22490d73edfba6e8b73
+  activities-calls:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1431
+    output_tokens: 578
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: 8c87f41d79e0140f35a6d99adc7b35d6204789d89269626731fa458b14506cf3
+  activities-meetings:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1442
+    output_tokens: 1272
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: c2aff6f335e41a88120d6d5dd11d36acb0b71afc8cf53437c23eb0d8d7b94cc3
+  activities-task-automation:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1490
+    output_tokens: 1375
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: 7481dbbfa19e2714863180660516dfaf85c74eceaae6e13372bdf998198a9ac6
+  quotes-builder:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1433
+    output_tokens: 855
+    generated_at: '2026-11-15T19:07:55+00:00'
+    sha256: 3e49b1433180cd9e9154cece7e7302c59c0fd9b355c3f46164ff2746c1cb513d
+  quotes-approvals:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1429
+    output_tokens: 827
+    generated_at: '2026-11-15T19:07:55+00:00'
+    sha256: cf549be2ec2cbb0bc4bd470802935571f9a9ff64c9600423a293a54471fbf2e1
+  quotes-sending:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1433
+    output_tokens: 676
+    generated_at: '2026-11-15T19:07:55+00:00'
+    sha256: 44a688e0792caf93910c37a80c85e58dc5845ff4a3b0aaa6968d9a2b5da8e379
+  quotes-templates:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1402
+    output_tokens: 806
+    generated_at: '2026-11-15T19:07:55+00:00'
+    sha256: 11388f53801ebe1c07bde4f2a96b565e45d1947865aad85217724f5c72b9f623
+  products-catalogue:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1326
+    output_tokens: 1197
+    generated_at: '2026-11-15T19:07:55+00:00'
+    sha256: dbb0f64f5de7eae24f8c4e47beb4e1dc3cc4db60de7db5bab1ed8a92cd9382c3
+  products-price-books:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1323
+    output_tokens: 1108
+    generated_at: '2026-11-15T19:07:55+00:00'
+    sha256: 706b2f7ae3592d2c53c9dad542dae14a722643f17f406868e6e7b5fc41512b2b
+  products-bundles:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1300
+    output_tokens: 601
+    generated_at: '2026-11-15T19:07:55+00:00'
+    sha256: 067a67101786a5f3e7d256ab001af6dea90b9b8fe17f1f6b13c580ae1783431a
+  support-tickets:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1492
+    output_tokens: 765
+    generated_at: '2026-11-15T19:07:55+00:00'
+    sha256: 6db3c1181c93d38f8372d096fcdbefbd901dc5aaf2b407a9cb0e5839ce226f14
+  support-queues:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1472
+    output_tokens: 992
+    generated_at: '2026-11-15T19:07:03+00:00'
+    sha256: 60ac12901109a8cc797b128bcecd71af5345efe377de2414525660130a4444db
+  support-sla-policies:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1515
+    output_tokens: 1764
+    generated_at: '2026-11-15T19:05:50+00:00'
+    sha256: 65932b282fec828b87b215241d9360d6722f35184d0cfbe916bc5b86aa2de8ae
+  support-escalations:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1531
+    output_tokens: 1328
+    generated_at: '2026-11-15T19:07:55+00:00'
+    sha256: 0672e7b862389aab21db4a8e095157304d323d46fef15ccdf0aa336018eb90e3
+  campaigns-deal-triggers:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 2175
+    output_tokens: 2142
+    generated_at: '2026-11-15T19:05:50+00:00'
+    sha256: f33b17ad57aa0f65d2549fc3212203caa214481513821564a5119861d6bc3512
+  deals-quote-from-deal:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 2226
+    output_tokens: 973
+    generated_at: '2026-11-15T19:07:55+00:00'
+    sha256: 33e4a6902928459aa94b7186a9a014fa14951414293129664a3426d4bb062ac2
+  support-escalate-to-owner:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 2017
+    output_tokens: 1732
+    generated_at: '2026-11-15T19:07:55+00:00'
+    sha256: 853460b8360727a550570d2a2a1344e208bf915067816678a2785c41b645c0e2
+  reports-campaign-performance:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 1963
+    output_tokens: 936
+    generated_at: '2026-11-15T19:07:55+00:00'
+    sha256: 57167a3f60a73ea9dcf48a81b72197f1022a26b4d09a411656f4360c574baa90
+  deals-follow-up-tasks:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 2019
+    output_tokens: 698
+    generated_at: '2026-11-15T19:07:55+00:00'
+    sha256: ae3ea644faae487ff160138c56b2b1d7d635e0858a4c200f36e8750de48952fd
+  campaigns-import-to-audience:
+    prompt: docgen_v3
+    model_id: anthropic/claude-sonnet-5.5
+    provider: Anthropic
+    attempts: 1
+    input_tokens: 2005
+    output_tokens: 1671
+    generated_at: '2026-11-15T19:07:55+00:00'
+    sha256: d4558ce299fc9ae6d8af9d359e920d507a516d48ece15f1a150ddd11cd2f3110
