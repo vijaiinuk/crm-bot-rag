@@ -3,11 +3,10 @@
 Kept free of I/O so the mock and the real (Postgres) implementations share it.
 """
 
-import re
-import unicodedata
 from collections.abc import Iterable, Mapping, Sequence
 
 from chatbot.admin.models import ChangeKind, GateCheck, ModuleChange, OrphanedLabel, ReleaseStatus
+from chatbot.ingest.anchors import anchors_of, slugify
 
 # Re-exported for callers that only need the pure API.
 __all__ = ["GateCheck", "anchors_of", "gate_outcome", "module_diff", "orphaned_labels", "slugify"]
@@ -41,28 +40,6 @@ def module_diff(
             )
         )
     return changes
-
-
-def slugify(heading: str) -> str:
-    """Stable anchor slug: lowercase ASCII words joined by hyphens."""
-    ascii_text = unicodedata.normalize("NFKD", heading).encode("ascii", "ignore").decode()
-    return re.sub(r"[^a-z0-9]+", "-", ascii_text.lower()).strip("-")
-
-
-_HEADING = re.compile(r"^(#{1,6})\s+(.+?)\s*#*\s*$")
-_FENCE = re.compile(r"^(```|~~~)")
-
-
-def anchors_of(markdown: str) -> list[str]:
-    """Anchors for every ATX heading outside fenced code blocks, in order."""
-    anchors, in_fence = [], False
-    for line in markdown.splitlines():
-        if _FENCE.match(line.strip()):
-            in_fence = not in_fence
-            continue
-        if not in_fence and (m := _HEADING.match(line)):
-            anchors.append(slugify(m.group(2)))
-    return anchors
 
 
 def orphaned_labels(

@@ -1,4 +1,4 @@
-.PHONY: keys token spec spec-check run test lint fmt chat check widget-install widget-dev widget-test widget-build admin-install admin-dev admin-test admin-build admin-types start stop restart status logs
+.PHONY: keys token spec spec-check docs-check llm-smoke run test lint fmt chat check widget-install widget-dev widget-test widget-build admin-install admin-dev admin-test admin-build admin-types start stop restart status logs
 
 PERSONA ?= sales_rep@globex
 TTL ?= 3600
@@ -14,6 +14,14 @@ spec:          ## regenerate data/personas.yaml and data/module_catalogue.yaml f
 
 spec-check:    ## validate the CRM spec and fail if the generated files are stale
 	uv run python -m tools.spec check
+
+docs-check:    ## validate the synthetic doc plan (and, from S1.2.1 step C, the docs)
+	uv run python -m tools.docgen check
+
+ROLE ?=
+
+llm-smoke:     ## one tiny live call per model role (needs OPENROUTER_API_KEY): make llm-smoke ROLE=docgen
+	uv run python -m tools.llm_smoke $(if $(ROLE),--role $(ROLE))
 
 WIDGET_ORIGIN ?= http://localhost:5173
 ADMIN_ORIGIN ?= http://localhost:5174
@@ -70,7 +78,7 @@ admin-types:   ## regenerate admin/src/api/schema.d.ts from the API's OpenAPI sc
 	uv run python -m tools.dump_openapi admin/openapi.json
 	cd admin && npm run types
 
-check: lint spec-check test widget-test admin-test  ## everything CI would run
+check: lint spec-check docs-check test widget-test admin-test  ## everything CI would run
 
 # --- all dev servers at once (API :8000, widget :5173, admin :5174) ---------------
 # Pick a subset with S, e.g. `make restart S=api`.

@@ -1,0 +1,527 @@
+# The synthetic doc plan: what to write, before an LLM writes any of it.
+#
+# Hand-written and reviewed, like the spec. The generator (tools/docgen.py)
+# writes each doc's body from `brief` and `sections`; everything evals and
+# permissions depend on comes from here, never from the model:
+#   - modules  -> frontmatter (rule 4: tags are never LLM-generated)
+#   - headings -> anchors     (evals label `doc_id#anchor`; must be stable)
+# A generated doc whose headings differ from its plan is rejected.
+#
+# Fields
+#   kind:        module | workflow (workflow guides cover one spec workflow,
+#                tagged with all of its modules)
+#   brief:       what the doc covers; also tells the model what NOT to cover
+#   sections:    heading (anchor = slug of the heading), level (2 default, 3),
+#                steps (numbered procedure of about N steps), table, code
+#   hard_cases:  near_duplicate | cross_reference | long_procedure |
+#                code_block | table | multi_module
+#   related:     doc_ids this one overlaps with or points to
+# Files land at data/docs/<first module>/<doc_id>.md, or data/docs/workflows/.
+plan_version: 1
+seed: 20261113
+
+docs:
+  # --- core -------------------------------------------------------------------------
+  - doc_id: core-navigation
+    title: Finding your way around
+    modules: [core]
+    kind: module
+    brief: The home page, global search basics, favourites and keyboard shortcuts.
+    sections:
+      - {heading: Home page}
+      - {heading: Search, steps: 4}
+      - {heading: Favourites, steps: 3}
+      - {heading: Keyboard shortcuts, table: true}
+    hard_cases: [table]
+    related: [core-search-tips]
+
+  - doc_id: core-notifications
+    title: Notification settings
+    modules: [core]
+    kind: module
+    brief: Choosing which events notify you, by email or in the app, and pausing them.
+    sections:
+      - {heading: Email notifications, steps: 4}
+      - {heading: In-app notifications, steps: 3}
+      - {heading: Quiet hours, steps: 3}
+
+  - doc_id: core-search-tips
+    title: Search tips
+    modules: [core]
+    kind: module
+    brief: >-
+      Search operators shown in a fenced code block, including lines that start
+      with `#` (tag search, e.g. `#vip`) so the anchor parser must ignore them.
+      Saving and reusing searches.
+    sections:
+      - {heading: Search operators, code: true}
+      - {heading: Saved searches, steps: 4}
+    hard_cases: [code_block]
+    related: [core-navigation]
+
+  - doc_id: core-personal-settings
+    title: Personal settings
+    modules: [core]
+    kind: module
+    brief: Your profile and photo, language and time zone, and your email signature.
+    sections:
+      - {heading: Profile and photo, steps: 3}
+      - {heading: Language and time zone, steps: 3}
+      - {heading: Email signature, steps: 4}
+
+  # --- contacts ---------------------------------------------------------------------
+  - doc_id: contacts-records
+    title: Contacts and companies
+    modules: [contacts]
+    kind: module
+    brief: Creating contacts, linking them to companies, and what the contact owner is.
+    sections:
+      - {heading: Create a contact, steps: 5}
+      - {heading: Link a contact to a company, steps: 3}
+      - {heading: Contact owner}
+
+  - doc_id: contacts-import
+    title: Importing contacts
+    modules: [contacts]
+    kind: module
+    brief: >-
+      Importing contacts from a CSV file into Contacts: upload, map columns to
+      fields, and handle duplicates. Does not cover campaign audiences.
+    sections:
+      - {heading: CSV, steps: 6}
+      - {heading: Mapping fields, steps: 4}
+      - {heading: Duplicates, steps: 3}
+    hard_cases: [near_duplicate]
+    related: [campaigns-import-to-audience]
+
+  - doc_id: contacts-custom-fields
+    title: Custom contact fields
+    modules: [contacts]
+    kind: module
+    brief: Field types, adding a custom field, and making fields required.
+    sections:
+      - {heading: Field types, table: true}
+      - {heading: Add a custom field, steps: 5}
+      - {heading: Required fields, steps: 3}
+    hard_cases: [table]
+
+  - doc_id: contacts-ownership
+    title: Assigning contact owners
+    modules: [contacts]
+    kind: module
+    brief: >-
+      Changing a contact's owner, reassigning in bulk, and how owners are set on
+      import (points to the import doc rather than repeating it).
+    sections:
+      - {heading: Change the owner, steps: 3}
+      - {heading: Bulk reassign, steps: 5}
+      - {heading: Owners on import}
+    hard_cases: [cross_reference]
+    related: [contacts-import]
+
+  # --- deals ------------------------------------------------------------------------
+  - doc_id: deals-pipeline-setup
+    title: Setting up a pipeline
+    modules: [deals]
+    kind: module
+    brief: Creating a pipeline, adding and reordering stages, and stage probabilities.
+    sections:
+      - {heading: Create a pipeline, steps: 5}
+      - {heading: Edit stages, steps: 5}
+      - {heading: Stage probabilities}
+
+  - doc_id: deals-records
+    title: Working with deals
+    modules: [deals]
+    kind: module
+    brief: Creating a deal, moving it between stages, and closing it as won or lost.
+    sections:
+      - {heading: Create a deal, steps: 5}
+      - {heading: Move a deal between stages, steps: 3}
+      - {heading: Close a deal as won or lost, steps: 4}
+
+  - doc_id: deals-stage-automation
+    title: Automating deal stage changes
+    modules: [deals]
+    kind: module
+    brief: >-
+      Stage automations inside Deals: triggers (entering or leaving a stage),
+      actions (update a field, change the owner, notify a user), and testing.
+      Mentions that other modules can add actions, without explaining them.
+    sections:
+      - {heading: Triggers, steps: 5}
+      - {heading: Actions, steps: 4}
+      - {heading: Testing an automation, steps: 4}
+    hard_cases: [near_duplicate]
+    related: [deals-follow-up-tasks, campaigns-deal-triggers]
+
+  - doc_id: deals-forecasting
+    title: Forecasting deals
+    modules: [deals, reports]
+    kind: module
+    brief: >-
+      Forecast categories on deals and the forecast report built from them.
+      Needs both Deals and Reports, so only users with both can see it.
+    sections:
+      - {heading: Forecast categories}
+      - {heading: Forecast reports, steps: 5}
+    hard_cases: [multi_module]
+
+  - doc_id: deals-board-view
+    title: Using the pipeline board
+    modules: [deals]
+    kind: module
+    brief: Filtering the board, dragging deals between stages, and board settings.
+    sections:
+      - {heading: Filter the board, steps: 4}
+      - {heading: Drag and drop deals, steps: 3}
+      - {heading: Board settings, steps: 4}
+
+  # --- campaigns --------------------------------------------------------------------
+  - doc_id: campaigns-audiences
+    title: Building audiences
+    modules: [campaigns]
+    kind: module
+    brief: Building an audience from filters, excluding contacts, and size limits.
+    sections:
+      - {heading: Build an audience, steps: 5}
+      - {heading: Exclusions, steps: 3}
+      - {heading: Audience size limits}
+
+  - doc_id: campaigns-triggered-emails
+    title: Setting up triggered emails
+    modules: [campaigns]
+    kind: module
+    brief: >-
+      Triggered emails inside Campaigns: setup, choosing a template, and send
+      limits. Mentions that deal-stage triggers exist for users with Deals and
+      points to that guide, without describing deal automation.
+    sections:
+      - {heading: Setup, steps: 6}
+      - {heading: Templates, steps: 4}
+      - {heading: Send limits}
+    hard_cases: [cross_reference]
+    related: [campaigns-deal-triggers]
+
+  - doc_id: campaigns-email-templates
+    title: Designing email templates
+    modules: [campaigns]
+    kind: module
+    brief: Creating a template, the merge fields available, and sending a test.
+    sections:
+      - {heading: Create a template, steps: 5}
+      - {heading: Merge fields, table: true}
+      - {heading: Send a test email, steps: 3}
+    hard_cases: [table]
+
+  - doc_id: campaigns-sending
+    title: Sending a campaign
+    modules: [campaigns]
+    kind: module
+    brief: Scheduling a send, how unsubscribes work, and bounce handling.
+    sections:
+      - {heading: Schedule a send, steps: 5}
+      - {heading: Unsubscribes}
+      - {heading: Bounce handling}
+
+  # --- reports ----------------------------------------------------------------------
+  - doc_id: reports-dashboards
+    title: Creating dashboards
+    modules: [reports]
+    kind: module
+    brief: Creating a dashboard, sharing it, and the widget types available.
+    sections:
+      - {heading: Create a dashboard, steps: 5}
+      - {heading: Share a dashboard, steps: 4}
+      - {heading: Dashboard widgets, table: true}
+
+  - doc_id: reports-builder
+    title: Building a report
+    modules: [reports]
+    kind: module
+    brief: Choosing a data source, filtering and grouping, and saving the report.
+    sections:
+      - {heading: Choose a data source, steps: 3}
+      - {heading: Filters and grouping, steps: 5}
+      - {heading: Save a report, steps: 3}
+
+  - doc_id: reports-scheduled-exports
+    title: Scheduling exports
+    modules: [reports]
+    kind: module
+    brief: Scheduling a recurring export of a saved report, formats, and stopping one.
+    sections:
+      - {heading: Schedule an export, steps: 5}
+      - {heading: Export formats, table: true}
+      - {heading: Stop a scheduled export, steps: 3}
+
+  - doc_id: reports-sharing
+    title: Report sharing and permissions
+    modules: [reports]
+    kind: module
+    brief: Who can see a report by default and how to share one with a team.
+    sections:
+      - {heading: Who can see a report}
+      - {heading: Share with a team, steps: 4}
+
+  # --- activities -------------------------------------------------------------------
+  - doc_id: activities-tasks
+    title: Managing tasks
+    modules: [activities]
+    kind: module
+    brief: Creating a task, due dates and reminders, and completing or reassigning it.
+    sections:
+      - {heading: Create a task, steps: 4}
+      - {heading: Due dates and reminders, steps: 3}
+      - {heading: Complete or reassign a task, steps: 3}
+
+  - doc_id: activities-calls
+    title: Logging calls
+    modules: [activities]
+    kind: module
+    brief: Logging a call against a record, call outcomes, and editing a call log.
+    sections:
+      - {heading: Log a call, steps: 4}
+      - {heading: Call outcomes, table: true}
+      - {heading: Edit a call log, steps: 3}
+
+  - doc_id: activities-meetings
+    title: Scheduling meetings
+    modules: [activities]
+    kind: module
+    brief: Scheduling a meeting, syncing your calendar, and meeting notes.
+    sections:
+      - {heading: Schedule a meeting, steps: 5}
+      - {heading: Calendar sync, steps: 6}
+      - {heading: Meeting notes}
+
+  - doc_id: activities-task-automation
+    title: Recurring and automatic tasks
+    modules: [activities]
+    kind: module
+    brief: >-
+      Recurring tasks and task templates inside Activities. Similar wording to
+      creating follow-up tasks from deal stages, but does not involve Deals.
+    sections:
+      - {heading: Recurring tasks, steps: 4}
+      - {heading: Task templates, steps: 4}
+    hard_cases: [near_duplicate]
+    related: [deals-follow-up-tasks]
+
+  # --- quotes -----------------------------------------------------------------------
+  - doc_id: quotes-builder
+    title: Building a quote
+    modules: [quotes]
+    kind: module
+    brief: Creating a quote, adding line items manually, and applying discounts.
+    sections:
+      - {heading: Create a quote, steps: 5}
+      - {heading: Line items, steps: 4}
+      - {heading: Discounts, steps: 4}
+
+  - doc_id: quotes-approvals
+    title: Quote approvals
+    modules: [quotes]
+    kind: module
+    brief: Approval rules, approving or rejecting a quote, and approval limits.
+    sections:
+      - {heading: Approval rules, steps: 5}
+      - {heading: Approve or reject a quote, steps: 3}
+      - {heading: Approval limits}
+
+  - doc_id: quotes-sending
+    title: Sending quotes
+    modules: [quotes]
+    kind: module
+    brief: Sending a quote as a PDF, quote expiry, and tracking its status.
+    sections:
+      - {heading: Send a quote as a PDF, steps: 4}
+      - {heading: Quote expiry, steps: 3}
+      - {heading: Quote statuses, table: true}
+
+  - doc_id: quotes-templates
+    title: Quote templates
+    modules: [quotes]
+    kind: module
+    brief: Choosing a quote template and customising its branding.
+    sections:
+      - {heading: Choose a template, steps: 3}
+      - {heading: Customise branding, steps: 5}
+
+  # --- products ---------------------------------------------------------------------
+  - doc_id: products-catalogue
+    title: Managing the product catalogue
+    modules: [products]
+    kind: module
+    brief: Adding a product, archiving one, and the standard product fields.
+    sections:
+      - {heading: Add a product, steps: 5}
+      - {heading: Archive a product, steps: 3}
+      - {heading: Product fields, table: true}
+
+  - doc_id: products-price-books
+    title: Price books
+    modules: [products]
+    kind: module
+    brief: Creating a price book, prices per currency, and the default price book.
+    sections:
+      - {heading: Create a price book, steps: 5}
+      - {heading: Currency prices, table: true}
+      - {heading: Set the default price book, steps: 3}
+
+  - doc_id: products-bundles
+    title: Product bundles
+    modules: [products]
+    kind: module
+    brief: Creating a bundle of products and how bundle pricing works.
+    sections:
+      - {heading: Create a bundle, steps: 5}
+      - {heading: Bundle pricing}
+
+  # --- support ----------------------------------------------------------------------
+  - doc_id: support-tickets
+    title: Working with tickets
+    modules: [support]
+    kind: module
+    brief: Creating a ticket, ticket statuses, and closing a ticket.
+    sections:
+      - {heading: Create a ticket, steps: 4}
+      - {heading: Ticket statuses, table: true}
+      - {heading: Close a ticket, steps: 3}
+
+  - doc_id: support-queues
+    title: Ticket queues
+    modules: [support]
+    kind: module
+    brief: Creating a queue and the rules that assign tickets to it.
+    sections:
+      - {heading: Create a queue, steps: 4}
+      - {heading: Assignment rules, steps: 5}
+
+  - doc_id: support-sla-policies
+    title: SLA policies
+    modules: [support]
+    kind: module
+    brief: >-
+      Setting up an SLA policy as one long procedure of about 12 steps (the
+      chunker must never split it), business hours, and what happens on a breach.
+    sections:
+      - {heading: Set up an SLA policy, steps: 12}
+      - {heading: Business hours, steps: 4}
+      - {heading: SLA breaches}
+    hard_cases: [long_procedure]
+
+  - doc_id: support-escalations
+    title: Escalation rules
+    modules: [support]
+    kind: module
+    brief: >-
+      Escalation rules inside Support (to a team lead or another queue) and
+      escalation levels. Similar to escalating to the account owner, but does
+      not involve contacts or account owners.
+    sections:
+      - {heading: Create an escalation rule, steps: 6}
+      - {heading: Escalation levels, table: true}
+    hard_cases: [near_duplicate]
+    related: [support-escalate-to-owner]
+
+  # --- workflow guides (one per spec workflow; tagged with all its modules) ----------
+  - doc_id: campaigns-deal-triggers
+    title: Emailing contacts when a deal changes stage
+    modules: [campaigns, deals]
+    kind: workflow
+    workflow: deal-stage-email
+    brief: >-
+      End to end: connect a deal stage to a triggered campaign email so the
+      deal's contacts get an email when the deal enters that stage.
+    sections:
+      - {heading: Before you start}
+      - {heading: Connect a stage to a campaign, steps: 6}
+      - {heading: Choose recipients, steps: 4}
+      - {heading: Check it works, steps: 3}
+    hard_cases: [multi_module]
+    related: [deals-stage-automation, campaigns-triggered-emails]
+
+  - doc_id: deals-quote-from-deal
+    title: Creating a quote from a deal
+    modules: [deals, quotes, products]
+    kind: workflow
+    workflow: quote-from-deal
+    brief: >-
+      End to end: create a quote from an open deal using products from a price book, then send it.
+    sections:
+      - {heading: Before you start}
+      - {heading: Create the quote from the deal, steps: 6}
+      - {heading: Add products from a price book, steps: 4}
+      - {heading: Send and track the quote, steps: 4}
+    hard_cases: [multi_module]
+    related: [quotes-builder, products-price-books]
+
+  - doc_id: support-escalate-to-owner
+    title: Escalating a ticket to the account owner
+    modules: [support, contacts]
+    kind: workflow
+    workflow: ticket-escalation
+    brief: >-
+      End to end: find the account owner of a ticket's contact and escalate the ticket to them.
+    sections:
+      - {heading: Before you start}
+      - {heading: Find the account owner, steps: 3}
+      - {heading: Escalate the ticket, steps: 5}
+      - {heading: Notify the owner, steps: 3}
+    hard_cases: [multi_module]
+    related: [support-escalations, contacts-ownership]
+
+  - doc_id: reports-campaign-performance
+    title: Reporting on campaign performance
+    modules: [campaigns, reports]
+    kind: workflow
+    workflow: campaign-report
+    brief: >-
+      End to end: build a report on a sent campaign's results and add it to a dashboard.
+    sections:
+      - {heading: Before you start}
+      - {heading: Build a campaign report, steps: 6}
+      - {heading: Add it to a dashboard, steps: 3}
+      - {heading: Metrics explained, table: true}
+    hard_cases: [multi_module]
+    related: [reports-builder, reports-dashboards]
+
+  - doc_id: deals-follow-up-tasks
+    title: Creating follow-up tasks when a deal changes stage
+    modules: [deals, activities]
+    kind: workflow
+    workflow: deal-follow-ups
+    brief: >-
+      End to end: add a stage automation action that creates a task, and assign it.
+    sections:
+      - {heading: Before you start}
+      - {heading: Add a task action to a stage, steps: 6}
+      - {heading: Assign the task, steps: 3}
+    hard_cases: [multi_module, near_duplicate]
+    related: [deals-stage-automation, activities-task-automation]
+
+  - doc_id: campaigns-import-to-audience
+    title: Importing contacts into a campaign audience
+    modules: [contacts, campaigns]
+    kind: workflow
+    workflow: contacts-to-audience
+    brief: >-
+      End to end: import contacts from a CSV and add them straight to a campaign audience, checking consent.
+    sections:
+      - {heading: Before you start}
+      - {heading: Import the CSV, steps: 6}
+      - {heading: Add the contacts to an audience, steps: 4}
+      - {heading: Check consent}
+    hard_cases: [multi_module, near_duplicate]
+    related: [contacts-import, campaigns-audiences]
+
+# Deliberately undocumented topics: no doc covers them. S1.3.1 writes
+# `unanswerable` questions from these, which the bot must say it can't answer.
+gaps:
+  - {id: two-factor-auth, modules: [core], topic: Setting up two-factor authentication}
+  - {id: contact-enrichment, modules: [contacts], topic: Enriching contacts from external data providers}
+  - {id: deal-revenue-split, modules: [deals], topic: Splitting deal revenue between several owners}
+  - {id: subject-line-ab-test, modules: [campaigns], topic: A/B testing email subject lines}
+  - {id: quote-e-signature, modules: [quotes], topic: Collecting e-signatures on quotes}
+  - {id: csat-surveys, modules: [support], topic: Sending customer satisfaction surveys after a ticket closes}

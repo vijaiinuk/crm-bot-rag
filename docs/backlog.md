@@ -205,12 +205,62 @@ selector: [diagrams/persona-matrix.html](diagrams/persona-matrix.html).
 **Out of scope:** docs, eval questions, LLM calls, changes to the runtime loaders.
 
 ### S1.2.1 Synthetic docs · est. 1
-Done when: 40–60 reviewed markdown docs with valid frontmatter and stable anchors are committed.
-- [ ] Frontmatter schema (doc_id, title, modules, version) and section-anchor convention
-- [ ] Doc generator with a versioned prompt and fixed seed
-- [ ] Per-module docs plus cross-module workflow guides
-- [ ] Hard cases: near-duplicate procedures, cross-references, deliberate gaps
-- [ ] Hand-review 10 docs; commit with the generator version
+Done when: 40–60 docs with valid frontmatter are committed, every doc's headings match its planned anchors, `make docs-check` passes in `make check`, and 10 docs are hand-reviewed.
+- [x] **Step A** (no LLM): frontmatter schema, anchor convention, `data/docs/plan.yaml` and its checks
+- [x] **Step B**: minimal LLM client (pulled forward from S3.1.3a): `config/models.yaml`, `LLMClient` port, LiteLLM adapter, key setting, one live smoke call
+- [ ] **Step C**: `prompts/docgen_v1.md` and the generator; pilot of 3 docs, reviewed before spending more
+- [ ] **Step D**: generate the full corpus, `docs-check` validates the docs, hand-review 10 (sampled, including any the leak lint flags); commit with `MANIFEST.yaml`
+
+#### S1.2.1 design (approved 2026-11-13)
+
+**The LLM writes prose; code decides structure.** `data/docs/plan.yaml` is
+hand-written and reviewed like the spec. It fixes each doc's id, title,
+modules and section headings (so its anchors). The generator writes the
+frontmatter from the plan, never from model output (rule 4), and rejects a
+generated doc whose headings differ from the plan, because S1.3.1 labels
+questions against `doc_id#anchor`.
+
+**Decisions**
+- Doc-writing model: `anthropic/claude-sonnet-5.5` on OpenRouter, provider
+  pinned, no fallbacks. S1.3.1 must generate questions with a different vendor.
+- Provenance (model, prompt version, tokens) goes in `data/docs/MANIFEST.yaml`;
+  frontmatter stays the 4-field contract real docs will follow.
+- A fixed seed doesn't make LLM output reproducible (most providers ignore it).
+  The committed docs are the artifact; the seed only fixes ordering and the
+  review sample.
+- Anchor code lives in `chatbot.ingest.anchors`, shared by upload validation,
+  the release gate, `docs-check` and later the chunker.
+
+**Conventions**
+- Frontmatter: `doc_id`, `title`, `modules`, `version`, validated by
+  `data/spec/doc_frontmatter.schema.json` (reused by S2.1.1).
+- No H1 in the body (the title is in frontmatter); sections are H2, subsections H3.
+- Anchor = slug of the heading. Anchors must be unique within a doc; duplicates
+  are rejected rather than suffixed `-1`.
+- Files: `data/docs/<first module>/<doc_id>.md`; workflow guides in `data/docs/workflows/`.
+
+**Corpus (plan v1):** 42 docs (36 module docs, at least 3 per module; 6 workflow
+guides, one per spec workflow, tagged with all its modules) and 6 deliberate gaps.
+
+| Hard case | Where |
+|---|---|
+| Near-duplicate procedures | `contacts-import` vs `campaigns-import-to-audience`; `deals-stage-automation` / `activities-task-automation` vs `deals-follow-up-tasks`; `support-escalations` vs `support-escalate-to-owner` |
+| Cross-references | `contacts-ownership` → import; `campaigns-triggered-emails` → deal-stage guide |
+| Long procedure (12 steps, never split) | `support-sla-policies#set-up-an-sla-policy` |
+| `#` lines in a code block | `core-search-tips#search-operators` |
+| Tables | `core-navigation`, `contacts-custom-fields`, `campaigns-email-templates`, and others |
+| Multi-module (rule 5) | `deals-forecasting` [deals, reports], plus all 6 workflow guides |
+| Gaps (for `unanswerable` evals) | two-factor auth, contact enrichment, deal revenue split, subject-line A/B tests, quote e-signatures, CSAT surveys |
+
+**Content leaks through prose.** A doc tagged `[deals]` that explains
+triggered-email setup would hand campaigns know-how to users without
+Campaigns, and the permission filter can't catch it. The prompt allows
+cross-references but forbids other modules' procedures; `docs-check` flags
+docs that mention another module's UI labels, and those go into the review sample.
+
+**Required labels** (already referenced by the mock responder and CLAUDE.md):
+`deals-stage-automation#triggers`, `campaigns-triggered-emails#setup`,
+`reports-dashboards#create-a-dashboard`, `contacts-import#csv`.
 
 ### S1.3.1 Golden eval set · est. 1.5
 Done when: 150+ reviewed questions with per-persona expected outcomes, and every anchor resolves.
@@ -296,6 +346,7 @@ Done when: a version is promoted only if the permission suite, retrieval thresho
 Goal: replace the mock `Responder` with grounded, cited, streamed, traced answers.
 
 ### S3.1.3a LLM client and config · est. 0.5 · [Delegate]
+Partly pulled forward into S1.2.1 step B (models.yaml, port, LiteLLM adapter, key setting); what's left here is wiring it into the query path.
 - [ ] `config/models.yaml` with pinned model IDs
 - [ ] LiteLLM → OpenRouter, provider pinned, fallbacks off
 - [ ] `LLMClient` port; mocked in tests

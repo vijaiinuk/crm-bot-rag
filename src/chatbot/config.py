@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Literal
 
+from pydantic import AliasChoices, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -28,5 +29,14 @@ class Settings(BaseSettings):
     mock_token_delay_s: float = 0.03
     # Pause per simulated build stage in the admin mock, so progress is visible.
     mock_job_step_s: float = 0.8
+    # Model IDs, providers and routing (never hardcode model IDs).
+    models_path: Path = Path("config/models.yaml")
+    # OpenRouter key for development (ADR-0002). Read as OPENROUTER_API_KEY, the
+    # name every OpenRouter tool uses, and passed to LiteLLM explicitly rather
+    # than through the process environment. Synthetic data only.
+    openrouter_api_key: SecretStr | None = Field(
+        default=None,
+        validation_alias=AliasChoices("OPENROUTER_API_KEY", "CHATBOT_OPENROUTER_API_KEY"),
+    )
     # Local signing keys; only read when env == "local".
     keys_dir: Path = Path(".local/keys")

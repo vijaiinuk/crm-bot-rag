@@ -76,9 +76,9 @@ MOCK_DOCS: tuple[MockDoc, ...] = (
     ),
     MockDoc(
         doc_id="reports-dashboards",
-        anchor="create",
+        anchor="create-a-dashboard",
         title="Creating a dashboard",
-        breadcrumb="Reports > Dashboards > Create",
+        breadcrumb="Reports > Dashboards > Create a dashboard",
         module="reports",
         pattern=_words("report", "dashboard"),
         body=(
