@@ -269,14 +269,43 @@ label `single` questions against them.
 `deals-stage-automation#triggers`, `campaigns-triggered-emails#setup`,
 `reports-dashboards#create-a-dashboard`, `contacts-import#csv`.
 
-### S1.3.1 Golden eval set · est. 1.5
+### S1.3.1 Golden eval set · est. 1.5 · ✅ done
 Done when: 150+ reviewed questions with per-persona expected outcomes, and every anchor resolves.
-- [ ] Eval YAML schema (id, question, category, per-persona outcome, required sections)
-- [ ] Generate with a different model than the docs
-- [ ] Cover single, multi_hop, unanswerable, out_of_scope, restricted, adversarial
-- [ ] Hand-review 10–15%; rewrite or drop questions that copy the docs' phrasing
-- [ ] Check that every required `doc_id#anchor` exists in the corpus
-- [ ] Commit with the generator version
+- [x] **Step A** (no LLM): golden-set contract and outcome derivation (`chatbot.evals.golden`, tests first), hand-written seeds, `evals/synthetic/targets.yaml` built by code, `make evals-check`
+- [x] **Step B**: `questiongen` role (`openai/gpt-5.4-mini`, a different vendor from the docs), prompt, generator with a copy check; 12-question pilot. The pilot's "frustrated" style made questions say "i'm stuck" and the "why they need it" style forced filler, so the styles were reworded (`questiongen_v2`)
+- [x] **Step C**: 151 questions generated and hand-reviewed (20 sampled across every category, 13%). Review found questions reusing the docs' invented examples ("Renewal date"), so `questiongen_v3` forbids that and a check rejects quoted doc examples; 4 questions regenerated
+
+#### S1.3.1 design (approved 2026-11-16)
+
+**The LLM writes the wording; code decides the truth.** A target fixes each
+question's category, required `doc_id#anchor` labels and personas before any
+LLM runs. Per-persona outcomes are **derived**: `answer` if the persona holds
+every module of every required doc, otherwise `restricted` with exactly the
+missing modules; `unanswerable` is `not_found` and `out_of_scope` is
+`out_of_scope`. `make evals-check` re-derives every stored outcome and fails
+on drift, orphaned labels, unknown personas or duplicate questions.
+
+**Rules**
+- A question a workflow guide answers is labelled with the guide and counts as
+  `single`; `multi_hop` is only for questions needing 2+ docs no guide covers
+  (CLAUDE.md example updated to match).
+- Multi-hop with partial access is `restricted`: there is no "partial answer"
+  outcome. Revisit with an ADR if end-to-end evals show users want one.
+- Unanswerable questions only get personas holding the gap's modules, so the
+  outcome is unambiguously `not_found`.
+- Restricted and adversarial targets use sections some personas can see and
+  others can't (every persona has `core` and `contacts`), with one answer
+  persona as a control.
+- 2–3 personas per question, picked by code with a seed; retrieval and
+  permission evals can still loop over all 16.
+
+**Rate limits.** New OpenRouter accounts get 20 requests a minute per model.
+Model roles can set `rpm:` in `config/models.yaml`, and the LiteLLM client
+paces itself to stay under it (both generator roles use 18).
+
+**Targets (seed 20261116):** 151 = 60 single, 26 multi_hop (13 seeded pairs × 2),
+20 restricted, 15 adversarial (5 attack types × 3), 15 unanswerable (6 gaps),
+15 out_of_scope. All 42 docs and all 16 personas are covered.
 
 ---
 

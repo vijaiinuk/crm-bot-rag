@@ -43,6 +43,8 @@ class ModelRole(_Strict):
     model_id: str
     route: Route
     params: ModelParams
+    # Client-side pacing: at most this many requests a minute (provider limits).
+    rpm: int | None = Field(default=None, ge=1)
 
     @field_validator("model_id")
     @classmethod

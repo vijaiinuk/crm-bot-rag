@@ -7,6 +7,7 @@ from typing import Any
 import litellm
 from pydantic import SecretStr
 
+from chatbot.adapters.rate_limit import RateLimiter
 from chatbot.models_config import ModelsConfig
 from chatbot.ports.llm import Completion, LLMError, Message, Usage
 
@@ -24,6 +25,9 @@ class LiteLLMClient:
             raise LLMError("OPENROUTER_API_KEY is not set (put it in .env)")
         self._config = config
         self._keys = {"openrouter": openrouter_api_key}
+        self._limiters = {
+            role: RateLimiter(m.rpm) for role, m in config.models.items() if m.rpm is not None
+        }
 
     async def complete(self, messages: Sequence[Message], *, role: str) -> Completion:
         try:
@@ -33,6 +37,8 @@ class LiteLLMClient:
         key = self._keys.get(m.provider)
         expected = m.route.order[0]
 
+        if limiter := self._limiters.get(role):
+            await limiter.acquire()
         started = time.monotonic()
         try:
             response: Any = await litellm.acompletion(

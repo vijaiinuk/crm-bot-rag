@@ -110,11 +110,12 @@ Synthetic generators are dev tools. These formats are the contract; real CRM doc
   ```yaml
   - id: q-0042
     question: "how do i get an email sent when a deal moves to negotiation"
-    category: multi_hop      # single | multi_hop | unanswerable | out_of_scope | restricted | adversarial
+    category: single         # single | multi_hop | unanswerable | out_of_scope | restricted | adversarial
     expected:
-      sales_manager@acme: { outcome: answer, required: [deals-stage-automation#triggers, campaigns-triggered-emails#setup] }
-      sales_rep@globex:   { outcome: restricted, missing_modules: [campaigns] }
+      sales_manager@acme: { outcome: answer, required: [campaigns-deal-triggers#connect-a-stage-to-a-campaign] }
+      sales_rep@globex:   { outcome: restricted, required: [campaigns-deal-triggers#connect-a-stage-to-a-campaign], missing_modules: [campaigns] }
   ```
+  A question a workflow guide answers is labelled with the guide (`single`); `multi_hop` is for questions needing 2+ docs that no guide covers. For labelled categories the per-persona outcome is **derived** (`chatbot.evals.golden`): `answer` if the persona holds every module of every required doc, else `restricted` with exactly the missing modules. `make evals-check` re-derives every stored outcome and fails on drift.
 - Generated data is committed with its generator prompt version and seed. Do not regenerate as part of normal runs.
 
 ## Database (key tables)

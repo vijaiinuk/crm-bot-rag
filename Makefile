@@ -1,4 +1,4 @@
-.PHONY: keys token spec spec-check docs-check docs-gen docs-sample llm-smoke run test lint fmt chat check widget-install widget-dev widget-test widget-build admin-install admin-dev admin-test admin-build admin-types start stop restart status logs
+.PHONY: keys token spec spec-check docs-check docs-gen docs-sample evals-targets evals-check evals-gen evals-sample llm-smoke run test lint fmt chat check widget-install widget-dev widget-test widget-build admin-install admin-dev admin-test admin-build admin-types start stop restart status logs
 
 PERSONA ?= sales_rep@globex
 TTL ?= 3600
@@ -25,6 +25,20 @@ docs-gen:      ## write missing synthetic docs with the LLM (costs money): make 
 
 docs-sample:   ## list the docs to hand-review (flagged ones first)
 	@uv run python -m tools.docgen sample
+
+evals-targets: ## rebuild evals/synthetic/targets.yaml from the seeds and the doc plan (no LLM)
+	uv run python -m tools.evalgen targets
+
+evals-check:   ## validate eval targets and every golden question (labels resolve, outcomes re-derived)
+	uv run python -m tools.evalgen check
+
+TIDS ?=
+
+evals-gen:     ## write missing eval questions with the LLM (costs money): make evals-gen TIDS="t-001 t-002"
+	uv run python -m tools.evalgen generate $(if $(TIDS),--only $(TIDS))
+
+evals-sample:  ## list eval questions to hand-review, with labels and expected outcomes
+	@uv run python -m tools.evalgen sample
 
 ROLE ?=
 
@@ -86,7 +100,7 @@ admin-types:   ## regenerate admin/src/api/schema.d.ts from the API's OpenAPI sc
 	uv run python -m tools.dump_openapi admin/openapi.json
 	cd admin && npm run types
 
-check: lint spec-check docs-check test widget-test admin-test  ## everything CI would run
+check: lint spec-check docs-check evals-check test widget-test admin-test  ## everything CI would run
 
 # --- all dev servers at once (API :8000, widget :5173, admin :5174) ---------------
 # Pick a subset with S, e.g. `make restart S=api`.

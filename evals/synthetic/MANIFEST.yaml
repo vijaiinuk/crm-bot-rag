@@ -1,0 +1,1515 @@
+# Provenance of evals/golden/synthetic_v1.yaml, written by `make evals-gen`.
+generator:
+  seed: 20261116
+  seed_version: 1
+questions:
+  q-0001:
+    tid: t-001
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 482
+    output_tokens: 11
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:11:34+00:00'
+  q-0002:
+    tid: t-002
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 453
+    output_tokens: 17
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:11:34+00:00'
+  q-0003:
+    tid: t-003
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 458
+    output_tokens: 17
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:11:34+00:00'
+  q-0004:
+    tid: t-004
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 471
+    output_tokens: 15
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:11:34+00:00'
+  q-0005:
+    tid: t-005
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 519
+    output_tokens: 27
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:11:34+00:00'
+  q-0006:
+    tid: t-006
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 491
+    output_tokens: 11
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:11:34+00:00'
+  q-0007:
+    tid: t-007
+    prompt: questiongen_v3
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 2
+    input_tokens: 1114
+    output_tokens: 32
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:35:08+00:00'
+  q-0008:
+    tid: t-008
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 549
+    output_tokens: 16
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:11:34+00:00'
+  q-0009:
+    tid: t-009
+    prompt: questiongen_v3
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 531
+    output_tokens: 18
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:35:08+00:00'
+  q-0010:
+    tid: t-010
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 479
+    output_tokens: 19
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:11:34+00:00'
+  q-0011:
+    tid: t-011
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 503
+    output_tokens: 31
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:11:34+00:00'
+  q-0012:
+    tid: t-012
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 549
+    output_tokens: 32
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:11:34+00:00'
+  q-0013:
+    tid: t-013
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 520
+    output_tokens: 15
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:11:34+00:00'
+  q-0014:
+    tid: t-014
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 460
+    output_tokens: 24
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:11:34+00:00'
+  q-0015:
+    tid: t-015
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 482
+    output_tokens: 11
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:11:34+00:00'
+  q-0016:
+    tid: t-016
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 485
+    output_tokens: 21
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:11:34+00:00'
+  q-0017:
+    tid: t-017
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 455
+    output_tokens: 9
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:11:34+00:00'
+  q-0018:
+    tid: t-018
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 512
+    output_tokens: 20
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:11:34+00:00'
+  q-0019:
+    tid: t-019
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 459
+    output_tokens: 16
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:11:34+00:00'
+  q-0020:
+    tid: t-020
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 433
+    output_tokens: 11
+    copy_ratio: 0.25
+    generated_at: '2026-11-16T10:11:34+00:00'
+  q-0021:
+    tid: t-021
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 509
+    output_tokens: 21
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0022:
+    tid: t-022
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 561
+    output_tokens: 25
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0023:
+    tid: t-023
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 469
+    output_tokens: 19
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0024:
+    tid: t-024
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 549
+    output_tokens: 18
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0025:
+    tid: t-025
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 541
+    output_tokens: 17
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0026:
+    tid: t-026
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 553
+    output_tokens: 29
+    copy_ratio: 0.22
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0027:
+    tid: t-027
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 465
+    output_tokens: 25
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0028:
+    tid: t-028
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 489
+    output_tokens: 16
+    copy_ratio: 0.11
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0029:
+    tid: t-029
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 551
+    output_tokens: 21
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0030:
+    tid: t-030
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 415
+    output_tokens: 19
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0031:
+    tid: t-031
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 534
+    output_tokens: 17
+    copy_ratio: 0.3
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0032:
+    tid: t-032
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 493
+    output_tokens: 24
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0033:
+    tid: t-033
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 538
+    output_tokens: 24
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0034:
+    tid: t-034
+    prompt: questiongen_v3
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 479
+    output_tokens: 18
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:35:08+00:00'
+  q-0035:
+    tid: t-035
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 671
+    output_tokens: 26
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0036:
+    tid: t-036
+    prompt: questiongen_v3
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 659
+    output_tokens: 23
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:35:08+00:00'
+  q-0037:
+    tid: t-037
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 546
+    output_tokens: 21
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0038:
+    tid: t-038
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 515
+    output_tokens: 8
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0039:
+    tid: t-039
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 443
+    output_tokens: 30
+    copy_ratio: 0.09
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0040:
+    tid: t-040
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 519
+    output_tokens: 9
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0041:
+    tid: t-041
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 510
+    output_tokens: 11
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0042:
+    tid: t-042
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 512
+    output_tokens: 18
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0043:
+    tid: t-043
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 443
+    output_tokens: 16
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0044:
+    tid: t-044
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 533
+    output_tokens: 29
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0045:
+    tid: t-045
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 550
+    output_tokens: 27
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0046:
+    tid: t-046
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 558
+    output_tokens: 13
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0047:
+    tid: t-047
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 499
+    output_tokens: 21
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:49+00:00'
+  q-0048:
+    tid: t-048
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 498
+    output_tokens: 10
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0049:
+    tid: t-049
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 522
+    output_tokens: 14
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0050:
+    tid: t-050
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 519
+    output_tokens: 22
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0051:
+    tid: t-051
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 493
+    output_tokens: 18
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0052:
+    tid: t-052
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 550
+    output_tokens: 12
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0053:
+    tid: t-053
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 505
+    output_tokens: 10
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0054:
+    tid: t-054
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 483
+    output_tokens: 15
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0055:
+    tid: t-055
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 566
+    output_tokens: 12
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0056:
+    tid: t-056
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 520
+    output_tokens: 9
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0057:
+    tid: t-057
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 479
+    output_tokens: 21
+    copy_ratio: 0.08
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0058:
+    tid: t-058
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 521
+    output_tokens: 13
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0059:
+    tid: t-059
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 478
+    output_tokens: 9
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0060:
+    tid: t-060
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 459
+    output_tokens: 22
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0061:
+    tid: t-061
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 730
+    output_tokens: 21
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:49+00:00'
+  q-0062:
+    tid: t-062
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 765
+    output_tokens: 29
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:49+00:00'
+  q-0063:
+    tid: t-063
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 792
+    output_tokens: 14
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0064:
+    tid: t-064
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 819
+    output_tokens: 23
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0065:
+    tid: t-065
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 760
+    output_tokens: 9
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0066:
+    tid: t-066
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 801
+    output_tokens: 30
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0067:
+    tid: t-067
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 739
+    output_tokens: 26
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0068:
+    tid: t-068
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 763
+    output_tokens: 23
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0069:
+    tid: t-069
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 689
+    output_tokens: 13
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0070:
+    tid: t-070
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 721
+    output_tokens: 25
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0071:
+    tid: t-071
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 642
+    output_tokens: 26
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0072:
+    tid: t-072
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 691
+    output_tokens: 29
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0073:
+    tid: t-073
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 734
+    output_tokens: 23
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0074:
+    tid: t-074
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 769
+    output_tokens: 22
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0075:
+    tid: t-075
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 748
+    output_tokens: 10
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0076:
+    tid: t-076
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 783
+    output_tokens: 14
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0077:
+    tid: t-077
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 940
+    output_tokens: 24
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0078:
+    tid: t-078
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 970
+    output_tokens: 28
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0079:
+    tid: t-079
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 850
+    output_tokens: 28
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0080:
+    tid: t-080
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 885
+    output_tokens: 33
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0081:
+    tid: t-081
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 681
+    output_tokens: 17
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0082:
+    tid: t-082
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 727
+    output_tokens: 24
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0083:
+    tid: t-083
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 637
+    output_tokens: 9
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0084:
+    tid: t-084
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 678
+    output_tokens: 24
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0085:
+    tid: t-085
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 693
+    output_tokens: 21
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0086:
+    tid: t-086
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 734
+    output_tokens: 22
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0087:
+    tid: t-087
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 580
+    output_tokens: 24
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:49+00:00'
+  q-0088:
+    tid: t-088
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 508
+    output_tokens: 29
+    copy_ratio: 0.05
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0089:
+    tid: t-089
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 463
+    output_tokens: 27
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0090:
+    tid: t-090
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 503
+    output_tokens: 22
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0091:
+    tid: t-091
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 551
+    output_tokens: 26
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0092:
+    tid: t-092
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 509
+    output_tokens: 30
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0093:
+    tid: t-093
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 512
+    output_tokens: 14
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0094:
+    tid: t-094
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 451
+    output_tokens: 25
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0095:
+    tid: t-095
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 556
+    output_tokens: 17
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:49+00:00'
+  q-0096:
+    tid: t-096
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 464
+    output_tokens: 16
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0097:
+    tid: t-097
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 490
+    output_tokens: 22
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0098:
+    tid: t-098
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 511
+    output_tokens: 23
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0099:
+    tid: t-099
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 530
+    output_tokens: 21
+    copy_ratio: 0.08
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0100:
+    tid: t-100
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 574
+    output_tokens: 9
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0101:
+    tid: t-101
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 467
+    output_tokens: 16
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0102:
+    tid: t-102
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 465
+    output_tokens: 13
+    copy_ratio: 0.33
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0103:
+    tid: t-103
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 540
+    output_tokens: 19
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0104:
+    tid: t-104
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 526
+    output_tokens: 10
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0105:
+    tid: t-105
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 528
+    output_tokens: 9
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0106:
+    tid: t-106
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 397
+    output_tokens: 10
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0107:
+    tid: t-107
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 481
+    output_tokens: 31
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:49+00:00'
+  q-0108:
+    tid: t-108
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 606
+    output_tokens: 33
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0109:
+    tid: t-109
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 548
+    output_tokens: 26
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0110:
+    tid: t-110
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 535
+    output_tokens: 18
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0111:
+    tid: t-111
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 481
+    output_tokens: 9
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0112:
+    tid: t-112
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 442
+    output_tokens: 10
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0113:
+    tid: t-113
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 563
+    output_tokens: 26
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:49+00:00'
+  q-0114:
+    tid: t-114
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 498
+    output_tokens: 31
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0115:
+    tid: t-115
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 606
+    output_tokens: 13
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0116:
+    tid: t-116
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 594
+    output_tokens: 13
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0117:
+    tid: t-117
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 514
+    output_tokens: 23
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0118:
+    tid: t-118
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 557
+    output_tokens: 30
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0119:
+    tid: t-119
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 474
+    output_tokens: 34
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0120:
+    tid: t-120
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 521
+    output_tokens: 27
+    copy_ratio: 0.21
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0121:
+    tid: t-121
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 551
+    output_tokens: 13
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0122:
+    tid: t-122
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 316
+    output_tokens: 24
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:49+00:00'
+  q-0123:
+    tid: t-123
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 305
+    output_tokens: 19
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0124:
+    tid: t-124
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 309
+    output_tokens: 21
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0125:
+    tid: t-125
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 317
+    output_tokens: 29
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0126:
+    tid: t-126
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 309
+    output_tokens: 19
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0127:
+    tid: t-127
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 305
+    output_tokens: 20
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0128:
+    tid: t-128
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 348
+    output_tokens: 27
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:19:10+00:00'
+  q-0129:
+    tid: t-129
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 351
+    output_tokens: 24
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0130:
+    tid: t-130
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 344
+    output_tokens: 23
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0131:
+    tid: t-131
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 338
+    output_tokens: 29
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0132:
+    tid: t-132
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 347
+    output_tokens: 12
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0133:
+    tid: t-133
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 345
+    output_tokens: 21
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0134:
+    tid: t-134
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 345
+    output_tokens: 14
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0135:
+    tid: t-135
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 348
+    output_tokens: 13
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0136:
+    tid: t-136
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 347
+    output_tokens: 13
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0137:
+    tid: t-137
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 310
+    output_tokens: 13
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:19:10+00:00'
+  q-0138:
+    tid: t-138
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 318
+    output_tokens: 24
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0139:
+    tid: t-139
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 316
+    output_tokens: 13
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0140:
+    tid: t-140
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 315
+    output_tokens: 10
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0141:
+    tid: t-141
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 321
+    output_tokens: 34
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0142:
+    tid: t-142
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 317
+    output_tokens: 28
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0143:
+    tid: t-143
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 314
+    output_tokens: 9
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0144:
+    tid: t-144
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 306
+    output_tokens: 19
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0145:
+    tid: t-145
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 311
+    output_tokens: 10
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0146:
+    tid: t-146
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 321
+    output_tokens: 32
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:19:10+00:00'
+  q-0147:
+    tid: t-147
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 312
+    output_tokens: 23
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0148:
+    tid: t-148
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 318
+    output_tokens: 27
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0149:
+    tid: t-149
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 314
+    output_tokens: 11
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0150:
+    tid: t-150
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 317
+    output_tokens: 29
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
+  q-0151:
+    tid: t-151
+    prompt: questiongen_v2
+    model_id: openai/gpt-5.4-mini
+    provider: OpenAI
+    attempts: 1
+    input_tokens: 320
+    output_tokens: 27
+    copy_ratio: 0.0
+    generated_at: '2026-11-16T10:18:42+00:00'
