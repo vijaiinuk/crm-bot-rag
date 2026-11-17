@@ -313,17 +313,31 @@ paces itself to stay under it (both generator roles use 18).
 
 Goal: a versioned, permission-tagged index built by `make ingest`.
 
+**E2 decisions (approved 2026-11-16)**
+- Order: S2.1.1 and S2.1.2 first (no infrastructure), then S1.4.1 and S2.1.3.
+  Container runtime: Colima (`colima start --memory 3 --cpu 2`).
+- Database access: Alembic + SQLAlchemy for migrations only; at runtime,
+  psycopg 3 + pgvector with hand-written SQL, so the `modules <@` filter stays
+  visible and testable.
+- DB tests use a `db` pytest marker: skipped locally when Postgres is down,
+  but `REQUIRE_DB=1` turns a skip into a failure (CI, and `make check` once
+  Docker is part of the dev setup).
+- Until the S2.4.1 gate exists, `make ingest` promotes with `ungated: true`
+  recorded on the index version; S2.4.1 makes the gate mandatory.
+- Known modules come from the module catalogue (the `ModuleCatalogue` port).
+
 ### S1.4.1 Compose and DB baseline · est. 0.5 · [Delegate]
 Done when: `make up` starts Postgres + pgvector and Phoenix, and Alembic runs against them.
 - [ ] docker-compose: Postgres 16 + pgvector, Phoenix; VM capped about 3 GB
 - [ ] `make up` / `make down`
 - [ ] Alembic initialised; DB settings in pydantic-settings
 
-### S2.1.1 Fail-closed validation · est. 0.5
+### S2.1.1 Fail-closed validation · est. 0.5 · ✅ done
 Done when: an untagged or mis-tagged doc aborts the run with a clear error.
-- [ ] `ingest/validate.py` replaces the mock `admin/validation.py`; upload and CLI share it
-- [ ] Unknown modules or missing tags abort the whole run
-- [ ] Test that an untagged doc fails ingestion
+- [x] `chatbot/ingest/validate.py` (`DocValidator`) replaces the mock checks; admin upload and ingestion runs share it
+- [x] Frontmatter: the JSON Schema contract, duplicate YAML keys rejected, every module must be known
+- [x] Body: no H1 (title is in frontmatter), no setext headings, no unclosed code block, first heading `##`, no skipped levels, unique non-empty anchors
+- [x] Run: any error in any doc aborts the whole run listing every error; duplicate `doc_id`s and an empty corpus abort too
 
 ### S2.1.2 Heading-aware chunker · est. 1 · [Pair]
 Done when: chunker snapshot tests pass and no numbered procedure is split.

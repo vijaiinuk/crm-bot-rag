@@ -7,9 +7,8 @@ VALID = b"""---
 doc_id: core-keyboard-shortcuts
 title: Keyboard shortcuts
 modules: [core]
+version: 1
 ---
-# Keyboard shortcuts
-
 ## Global shortcuts
 
 Press `?` anywhere to see them.
@@ -30,7 +29,7 @@ async def test_upload_new_doc(admin_client: httpx.AsyncClient, admin_headers: Ad
     v = r.json()
     assert (v["doc_id"], v["version"], v["status"]) == ("core-keyboard-shortcuts", 1, "validated")
     assert v["modules"] == ["core"]
-    assert v["anchors"] == ["keyboard-shortcuts", "global-shortcuts"]
+    assert v["anchors"] == ["global-shortcuts"]
     assert v["uploaded_by"] == "admin-editor"
     assert v["validation_errors"] == []
 
@@ -51,7 +50,7 @@ async def test_reupload_increments_version(
     ).json()
     content = (
         b"---\ndoc_id: contacts-import\ntitle: Importing contacts\n"
-        b"modules: [contacts]\n---\n# Import\n"
+        b"modules: [contacts]\nversion: 1\n---\n## Import\n"
     )
     r = await upload(admin_client, admin_headers("editor"), content)
     assert r.json()["version"] == before["latest_version"] + 1

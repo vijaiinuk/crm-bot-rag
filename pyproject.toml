@@ -6,6 +6,7 @@ requires-python = ">=3.12,<3.13"
 dependencies = [
     "fastapi>=0.162.2",
     "httpx>=0.28.1",
+    "jsonschema>=4.26.0",
     "litellm>=1.109.1",
     "pydantic>=2.14.3",
     "pydantic-settings>=2.16.2",
@@ -50,7 +51,6 @@ files = ["src", "tools", "tests"]
 
 [dependency-groups]
 dev = [
-    "jsonschema>=4.26.0",
     "mypy>=2.4.1",
     "pre-commit>=4.7.0",
     "pytest>=9.2.0",
