@@ -1,0 +1,43 @@
+# Local infrastructure (S1.4.1): only Postgres and Phoenix run in containers.
+# The API, embedder, reranker and Ollama run natively for MPS/Metal (CLAUDE.md).
+# Runs on Colima (`make up`), VM capped at 3 GB. Ports bind to localhost only.
+# Exact image tags only, never `latest`.
+
+name: crm-bot-rag
+
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.7-pg16-bookworm
+    environment:
+      # Local container only, reachable only from this machine. Not a secret.
+      POSTGRES_USER: chatbot
+      POSTGRES_PASSWORD: chatbot
+      POSTGRES_DB: chatbot
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chatbot -d chatbot"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    mem_limit: 1g
+    restart: unless-stopped
+
+  phoenix:
+    image: arizephoenix/phoenix:21.1.0
+    environment:
+      PHOENIX_WORKING_DIR: /mnt/data  # Phoenix's own SQLite; not our Postgres
+    ports:
+      - "127.0.0.1:6006:6006"  # UI + OTLP over HTTP
+      - "127.0.0.1:4317:4317"  # OTLP over gRPC
+    volumes:
+      - phoenix:/mnt/data
+    mem_limit: 1g
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  phoenix:

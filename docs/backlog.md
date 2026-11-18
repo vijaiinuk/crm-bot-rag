@@ -326,11 +326,12 @@ Goal: a versioned, permission-tagged index built by `make ingest`.
   recorded on the index version; S2.4.1 makes the gate mandatory.
 - Known modules come from the module catalogue (the `ModuleCatalogue` port).
 
-### S1.4.1 Compose and DB baseline · est. 0.5 · [Delegate]
+### S1.4.1 Compose and DB baseline · est. 0.5 · [Delegate] · ✅ done
 Done when: `make up` starts Postgres + pgvector and Phoenix, and Alembic runs against them.
-- [ ] docker-compose: Postgres 16 + pgvector, Phoenix; VM capped about 3 GB
-- [ ] `make up` / `make down`
-- [ ] Alembic initialised; DB settings in pydantic-settings
+- [x] `compose.yaml`: `pgvector/pgvector:0.8.7-pg16-bookworm`, `arizephoenix/phoenix:21.1.0`; localhost-only ports, 1 GB cap each, Colima VM 3 GB
+- [x] `make up` (starts Colima, waits for health, migrates) / `down` / `migrate` / `db-shell` / `db-reset`; always the `colima` Docker context
+- [x] Alembic in `src/chatbot/db/migrations/` (hand-written SQL, no autogenerate); baseline = `CREATE EXTENSION vector`; `CHATBOT_DATABASE_URL` setting
+- [x] `db` pytest marker on a separate `chatbot_test` DB; skips when Postgres is down, fails with `REQUIRE_DB=1`
 
 ### S2.1.1 Fail-closed validation · est. 0.5 · ✅ done
 Done when: an untagged or mis-tagged doc aborts the run with a clear error.

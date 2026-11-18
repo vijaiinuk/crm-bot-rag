@@ -102,6 +102,22 @@ These hold everywhere and are tested. The full list is in [CLAUDE.md](CLAUDE.md#
 | `make run` / `make widget-dev` / `make admin-dev` | Run one server in the foreground |
 | `make widget-build` / `make admin-build` | Production builds |
 
+### Local infrastructure (Postgres + pgvector, Phoenix)
+
+Only Postgres and Phoenix run in containers, on [Colima](https://github.com/abiosoft/colima)
+(`brew install colima docker docker-compose`). The API and models run natively.
+
+| Command | What it does |
+|---|---|
+| `make up` | Starts Colima if needed (2 CPU, 3 GB), then Postgres and Phoenix; waits for Postgres and applies migrations |
+| `make down` | Stops the containers; data is kept. `colima stop` frees the VM's memory |
+| `make migrate` | `alembic upgrade head` (migrations live in `src/chatbot/db/migrations/`) |
+| `make db-shell` / `make db-reset` | `psql` into the dev DB / delete all local data (asks first) |
+
+Postgres: `localhost:5432`, database `chatbot` (tests use `chatbot_test`). Phoenix: http://localhost:6006.
+Override the connection with `CHATBOT_DATABASE_URL`. Tests marked `db` skip when Postgres is down;
+`REQUIRE_DB=1 make test` makes that a failure.
+
 Project layout and conventions for contributors (and AI coding sessions) are in [CLAUDE.md](CLAUDE.md).
 
 ## Design docs

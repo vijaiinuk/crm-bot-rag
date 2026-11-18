@@ -4,15 +4,18 @@ version = "0.1.0"
 description = "RAG help chatbot for the CRM"
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    "alembic>=1.20.1",
     "fastapi>=0.162.2",
     "httpx>=0.28.1",
     "jsonschema>=4.26.0",
     "litellm>=1.109.1",
+    "psycopg[binary]>=3.3.9",
     "pydantic>=2.14.3",
     "pydantic-settings>=2.16.2",
     "pyjwt[crypto]>=2.15.1",
     "python-multipart>=0.0.33",
     "pyyaml>=6.0.3",
+    "sqlalchemy>=2.1.9",
     "uvicorn[standard]>=0.54.0",
 ]
 
@@ -28,6 +31,9 @@ testpaths = ["tests"]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 addopts = "-q"
+markers = [
+    "db: needs local Postgres (`make up`); skipped when it is down unless REQUIRE_DB=1",
+]
 
 [tool.ruff]
 line-length = 100

@@ -1,7 +1,24 @@
-.PHONY: keys token spec spec-check docs-check docs-gen docs-sample evals-targets evals-check evals-gen evals-sample llm-smoke run test lint fmt chat check widget-install widget-dev widget-test widget-build admin-install admin-dev admin-test admin-build admin-types start stop restart status logs
+.PHONY: up down db-reset db-shell migrate keys token spec spec-check docs-check docs-gen docs-sample evals-targets evals-check evals-gen evals-sample llm-smoke run test lint fmt chat check widget-install widget-dev widget-test widget-build admin-install admin-dev admin-test admin-build admin-types start stop restart status logs
 
 PERSONA ?= sales_rep@globex
 TTL ?= 3600
+
+# --- local infrastructure: Postgres + pgvector and Phoenix on Colima ------------
+
+up:            ## start Colima if needed, Postgres + Phoenix, wait for health, migrate
+	@scripts/infra.sh up
+
+down:          ## stop the containers (data kept; `colima stop` frees the VM's memory)
+	@scripts/infra.sh down
+
+db-reset:      ## delete all local Postgres and Phoenix data (asks first)
+	@scripts/infra.sh reset
+
+db-shell:      ## psql into the dev database
+	@scripts/infra.sh shell
+
+migrate:       ## apply database migrations (alembic upgrade head)
+	uv run alembic upgrade head
 
 keys:          ## generate the local RSA signing keypair into .local/keys/
 	uv run python -m tools.keys

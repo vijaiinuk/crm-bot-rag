@@ -1,9 +1,12 @@
 import json
+import os
 from collections.abc import AsyncIterator, Callable
 from typing import Any
 
 import httpx
+import psycopg
 import pytest
+from alembic import command
 from cryptography.hazmat.primitives.asymmetric import rsa
 
 from chatbot.adapters import local_jwt
@@ -11,6 +14,7 @@ from chatbot.adapters.local_entitlements import LocalEntitlementProvider
 from chatbot.api.app import create_app
 from chatbot.api.auth import HttpJwksSource
 from chatbot.config import Settings
+from chatbot.db import alembic_config
 
 ISSUER = "http://issuer.test"
 AUDIENCE = "crm-help-bot"
@@ -105,3 +109,33 @@ def mint(signing_key: rsa.RSAPrivateKey) -> MintToken:
         return local_jwt.mint_token(key, **args)
 
     return _mint
+
+
+# --- Postgres (S1.4.1) -------------------------------------------------------------------
+# Tests marked `db` run against the separate chatbot_test database, migrated to head
+# once per session. Postgres down: skipped locally, a failure when REQUIRE_DB=1.
+
+TEST_DATABASE_URL = os.environ.get(
+    "CHATBOT_TEST_DATABASE_URL",
+    "postgresql+psycopg://chatbot:chatbot@localhost:5432/chatbot_test",
+)
+
+
+@pytest.fixture(scope="session")
+def pg_url() -> str:
+    """A libpq URL for the migrated test database."""
+    conninfo = TEST_DATABASE_URL.replace("postgresql+psycopg://", "postgresql://", 1)
+    try:
+        psycopg.connect(conninfo, connect_timeout=2).close()
+    except psycopg.OperationalError as e:
+        if os.environ.get("REQUIRE_DB") == "1":
+            pytest.fail(f"REQUIRE_DB=1 but Postgres is unreachable: {e}")
+        pytest.skip("Postgres is not running (make up)")
+    command.upgrade(alembic_config(TEST_DATABASE_URL), "head")
+    return conninfo
+
+
+@pytest.fixture(autouse=True)
+def _db_marker(request: pytest.FixtureRequest) -> None:
+    if request.node.get_closest_marker("db"):
+        request.getfixturevalue("pg_url")

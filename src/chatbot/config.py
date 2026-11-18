@@ -38,5 +38,10 @@ class Settings(BaseSettings):
         default=None,
         validation_alias=AliasChoices("OPENROUTER_API_KEY", "CHATBOT_OPENROUTER_API_KEY"),
     )
+    # Postgres (S1.4.1). The default is the local compose container (localhost
+    # only, not a secret); anywhere else, set CHATBOT_DATABASE_URL.
+    database_url: SecretStr = SecretStr(
+        "postgresql+psycopg://chatbot:chatbot@localhost:5432/chatbot"
+    )
     # Local signing keys; only read when env == "local".
     keys_dir: Path = Path(".local/keys")
