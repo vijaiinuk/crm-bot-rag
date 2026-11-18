@@ -1,0 +1,31 @@
+- id: fx-oversized-procedure#bulk-update-deals:0
+  parent: null
+  tokens: 15
+  oversized: false
+  embed_text: |-
+    Oversized doc > Bulk update deals
+
+    Use bulk update to change many deals at once.
+- id: fx-oversized-procedure#bulk-update-deals:1
+  parent: null
+  tokens: 77
+  oversized: true
+  embed_text: |-
+    Oversized doc > Bulk update deals
+
+    1. Go to **Deals** and open the list view.
+    2. Select the deals to change:
+       - Select the checkbox on each row.
+       - Or select **Select all** to pick every deal on the page.
+
+    3. Select **Bulk update** and choose the field to change.
+    4. Enter the new value and select **Apply**. The change runs in the background and can take a few minutes.
+    5. Check the notification when it finishes.
+- id: fx-oversized-procedure#bulk-update-deals:2
+  parent: null
+  tokens: 17
+  oversized: false
+  embed_text: |-
+    Oversized doc > Bulk update deals
+
+    After the update, the deal history shows who made the change.

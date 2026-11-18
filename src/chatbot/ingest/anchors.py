@@ -37,6 +37,36 @@ def headings_of(markdown: str) -> list[Heading]:
     return headings
 
 
+@dataclass(frozen=True, slots=True)
+class Section:
+    heading: Heading | None  # None for text before the first heading
+    lines: tuple[str, ...]  # the section's own lines, heading line excluded
+
+
+def sections_of(markdown: str) -> list[Section]:
+    """The markdown cut at every heading, with the same rules as `headings_of`.
+
+    Text before the first heading is a section with no heading (only if non-blank).
+    """
+    sections: list[Section] = []
+    heading: Heading | None = None
+    lines: list[str] = []
+    in_fence = False
+    for line in markdown.splitlines():
+        if _FENCE.match(line.strip()):
+            in_fence = not in_fence
+        elif not in_fence and (m := _HEADING.match(line)):
+            if heading is not None or any(x.strip() for x in lines):
+                sections.append(Section(heading, tuple(lines)))
+            heading = Heading(len(m.group(1)), m.group(2), slugify(m.group(2)))
+            lines = []
+            continue
+        lines.append(line)
+    if heading is not None or any(x.strip() for x in lines):
+        sections.append(Section(heading, tuple(lines)))
+    return sections
+
+
 def anchors_of(markdown: str) -> list[str]:
     """Anchors for every ATX heading outside fenced code blocks, in order."""
     return [h.anchor for h in headings_of(markdown)]

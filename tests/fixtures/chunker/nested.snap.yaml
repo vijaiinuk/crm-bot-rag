@@ -1,0 +1,40 @@
+- id: fx-nested#overview:0
+  parent: null
+  tokens: 11
+  oversized: false
+  embed_text: |-
+    Nested doc > Overview
+
+    Stage automations act when a deal moves.
+- id: fx-nested#triggers:0
+  parent: overview
+  tokens: 11
+  oversized: false
+  embed_text: |-
+    Nested doc > Overview > Triggers
+
+    A trigger starts the automation.
+- id: fx-nested#actions:0
+  parent: overview
+  tokens: 10
+  oversized: false
+  embed_text: |-
+    Nested doc > Overview > Actions
+
+    An action changes something.
+- id: fx-nested#per-stage:0
+  parent: limits
+  tokens: 13
+  oversized: false
+  embed_text: |-
+    Nested doc > Limits > Per stage
+
+    Up to 10 automations per stage.
+- id: fx-nested#per-automation:0
+  parent: limits
+  tokens: 13
+  oversized: false
+  embed_text: |-
+    Nested doc > Limits > Per automation
+
+    Up to 5 actions per automation.

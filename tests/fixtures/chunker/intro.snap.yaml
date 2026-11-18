@@ -1,0 +1,16 @@
+- id: fx-intro#_intro:0
+  parent: null
+  tokens: 9
+  oversized: false
+  embed_text: |-
+    Intro doc
+
+    This guide explains how to export contacts.
+- id: fx-intro#export:0
+  parent: null
+  tokens: 10
+  oversized: false
+  embed_text: |-
+    Intro doc > Export
+
+    Select **Export** on the contacts list.

@@ -1,0 +1,29 @@
+- id: fx-table-and-code#search-operators:0
+  parent: null
+  tokens: 32
+  oversized: false
+  embed_text: |-
+    Table doc > Search operators
+
+    Use operators to narrow a search.
+
+    | Operator | Meaning |
+    |---|---|
+    | `#tag` | Records with the tag |
+    | `owner:me` | Records you own |
+- id: fx-table-and-code#saved-searches:0
+  parent: null
+  tokens: 30
+  oversized: false
+  embed_text: |-
+    Table doc > Saved searches
+
+    Save a search to run it again later.
+
+    ```
+    # deals I own
+    owner:me
+    ## not a heading
+    ```
+
+    Saved searches appear under **My searches**.

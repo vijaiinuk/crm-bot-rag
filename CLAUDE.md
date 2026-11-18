@@ -44,7 +44,7 @@ These are correctness and security invariants. Never relax them, even temporaril
 Admins upload markdown (validated at upload) into a draft release; **publish** runs the steps below as a `build_release` job on the Postgres queue. Modules come **only from frontmatter**; there is no module assignment in the admin UI. A change that widens a doc's modules needs explicit publisher confirmation (audit-logged). See `docs/architecture.md` §4.
 
 1. Read markdown docs + frontmatter. Validate against schema; unknown modules or missing tags abort the run.
-2. Heading-aware chunking: split on headings, prefix breadcrumb (`Module > Section > Subsection`), never split numbered procedures, carry the section anchor onto each chunk.
+2. Heading-aware chunking: split on headings, prefix breadcrumb (`Doc title > Section > Subsection`; modules stay in metadata, not the text), never split numbered procedures, carry the section anchor onto each chunk.
 3. Content-hash each chunk; embed only hashes missing from `embedding_cache`.
 4. Write a complete new `index_version`; run retrieval + permission evals against it, and check for orphaned eval labels (`doc_id#anchor` that no longer exists); promote the `active_index` pointer only if they pass. Rollback = repoint.
 

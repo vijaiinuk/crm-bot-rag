@@ -17,3 +17,14 @@ def test_hash_lines_inside_code_fences_are_not_headings() -> None:
 def test_slug_is_ascii_lowercase_hyphenated() -> None:
     assert slugify("Customise branding — PDF & Email!") == "customise-branding-pdf-email"
     assert slugify("Café menu") == "cafe-menu"
+
+
+def test_sections_cut_where_headings_are_and_skip_code() -> None:
+    from chatbot.ingest.anchors import sections_of
+
+    md = "Intro.\n\n## A\n\nx\n\n```\n## not a heading\n```\n\n### B\n\ny\n"
+    sections = sections_of(md)
+    assert [s.heading.anchor if s.heading else None for s in sections] == [None, "a", "b"]
+    assert [h.anchor for h in headings_of(md)] == ["a", "b"]
+    assert "## not a heading" in sections[1].lines
+    assert sections_of("## A\n\nx\n")[0].heading is not None, "no intro section without text"

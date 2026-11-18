@@ -339,11 +339,46 @@ Done when: an untagged or mis-tagged doc aborts the run with a clear error.
 - [x] Body: no H1 (title is in frontmatter), no setext headings, no unclosed code block, first heading `##`, no skipped levels, unique non-empty anchors
 - [x] Run: any error in any doc aborts the whole run listing every error; duplicate `doc_id`s and an empty corpus abort too
 
-### S2.1.2 Heading-aware chunker · est. 1 · [Pair]
+### S2.1.2 Heading-aware chunker · est. 1 · [Pair] · ✅ done
 Done when: chunker snapshot tests pass and no numbered procedure is split.
-- [ ] Fixture docs and snapshot tests (reviewed before implementation)
-- [ ] Split on headings; prefix the breadcrumb; carry anchors
-- [ ] Never split numbered procedures
+- [x] Fixture docs and snapshot tests (reviewed before implementation)
+- [x] Split on headings; prefix the breadcrumb; carry anchors (`chatbot/ingest/chunker.py`, `anchors.sections_of`)
+- [x] Never split numbered procedures (checked on the corpus at 512 and at a forced 100-word limit)
+- Wiring the bge-m3 tokenizer as `count_tokens` lands with S2.1.3, which loads the model anyway
+
+#### S2.1.2 design (approved 2026-11-17)
+
+**One chunk per heading section, never a fixed-size window.** Windows cut
+procedures in half and blur which `doc_id#anchor` a chunk belongs to, which
+makes complete recall fuzzy. The cost is uneven chunk sizes (about 70–350
+tokens on today's corpus), which is acceptable at that spread.
+
+**Rules**
+- A `##` or `###` section is a chunk holding only its own text. A `##` with no
+  text before its first `###` has no chunk; its anchor still resolves to its
+  children. `###` chunks record `parent_anchor` (for parent-section expansion).
+- Text before the first heading is a chunk with the reserved anchor `_intro`
+  (`slugify` never produces `_`, so it cannot collide).
+- Limit: 512 tokens of embedded text. A longer section is split only between
+  blocks: a paragraph, a whole list (loose lists and nested bullets included),
+  a table or a code block. A paragraph ending in `:` stays with the block after
+  it. A single block over the limit stays whole and is flagged `oversized`.
+  Small sections are never merged (it would mix anchors).
+- Embedded text = breadcrumb line + blank line + section text. Breadcrumb =
+  `Doc title > Section > Subsection`: the title, not the module, because
+  multi-module docs have no single module and module words would bias search.
+  Modules live only in the `modules` column, copied from frontmatter.
+- Tokens are counted by an injected function: bge-m3's tokenizer in ingestion,
+  a word count in tests.
+- `chunk_id` = `doc_id#anchor:part` (part 0 unless split). `content_hash` is
+  over the embedded text. `config_hash` (chunker version, limit, tokenizer)
+  goes in the index version's recipe.
+
+**Tests** (`tests/ingest/test_chunker.py`, fixtures in `tests/fixtures/chunker/`):
+hand-written expected snapshots per edge case; invariants on fixtures and the
+real corpus (no text lost or duplicated, lists/tables/code whole and in one
+chunk, anchors real, modules equal frontmatter); a snapshot of the corpus
+chunk IDs and token counts. `UPDATE_SNAPSHOTS=1` accepts a deliberate change.
 
 ### S2.1.3 Embeddings and index versions · est. 1.5
 Done when: two ingest runs produce two index versions, promote and rollback work, and unchanged chunks reuse cached embeddings.

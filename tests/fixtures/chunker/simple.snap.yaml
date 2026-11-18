@@ -1,0 +1,19 @@
+- id: fx-simple#triggers:0
+  parent: null
+  tokens: 11
+  oversized: false
+  embed_text: |-
+    Simple doc > Triggers
+
+    A trigger decides when an automation starts.
+- id: fx-simple#add-an-action:0
+  parent: null
+  tokens: 19
+  oversized: false
+  embed_text: |-
+    Simple doc > Add an action
+
+    Actions run after the trigger fires.
+
+    1. Open **Automations**.
+    2. Select **Add action**.
