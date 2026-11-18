@@ -15,3 +15,8 @@ def alembic_config(url: str | None = None) -> Config:
     if url is not None:
         cfg.attributes["url"] = url
     return cfg
+
+
+def libpq_url(url: str) -> str:
+    """SQLAlchemy's `postgresql+psycopg://` URL as plain libpq, for psycopg itself."""
+    return url.replace("postgresql+psycopg://", "postgresql://", 1)

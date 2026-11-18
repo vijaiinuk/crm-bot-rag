@@ -381,13 +381,14 @@ real corpus (no text lost or duplicated, lists/tables/code whole and in one
 chunk, anchors real, modules equal frontmatter); a snapshot of the corpus
 chunk IDs and token counts. `UPDATE_SNAPSHOTS=1` accepts a deliberate change.
 
-### S2.1.3 Embeddings and index versions · est. 1.5
+### S2.1.3 Embeddings and index versions · est. 1.5 · ✅ done
 Done when: two ingest runs produce two index versions, promote and rollback work, and unchanged chunks reuse cached embeddings.
-- [ ] Migrations: `index_versions`, `active_index`, `chunks`, `embedding_cache`, `module_catalogue`
-- [ ] bge-m3 on MPS behind an `Embedder` port
-- [ ] Content-hash embedding cache
-- [ ] Build a complete version, promote, rollback commands
-- [ ] Generated tsvector column; GIN index on `modules`
+- [x] Migration `0002`: `index_versions`, `active_index`, `index_promotions` (repoint history), `chunks`, `embedding_cache`, `module_catalogue`; `modules` non-empty enforced by the DB
+- [x] bge-m3 on MPS behind an `Embedder` port, pinned to a Hugging Face commit in `config/models.yaml`; its tokenizer is the chunker's `count_tokens`
+- [x] Content-hash embedding cache keyed on (hash, model@revision)
+- [x] `chatbot/ingest/build.py`: build a complete version (status `gate`), promote (ungated, recorded), rollback = undo the last repoint; `make ingest` / `index-list` / `promote V=` / `rollback` / `embed-smoke`
+- [x] Generated `tsv` over breadcrumb + content; GIN on `modules` and `tsv`; no vector index (a test asserts it)
+- Follow-up (not scheduled): prune old index versions (each holds a copy of every embedding, about 0.5 MB per 100 chunks); keep the live one, its rollback target and the last N
 
 ---
 

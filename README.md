@@ -115,6 +115,9 @@ Only Postgres and Phoenix run in containers, on [Colima](https://github.com/abio
 | `make db-shell` / `make db-reset` | `psql` into the dev DB / delete all local data (asks first) |
 
 Postgres: `localhost:5432`, database `chatbot` (tests use `chatbot_test`). Phoenix: http://localhost:6006.
+With the database up, `make ingest` validates, chunks and embeds `data/docs/` into a new index
+version (bge-m3 on MPS; the first run downloads about 2.3 GB) and makes it live.
+`make index-list`, `make promote V=n` and `make rollback` manage versions.
 Override the connection with `CHATBOT_DATABASE_URL`. Tests marked `db` skip when Postgres is down;
 `REQUIRE_DB=1 make test` makes that a failure.
 

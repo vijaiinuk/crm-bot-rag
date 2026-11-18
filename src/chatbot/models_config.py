@@ -54,9 +54,24 @@ class ModelRole(_Strict):
         return v
 
 
+class EmbeddingConfig(_Strict):
+    """The local embedding model (S2.1.3), pinned to a Hugging Face commit."""
+
+    model_id: str
+    revision: str = Field(pattern=r"^[0-9a-f]{40}$")  # a commit sha, never a branch
+    dim: int = Field(gt=0)
+    batch_size: int = Field(default=16, gt=0)
+
+    @property
+    def key(self) -> str:
+        """What the embedding cache and index recipe record: model and exact revision."""
+        return f"{self.model_id}@{self.revision[:12]}"
+
+
 class ModelsConfig(_Strict):
     providers: dict[str, Provider]
     models: dict[str, ModelRole]
+    embeddings: EmbeddingConfig | None = None
 
     @model_validator(mode="after")
     def _known_providers(self) -> "ModelsConfig":

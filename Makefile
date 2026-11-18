@@ -1,4 +1,4 @@
-.PHONY: up down db-reset db-shell migrate keys token spec spec-check docs-check docs-gen docs-sample evals-targets evals-check evals-gen evals-sample llm-smoke run test lint fmt chat check widget-install widget-dev widget-test widget-build admin-install admin-dev admin-test admin-build admin-types start stop restart status logs
+.PHONY: up down db-reset db-shell migrate ingest index-list promote rollback embed-smoke keys token spec spec-check docs-check docs-gen docs-sample evals-targets evals-check evals-gen evals-sample llm-smoke run test lint fmt chat check widget-install widget-dev widget-test widget-build admin-install admin-dev admin-test admin-build admin-types start stop restart status logs
 
 PERSONA ?= sales_rep@globex
 TTL ?= 3600
@@ -19,6 +19,24 @@ db-shell:      ## psql into the dev database
 
 migrate:       ## apply database migrations (alembic upgrade head)
 	uv run alembic upgrade head
+
+# --- index versions (S2.1.3); needs `make up` -----------------------------------
+
+ingest:        ## validate, chunk, embed (cache first) data/docs into a new index version and make it live (ungated until S2.4.1)
+	uv run python -m tools.ingest build --promote
+
+index-list:    ## list index versions and which one is live
+	@uv run python -m tools.ingest list
+
+promote:       ## make a complete index version live: make promote V=3
+	@test -n "$(V)" || { echo "usage: make promote V=<index version>"; exit 2; }
+	uv run python -m tools.ingest promote $(V)
+
+rollback:      ## undo the last repoint of the live index
+	uv run python -m tools.ingest rollback
+
+embed-smoke:   ## load bge-m3 (downloads ~2.3 GB the first time) and sanity-check it
+	uv run python -m tools.ingest embed-smoke
 
 keys:          ## generate the local RSA signing keypair into .local/keys/
 	uv run python -m tools.keys

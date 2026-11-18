@@ -13,7 +13,7 @@ from tests.conftest import TEST_DATABASE_URL
 
 def test_migrations_form_one_linear_history() -> None:
     scripts = ScriptDirectory.from_config(alembic_config())
-    assert scripts.get_heads() == ["0001"]
+    assert scripts.get_heads() == ["0002"]
     revisions = list(scripts.walk_revisions())
     assert revisions[-1].down_revision is None
     assert all(not r.is_merge_point for r in revisions), "no merge migrations"

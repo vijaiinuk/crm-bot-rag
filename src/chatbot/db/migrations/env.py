@@ -1,9 +1,14 @@
 """Alembic environment. Migrations are hand-written SQL: no models, no autogenerate."""
 
+from logging.config import fileConfig
+
 from alembic import context
 from sqlalchemy import create_engine, pool
 
 from chatbot.config import Settings
+
+if context.config.config_file_name:  # the CLI; tests pass no ini and keep their logging
+    fileConfig(context.config.config_file_name, disable_existing_loggers=False)
 
 
 def _url() -> str:
