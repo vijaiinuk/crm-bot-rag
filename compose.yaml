@@ -30,6 +30,7 @@ services:
     image: arizephoenix/phoenix:21.1.0
     environment:
       PHOENIX_WORKING_DIR: /mnt/data  # Phoenix's own SQLite; not our Postgres
+      PHOENIX_ENABLE_AUTH: "false"    # local only: ports bind to 127.0.0.1; prod turns auth on
     ports:
       - "127.0.0.1:6006:6006"  # UI + OTLP over HTTP
       - "127.0.0.1:4317:4317"  # OTLP over gRPC
