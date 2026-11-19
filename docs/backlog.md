@@ -396,12 +396,13 @@ Done when: two ingest runs produce two index versions, promote and rollback work
 
 Goal: a retrieval baseline you can quote and a zero-tolerance permission gate.
 
-### S2.2.1 Filtered hybrid search · est. 1 · [Pair]
+### S2.2.1 Filtered hybrid search · est. 1 · [Pair] · ✅ done
 Done when: hybrid search returns only chunks whose modules are all allowed.
-- [ ] Filter-construction tests first (`modules <@ :allowed` inside the SQL)
-- [ ] Exact vector search with the filter (no ANN index)
-- [ ] FTS with the same filter
-- [ ] Reciprocal rank fusion
+- [x] Filter-construction tests first (`modules <@ :allowed` inside the SQL)
+- [x] Exact vector search with the filter (no ANN index)
+- [x] FTS with the same filter (OR of stemmed words)
+- [x] Reciprocal rank fusion (`chatbot/retrieval/fusion.py`); `PgHybridRetriever` in `chatbot/retrieval/hybrid.py`
+- Real retriever on the live index: complete @1 0.49, @3 0.78, @5 0.85, MRR 0.81, multi-hop @5 0.54; a sweep of 151 questions x 16 personas (48,320 candidates) found 0 leaks
 
 #### S2.2.1 design (approved 2026-11-19)
 
@@ -426,7 +427,10 @@ Fusion costs some @1, which the reranker (S2.2.2) owns; this stage owns the pool
 - The live index version is read once per request and passed to every search;
   candidates carry it (rule 8). No live index raises; an empty allowed set returns nothing.
 - Each search returns its top 50; `rrf` (pure Python, k = 60, equal weights) returns
-  the top 20. Ties: best single rank, then `chunk_id`.
+  the top 20. Ties: best single rank, then the earlier list's rank (vector is passed
+  first, as the stronger list), then `chunk_id`. Changed during implementation: with
+  two equal lists, ranks (1, 2) and (2, 1) always tie, and 12 of 86 golden questions
+  tied at the top; deciding those by `chunk_id` (alphabet) cost 0.06 at @1.
 - `Retriever.search(query, allowed_modules, k, *, index_version)` is async on a
   `psycopg_pool` pool; the query embedding runs in a thread. Not wired into /chat yet.
 

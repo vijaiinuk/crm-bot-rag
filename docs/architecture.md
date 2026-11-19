@@ -95,9 +95,10 @@ The only metadata filter is **modules**, and it's a permission filter. The uploa
 -- One statement per (sub-)query. The index version is resolved ONCE per request
 -- (active_index alias 'live') and passed in, so parallel sub-queries can never
 -- straddle a promotion. :allowed is the caller's resolved module set.
-WITH q AS (   -- OR of the question's stemmed words (already stemmed, so 'simple')
-  SELECT to_tsquery('simple', coalesce(string_agg(quote_literal(lexeme), ' | '), '')) AS tsq
-  FROM unnest(to_tsvector('english', :qtext))
+WITH q AS (   -- OR of the question's stemmed words: plainto_tsquery stems and quotes
+              -- them ('deal' & 'stage'); '&' -> '|', re-parsed with 'simple' (no re-stemming)
+  SELECT to_tsquery('simple', replace(plainto_tsquery('english', :qtext)::text, ' & ', ' | '))
+         AS tsq
 ),
 vec AS (
   SELECT chunk_id, row_number() OVER (ORDER BY embedding <=> :qvec, chunk_id) AS rank

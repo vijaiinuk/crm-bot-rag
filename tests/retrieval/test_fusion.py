@@ -40,9 +40,12 @@ def test_with_k_zero_one_top_result_equals_two_second_places() -> None:
     assert ids(fused) == ["x", "z", "y"]  # x and z were ranked 1; y's best was 2
 
 
-def test_ties_break_by_best_single_rank_then_chunk_id() -> None:
-    assert ids(rrf({"vec": ["b", "a"], "kw": ["a", "b"]})) == ["a", "b"]  # equal in every way
-    assert ids(rrf({"vec": ["q"], "kw": ["p"]})) == ["p", "q"]
+def test_mirror_ties_go_to_the_earlier_list() -> None:
+    """(1, 2) and (2, 1) tie on score and on best rank; the first list passed decides.
+    The retriever passes vector first, as the stronger list (S2.2.1 design)."""
+    assert ids(rrf({"vec": ["b", "a"], "kw": ["a", "b"]})) == ["b", "a"]
+    assert ids(rrf({"vec": ["q"], "kw": ["p"]})) == ["q", "p"]
+    assert ids(rrf({"kw": ["p"], "vec": ["q"]})) == ["p", "q"], "order of lists, not names"
 
 
 def test_a_single_list_keeps_its_order() -> None:
