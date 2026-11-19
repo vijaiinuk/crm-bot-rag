@@ -434,10 +434,13 @@ Fusion costs some @1, which the reranker (S2.2.2) owns; this stage owns the pool
 - `Retriever.search(query, allowed_modules, k, *, index_version)` is async on a
   `psycopg_pool` pool; the query embedding runs in a thread. Not wired into /chat yet.
 
-### S2.2.2 Reranker · est. 0.5
+### S2.2.2 Reranker · est. 0.5 · ✅ done
 Done when: candidates are reranked by bge-reranker-v2-m3 and a score threshold is configurable.
-- [ ] `Reranker` adapter on MPS
-- [ ] Threshold in config
+- [x] `Reranker` port + `CrossEncoderReranker` (`chatbot/retrieval/rerank.py`) on MPS, float16, pinned revision; only reorders and cuts
+- [x] Threshold in `config/models.yaml` next to the model (its score scale), calibrated to 0.3; `make rerank-smoke`
+- Golden set, 207 answerable question x persona pairs: complete @1 0.52 -> 0.65, @5 0.87 -> 0.89, MRR 0.81 -> 0.87 (@3 0.80 -> 0.79)
+- Top rerank score, median: answerable 0.96, restricted 0.003, nothing-to-find 0.001
+- Latency on this laptop (MPS, 20 real chunks): about 1.5 s with float16; float32 tails reached 7 s under memory pressure (11 GB swap). Not representative of production (architecture §10); reranking 10 instead of 20 would roughly halve it
 
 ### S2.3.1 Retrieval eval harness · est. 0.75 · [Pair]
 Done when: `make eval` prints recall@k, complete recall@k and MRR by category and saves results per run.
@@ -475,6 +478,11 @@ Done when: answers stream with verified citations, and low-confidence and restri
 - [ ] Structured `{answer, steps, citations}`
 - [ ] Verify cited chunk IDs were in the context
 - [ ] Below threshold: "not found" or the restricted template from `module_catalogue`
+  - Input from S2.2.2: threshold alone cannot tell "restricted" from "partial access".
+    23 of 144 restricted golden pairs score >= 0.3 on content the persona IS allowed
+    (e.g. `quotes-builder` for a rep without `products` asking to quote from a deal;
+    multi-hop with one doc allowed). Decide: answer from allowed docs, template, or
+    both; and whether the S1.3.1 derivation rule should allow a partial answer.
 - [ ] `RagResponder` replaces the mock responder
 
 ### S3.1.2 Rewrite and decomposition · est. 1

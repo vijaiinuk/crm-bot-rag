@@ -1,4 +1,4 @@
-.PHONY: up down db-reset db-shell migrate ingest index-list promote rollback embed-smoke keys token spec spec-check docs-check docs-gen docs-sample evals-targets evals-check evals-gen evals-sample llm-smoke run test lint fmt chat check widget-install widget-dev widget-test widget-build admin-install admin-dev admin-test admin-build admin-types start stop restart status logs
+.PHONY: up down db-reset db-shell migrate ingest index-list promote rollback embed-smoke rerank-smoke keys token spec spec-check docs-check docs-gen docs-sample evals-targets evals-check evals-gen evals-sample llm-smoke run test lint fmt chat check widget-install widget-dev widget-test widget-build admin-install admin-dev admin-test admin-build admin-types start stop restart status logs
 
 PERSONA ?= sales_rep@globex
 TTL ?= 3600
@@ -37,6 +37,9 @@ rollback:      ## undo the last repoint of the live index
 
 embed-smoke:   ## load bge-m3 (downloads ~2.3 GB the first time) and sanity-check it
 	uv run python -m tools.ingest embed-smoke
+
+rerank-smoke:  ## load bge-reranker-v2-m3 (downloads ~2.3 GB the first time), check it, time 20 candidates
+	uv run python -m tools.rerank_smoke
 
 keys:          ## generate the local RSA signing keypair into .local/keys/
 	uv run python -m tools.keys

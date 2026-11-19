@@ -47,3 +47,18 @@ embeddings:
   revision: 5617a9f61b028005a4858fdac845db406aefb181
   dim: 1024
   batch_size: 16
+
+# S2.2.2: local cross-encoder, natively on MPS. The threshold is on this model's
+# sigmoid score scale, so it lives here: a new model needs a new calibration.
+reranker:
+  model_id: BAAI/bge-reranker-v2-m3
+  revision: 953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e
+  max_length: 512   # chunks are at most ~400 tokens, so nothing is truncated
+  batch_size: 16
+  dtype: float16    # MPS only: half the memory, scores within 0.001 of float32
+  # Calibrated 2026-11-19 on the golden set (411 question x persona pairs), top
+  # rerank score per pair. At 0.3: 8.7% of answerable pairs refused (many are
+  # retrieval misses), 3.3% of nothing-to-find pairs answered, 16% of restricted
+  # pairs answered from allowed content (partial access: see S3.1.3b).
+  # Provisional: 60 negatives is a small sample; S2.3.1 re-checks it each run.
+  threshold: 0.3

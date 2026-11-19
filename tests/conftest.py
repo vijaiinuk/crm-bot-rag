@@ -139,3 +139,27 @@ def pg_url() -> str:
 def _db_marker(request: pytest.FixtureRequest) -> None:
     if request.node.get_closest_marker("db"):
         request.getfixturevalue("pg_url")
+
+
+# --- local models (S2.2.2) ---------------------------------------------------------------
+# Tests marked `model` use real model files and run only when they are already in the
+# Hugging Face cache (after `make embed-smoke` / `make rerank-smoke`); never download.
+
+
+def _models_cached() -> bool:
+    from huggingface_hub import try_to_load_from_cache
+
+    from chatbot.models_config import load_models_config
+
+    config = load_models_config(Settings().models_path)
+    wanted = [c for c in (config.embeddings, config.reranker) if c is not None]
+    return all(
+        isinstance(try_to_load_from_cache(c.model_id, "tokenizer.json", revision=c.revision), str)
+        for c in wanted
+    )
+
+
+@pytest.fixture(autouse=True)
+def _model_marker(request: pytest.FixtureRequest) -> None:
+    if request.node.get_closest_marker("model") and not _models_cached():
+        pytest.skip("model not downloaded (make embed-smoke / make rerank-smoke)")

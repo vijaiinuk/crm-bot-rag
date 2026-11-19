@@ -2,7 +2,7 @@
 
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
@@ -68,10 +68,29 @@ class EmbeddingConfig(_Strict):
         return f"{self.model_id}@{self.revision[:12]}"
 
 
+class RerankerConfig(_Strict):
+    """The local cross-encoder (S2.2.2). The threshold lives here because it only means
+    something on this model's score scale: change the model, recalibrate the threshold."""
+
+    model_id: str
+    revision: str = Field(pattern=r"^[0-9a-f]{40}$")
+    max_length: int = Field(gt=0)
+    batch_size: int = Field(default=16, gt=0)
+    # Precision on MPS. CPU always runs float32 (float16 is slow there).
+    dtype: Literal["float32", "float16"] = "float32"
+    # Sigmoid of the model's logit. Below it on the best candidate: no LLM call.
+    threshold: float = Field(ge=0, le=1)
+
+    @property
+    def key(self) -> str:
+        return f"{self.model_id}@{self.revision[:12]}"
+
+
 class ModelsConfig(_Strict):
     providers: dict[str, Provider]
     models: dict[str, ModelRole]
     embeddings: EmbeddingConfig | None = None
+    reranker: RerankerConfig | None = None
 
     @model_validator(mode="after")
     def _known_providers(self) -> "ModelsConfig":

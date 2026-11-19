@@ -16,6 +16,7 @@ class Candidate:
     vec_rank: int | None  # 1-based rank in the vector list; None if not in it
     kw_rank: int | None  # 1-based rank in the keyword list; None if not in it
     score: float  # reciprocal rank fusion score
+    rerank_score: float | None = None  # cross-encoder relevance, 0..1; set by the Reranker
 
 
 class NoLiveIndex(Exception):

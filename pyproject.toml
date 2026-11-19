@@ -36,6 +36,7 @@ asyncio_default_fixture_loop_scope = "function"
 addopts = "-q"
 markers = [
     "db: needs local Postgres (`make up`); skipped when it is down unless REQUIRE_DB=1",
+    "model: needs a local model in the Hugging Face cache; skipped when it is not downloaded",
 ]
 
 [tool.ruff]
