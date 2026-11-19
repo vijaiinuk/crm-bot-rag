@@ -10,6 +10,7 @@ dependencies = [
     "jsonschema>=4.26.0",
     "litellm>=1.109.1",
     "pgvector>=0.5.1",
+    "psycopg-pool>=3.3.3",
     "psycopg[binary]>=3.3.9",
     "pydantic>=2.14.3",
     "pydantic-settings>=2.16.2",

@@ -92,27 +92,37 @@ Unchanged from CLAUDE.md except for steps 0 and 10.
 The only metadata filter is **modules**, and it's a permission filter. The upload-date filter was dropped: only the latest published version of each doc is in the live index, so old versions can't be retrieved at all, and an upload date doesn't measure whether content is current (see the staleness report in §5).
 
 ```sql
--- One query per (sub-)query. :allowed is the caller's resolved module set.
-WITH active AS (SELECT index_version FROM active_index WHERE alias = 'live'),
+-- One statement per (sub-)query. The index version is resolved ONCE per request
+-- (active_index alias 'live') and passed in, so parallel sub-queries can never
+-- straddle a promotion. :allowed is the caller's resolved module set.
+WITH q AS (   -- OR of the question's stemmed words (already stemmed, so 'simple')
+  SELECT to_tsquery('simple', coalesce(string_agg(quote_literal(lexeme), ' | '), '')) AS tsq
+  FROM unnest(to_tsvector('english', :qtext))
+),
 vec AS (
-  SELECT chunk_id, row_number() OVER (ORDER BY embedding <=> :qvec) AS r
-  FROM chunks, active
-  WHERE chunks.index_version = active.index_version
+  SELECT chunk_id, row_number() OVER (ORDER BY embedding <=> :qvec, chunk_id) AS rank
+  FROM chunks
+  WHERE index_version = :version
     AND modules <@ :allowed                      -- rule 2: filter before ranking
-  ORDER BY embedding <=> :qvec LIMIT :k
+  ORDER BY embedding <=> :qvec, chunk_id LIMIT :n
 ),
 kw AS (
-  SELECT chunk_id, row_number() OVER (ORDER BY ts_rank_cd(tsv, q) DESC) AS r
-  FROM chunks, active, websearch_to_tsquery('english', :qtext) q
-  WHERE chunks.index_version = active.index_version
+  SELECT chunk_id, row_number() OVER (ORDER BY ts_rank_cd(tsv, q.tsq) DESC, chunk_id) AS rank
+  FROM chunks, q
+  WHERE index_version = :version
     AND modules <@ :allowed
-    AND tsv @@ q
-  ORDER BY ts_rank_cd(tsv, q) DESC LIMIT :k
+    AND tsv @@ q.tsq
+  ORDER BY ts_rank_cd(tsv, q.tsq) DESC, chunk_id LIMIT :n
 )
-SELECT chunk_id, sum(1.0 / (60 + r)) AS rrf      -- reciprocal rank fusion, k = 60
-FROM (SELECT * FROM vec UNION ALL SELECT * FROM kw) u
-GROUP BY chunk_id ORDER BY rrf DESC LIMIT :k;
+SELECT ... -- both ranked lists, with chunk fields; fused in Python (rrf, k = 60)
 ```
+
+**Keyword matching ORs the question's words.** `websearch_to_tsquery` ANDs every
+word, and on the golden set only 24 of 86 answerable questions matched anything that
+way; OR plus `ts_rank_cd` (which rewards matching more of the words) matched all 86 and,
+fused with vector search, raised complete recall@5 from 0.80 to 0.85 (multi-hop 0.38 to
+0.54). Fusion is a pure Python function (`chatbot.retrieval.fusion.rrf`); every
+permission decision stays in the SQL.
 
 Postgres `ts_rank_cd` is not BM25 (there's no IDF term or proper length normalisation). That's acceptable here: RRF only uses rank order, and with ~4k chunks of product docs the vector side carries most of the recall. Keyword-recall evals decide whether to upgrade to `pg_search` ([ADR-0001](adr/0001-postgres-for-vectors-and-keyword-search.md)).
 

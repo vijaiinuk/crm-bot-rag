@@ -403,6 +403,33 @@ Done when: hybrid search returns only chunks whose modules are all allowed.
 - [ ] FTS with the same filter
 - [ ] Reciprocal rank fusion
 
+#### S2.2.1 design (approved 2026-11-19)
+
+Measured on the live index (bge-m3), 86 answerable golden questions, all modules
+allowed. Complete recall = all required sections in the top k.
+
+| Method | Any keyword match | Complete @1 | @3 | @5 | MRR | Multi-hop @5 |
+|---|---|---|---|---|---|---|
+| Vector | | 0.62 | 0.71 | 0.80 | 0.88 | 0.38 |
+| Keyword AND (`websearch_to_tsquery`) | 24/86 | 0.13 | 0.17 | 0.19 | 0.16 | 0.00 |
+| Keyword OR | 86/86 | 0.36 | 0.67 | 0.76 | 0.68 | 0.42 |
+| Vector + keyword OR, RRF | | 0.50 | 0.78 | 0.85 | 0.81 | 0.54 |
+
+A direction, not a tuning target (124 synthetic chunks; questions avoid doc wording).
+Fusion costs some @1, which the reranker (S2.2.2) owns; this stage owns the pool.
+
+**Rules**
+- Keyword query = OR of the question's stemmed words (`to_tsquery('simple', ...)`,
+  since they are already stemmed), ranked by `ts_rank_cd`. Quote/minus syntax is lost.
+- `modules <@ %(allowed)s` inside both the vector and keyword parts, before
+  `ORDER BY ... LIMIT`, as a bound parameter in one fixed SQL statement.
+- The live index version is read once per request and passed to every search;
+  candidates carry it (rule 8). No live index raises; an empty allowed set returns nothing.
+- Each search returns its top 50; `rrf` (pure Python, k = 60, equal weights) returns
+  the top 20. Ties: best single rank, then `chunk_id`.
+- `Retriever.search(query, allowed_modules, k, *, index_version)` is async on a
+  `psycopg_pool` pool; the query embedding runs in a thread. Not wired into /chat yet.
+
 ### S2.2.2 Reranker · est. 0.5
 Done when: candidates are reranked by bge-reranker-v2-m3 and a score threshold is configurable.
 - [ ] `Reranker` adapter on MPS
