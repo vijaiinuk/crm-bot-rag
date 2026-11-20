@@ -9,3 +9,6 @@ __pycache__/
 node_modules/
 dist/
 .DS_Store
+
+# S2.3.1: eval runs (a named baseline is committed explicitly)
+evals/reports/retrieval/

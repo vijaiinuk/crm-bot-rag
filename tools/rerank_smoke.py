@@ -16,7 +16,9 @@ OTHER = "Reset your password from the sign-in page if you have forgotten it."
 
 
 def cand(i: int, text: str) -> Candidate:
-    return Candidate(f"d#s{i}:0", "d", f"s{i}", "Doc > Section", text, ("core",), 0, i, None, 0.0)
+    return Candidate(
+        f"d#s{i}:0", "d", f"s{i}", "Doc > Section", text, f"h{i}", ("core",), 0, i, None, 0.0
+    )
 
 
 async def main() -> int:

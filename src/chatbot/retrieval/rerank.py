@@ -32,6 +32,15 @@ def sigmoid(x: float) -> float:
     return 1.0 / (1.0 + math.exp(-x)) if x >= 0 else math.exp(x) / (1.0 + math.exp(x))
 
 
+def order(candidates: Sequence[Candidate], scores: Sequence[float], k: int) -> list[Candidate]:
+    """Best k by score, each with `rerank_score` set. Stable: ties keep the input order."""
+    scored = [
+        dataclasses.replace(c, rerank_score=s) for c, s in zip(candidates, scores, strict=True)
+    ]
+    scored.sort(key=lambda c: -(c.rerank_score or 0.0))
+    return scored[:k]
+
+
 class CrossEncoderReranker:
     def __init__(
         self,
@@ -54,17 +63,15 @@ class CrossEncoderReranker:
             raise ValueError(f"k must be at least 1, got {k}")
         if not candidates:
             return []
+        return order(candidates, await self.scores(query, candidates), k)
+
+    async def scores(self, query: str, candidates: Sequence[Candidate]) -> list[float]:
+        """sigmoid(logit) per candidate, in input order."""
         pairs = [(query, passage(c)) for c in candidates]
         logits = await asyncio.to_thread(self._score_pairs, pairs)
         if len(logits) != len(candidates):
             raise ValueError(f"got {len(logits)} scores for {len(candidates)} candidates")
-        scored = [
-            dataclasses.replace(c, rerank_score=sigmoid(float(x)))
-            for c, x in zip(candidates, logits, strict=True)
-        ]
-        # Stable sort: equal scores keep the fused (input) order.
-        scored.sort(key=lambda c: -(c.rerank_score or 0.0))
-        return scored[:k]
+        return [sigmoid(float(x)) for x in logits]
 
     def _load(self) -> "CrossEncoder":
         if self._model is None:

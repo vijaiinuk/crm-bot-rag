@@ -442,11 +442,32 @@ Done when: candidates are reranked by bge-reranker-v2-m3 and a score threshold i
 - Top rerank score, median: answerable 0.96, restricted 0.003, nothing-to-find 0.001
 - Latency on this laptop (MPS, 20 real chunks): about 1.5 s with float16; float32 tails reached 7 s under memory pressure (11 GB swap). Not representative of production (architecture §10); reranking 10 instead of 20 would roughly halve it
 
-### S2.3.1 Retrieval eval harness · est. 0.75 · [Pair]
+### S2.3.1 Retrieval eval harness · est. 0.75 · [Pair] · ✅ done
 Done when: `make eval` prints recall@k, complete recall@k and MRR by category and saves results per run.
-- [ ] Resolve anchors to chunk IDs for the active version
-- [ ] Metrics per category
-- [ ] JSON results and a readable report
+- [x] Resolve anchors to chunk IDs for the evaluated version (`chatbot/evals/labels.py`); orphans abort
+- [x] Metrics per category (`chatbot/evals/metrics.py`), hybrid and hybrid + rerank, plus the threshold check
+- [x] JSON results and a readable Markdown report in `evals/reports/retrieval/`; `make eval` (`V=n` for another version)
+- [x] Rerank score cache (migration `0003`): first run about 8 min on this laptop, later runs about 30 s
+- First run (index v2, 207 answer pairs): complete @5 hybrid 0.87, + rerank 0.89; MRR 0.81 -> 0.87. Reranking helps `single` (complete @1 0.72 -> 0.88) but hurts `multi_hop` (complete @3 0.40 -> 0.21, MRR 0.77 -> 0.70): see S3.1.2
+
+#### S2.3.1 design (approved 2026-11-20)
+
+- **Unit = (question, persona) pair** with outcome `answer`, searched with that
+  persona's modules (207 pairs). Reports show n per category.
+- **Label match:** a chunk satisfies `doc_id#anchor` if it is any part of that section
+  or a descendant subsection. Labels resolve against the evaluated index version; a
+  label matching no chunk aborts the run listing every orphan.
+- **Metrics** (`chatbot/evals/metrics.py`, pure): recall@k (share of required labels in
+  the top k chunks), complete recall@k (all of them), MRR (1/rank of the first required
+  label, 0 beyond depth 20). k counts chunks; reported at 1, 3, 5, 10, per category
+  (`single`, `multi_hop`, `restricted`, `adversarial`) and overall.
+- **Stages:** hybrid alone and hybrid + rerank. Rerank scores are cached in
+  `rerank_cache` (reranker key, query sha, chunk content_hash), like `embedding_cache`,
+  so repeat runs take seconds.
+- **Threshold check:** share of pairs above the configured threshold by expected
+  outcome (answer / restricted / nothing-to-find).
+- **Outputs:** terminal table; JSON (provenance + per-pair rankings) and Markdown in
+  `evals/reports/retrieval/` (gitignored; S2.3.2 commits a named baseline).
 
 ### S2.3.2 Permission suite · est. 0.5 · [Pair]
 Done when: zero violations across the persona matrix and property tests; any leak fails the build.
@@ -491,6 +512,10 @@ Done when: cross-module questions retrieve chunks from every relevant module.
 - [ ] Skip on the first turn
 - [ ] Parallel retrieval per sub-query; merge, dedupe, rerank against the standalone query
 - [ ] Per-module diversity and parent-section expansion
+- Input from S2.3.1: the reranker scores each chunk against the whole question, so on
+  `multi_hop` a chunk answering one half scores low (q-0067: 0.18) and loses to near-miss
+  sibling sections; complete @3 falls from 0.40 (hybrid) to 0.21 (reranked). Rerank each
+  sub-query's candidates against that sub-query; `make eval` shows whether it recovers.
 
 ### S3.1.5 Server-owned conversations · est. 0.5
 - [ ] `conversations` / `messages` tables

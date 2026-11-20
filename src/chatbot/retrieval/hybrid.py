@@ -46,7 +46,8 @@ kw AS (
   ORDER BY ts_rank_cd(tsv, q.tsq) DESC, chunk_id
   LIMIT %(n)s
 )
-SELECT u.source, u.rank, c.chunk_id, c.doc_id, c.anchor, c.breadcrumb, c.content, c.modules
+SELECT u.source, u.rank, c.chunk_id, c.doc_id, c.anchor, c.breadcrumb, c.content,
+       c.content_hash, c.modules
 FROM (
   SELECT 'vec' AS source, chunk_id, rank FROM vec
   UNION ALL
@@ -114,10 +115,10 @@ class PgHybridRetriever:
 
         # Vector first: it is the stronger list (MRR 0.88 vs 0.68), so it wins ties.
         lists: dict[str, list[str]] = {"vec": [], "kw": []}
-        chunk: dict[str, tuple[str, str, str, str, tuple[str, ...]]] = {}
-        for source, _rank, chunk_id, doc_id, anchor, breadcrumb, content, modules in rows:
+        chunk: dict[str, tuple[str, str, str, str, str, tuple[str, ...]]] = {}
+        for source, _rank, chunk_id, doc_id, anchor, breadcrumb, content, chash, modules in rows:
             lists[source].append(chunk_id)  # rows arrive ordered by source, then rank
-            chunk[chunk_id] = (doc_id, anchor, breadcrumb, content, tuple(modules))
+            chunk[chunk_id] = (doc_id, anchor, breadcrumb, content, chash, tuple(modules))
         return [
             Candidate(
                 chunk_id=f.chunk_id,
@@ -125,7 +126,8 @@ class PgHybridRetriever:
                 anchor=chunk[f.chunk_id][1],
                 breadcrumb=chunk[f.chunk_id][2],
                 content=chunk[f.chunk_id][3],
-                modules=chunk[f.chunk_id][4],
+                content_hash=chunk[f.chunk_id][4],
+                modules=chunk[f.chunk_id][5],
                 index_version=index_version,
                 vec_rank=f.ranks.get("vec"),
                 kw_rank=f.ranks.get("kw"),

@@ -11,6 +11,7 @@ class Candidate:
     anchor: str
     breadcrumb: str
     content: str
+    content_hash: str  # sha256 of the embedded text; keys the rerank cache
     modules: tuple[str, ...]
     index_version: int  # the version every search in the request used (rule 8)
     vec_rank: int | None  # 1-based rank in the vector list; None if not in it

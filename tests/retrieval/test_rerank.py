@@ -23,6 +23,7 @@ def cand(name: str, fused_rank: int) -> Candidate:
         anchor=name,
         breadcrumb=f"Doc > {name}",
         content=f"text about {name}",
+        content_hash=f"hash-{name}",
         modules=("core",),
         index_version=7,
         vec_rank=fused_rank,
