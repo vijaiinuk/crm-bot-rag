@@ -28,9 +28,15 @@ class Responder(Protocol):
     ordering is enforced by chatbot.streaming, not trusted to the responder.
     """
 
-    @property
-    def versions(self) -> Versions: ...
+    async def pin(self) -> Versions:
+        """Resolve what this request will use (e.g. the live index version), once, so the
+        `meta` event, the trace and the search all name the same version (rule 8)."""
+        ...
 
     def respond(
-        self, query: Query, principal: Principal, allowed_modules: frozenset[str]
+        self,
+        query: Query,
+        principal: Principal,
+        allowed_modules: frozenset[str],
+        versions: Versions,
     ) -> AsyncGenerator[ContentEvent, None]: ...

@@ -38,7 +38,12 @@ def _parse(raw: Any, *, source: str) -> ModuleCatalogue:
             raise CatalogueFileError(f"{source}: module {name!r} needs a display_name")
         if not isinstance(description, str) or not description.strip():
             raise CatalogueFileError(f"{source}: module {name!r} needs a description")
-        out[str(name)] = ModuleInfo(name=str(name), display_name=display, description=description)
+        keywords = entry.get("keywords", [])
+        if not isinstance(keywords, list) or not all(isinstance(k, str) for k in keywords):
+            raise CatalogueFileError(f"{source}: module {name!r} keywords must be strings")
+        out[str(name)] = ModuleInfo(
+            name=str(name), display_name=display, description=description, keywords=tuple(keywords)
+        )
     return ModuleCatalogue(modules=out, restricted_contact=contact)
 
 

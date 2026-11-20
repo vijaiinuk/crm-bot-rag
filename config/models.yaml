@@ -39,6 +39,20 @@ models:
       max_tokens: 2000
     rpm: 18  # OpenRouter caps new accounts at 20 a minute per model
 
+  # S3.1.3b: answer generation, interim until the bake-off (S3.3.1) picks the model
+  # (ADR to follow). On both OpenRouter and Bedrock (ADR-0002); not a reasoning model.
+  # Synthetic docs and users only while on OpenRouter.
+  answer:
+    provider: openrouter
+    model_id: anthropic/claude-haiku-5.5
+    route:
+      order: [anthropic]
+      allow_fallbacks: false
+    params:
+      temperature: 0.2
+      max_tokens: 1000
+    rpm: 18  # OpenRouter caps new accounts at 20 a minute per model
+
 # S2.1.3: local embeddings, run natively on MPS (never sent to a provider).
 # Pinned to a Hugging Face commit; changing it re-embeds the whole corpus,
 # because the embedding cache is keyed on model + revision.
@@ -47,6 +61,10 @@ embeddings:
   revision: 5617a9f61b028005a4858fdac845db406aefb181
   dim: 1024
   batch_size: 16
+  # S3.1.3b, calibrated 2026-11-20 on the golden set (relative rule + this floor):
+  # restricted pairs get the right module 71.5%; not-found pairs wrongly named a
+  # module 6.7% (4 of 60); answerable pairs got a spurious partial-access note 0.5%.
+  module_floor: 0.45
 
 # S2.2.2: local cross-encoder, natively on MPS. The threshold is on this model's
 # sigmoid score scale, so it lives here: a new model needs a new calibration.

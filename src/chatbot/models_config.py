@@ -61,6 +61,9 @@ class EmbeddingConfig(_Strict):
     revision: str = Field(pattern=r"^[0-9a-f]{40}$")  # a commit sha, never a branch
     dim: int = Field(gt=0)
     batch_size: int = Field(default=16, gt=0)
+    # S3.1.3b: cosine floor for matching a question to a module's PUBLIC profile (with
+    # the relative rule in chatbot.generation.module_match). On this model's scale.
+    module_floor: float = Field(default=0.45, ge=0, le=1)
 
     @property
     def key(self) -> str:

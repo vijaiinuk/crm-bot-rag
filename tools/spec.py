@@ -212,7 +212,13 @@ def render_catalogue(spec: Spec) -> str:
     body = {
         "restricted_contact": spec.restricted_contact,
         "modules": {
-            m.name: {"display_name": m.display_name, "description": m.description}
+            m.name: {
+                "display_name": m.display_name,
+                "description": m.description,
+                # UI labels and entity names: public product vocabulary, no doc content.
+                # Used to recognise questions about a module the user can't access.
+                "keywords": [*m.ui_labels, *m.entities],
+            }
             for m in spec.modules.values()
         },
     }

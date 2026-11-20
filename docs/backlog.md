@@ -492,24 +492,37 @@ Done when: a version is promoted only if the permission suite, retrieval thresho
 
 Goal: replace the mock `Responder` with grounded, cited, streamed, traced answers.
 
-### S3.1.3a LLM client and config · est. 0.5 · [Delegate]
-Partly pulled forward into S1.2.1 step B (models.yaml, port, LiteLLM adapter, key setting); what's left here is wiring it into the query path.
-- [ ] `config/models.yaml` with pinned model IDs
-- [ ] LiteLLM → OpenRouter, provider pinned, fallbacks off
-- [ ] `LLMClient` port; mocked in tests
+### S3.1.3a LLM client and config · est. 0.5 · [Delegate] · ✅ done
+Partly pulled forward into S1.2.1 step B (models.yaml, port, LiteLLM adapter, key setting); the rest landed with S3.1.3b.
+- [x] `config/models.yaml` with pinned model IDs (`answer`: `anthropic/claude-haiku-5.5`, interim until S3.3.1)
+- [x] LiteLLM → OpenRouter, provider pinned, fallbacks off; streaming with the same provider check
+- [x] `LLMClient` port (+ `StreamingLLMClient`); mocked in tests
 
-### S3.1.3b Grounded generation · est. 1.5
+### S3.1.3b Grounded generation · est. 1.5 · ✅ done
 Done when: answers stream with verified citations, and low-confidence and restricted cases get the right response.
-- [ ] `prompts/answer_v1` with the static prefix first
-- [ ] Structured `{answer, steps, citations}`
-- [ ] Verify cited chunk IDs were in the context
-- [ ] Below threshold: "not found" or the restricted template from `module_catalogue`
-  - Input from S2.2.2: threshold alone cannot tell "restricted" from "partial access".
-    23 of 144 restricted golden pairs score >= 0.3 on content the persona IS allowed
-    (e.g. `quotes-builder` for a rep without `products` asking to quote from a deal;
-    multi-hop with one doc allowed). Decide: answer from allowed docs, template, or
-    both; and whether the S1.3.1 derivation rule should allow a partial answer.
-- [ ] `RagResponder` replaces the mock responder
+- [x] `prompts/answer_v1` with the static prefix first; version = id + text hash in every `meta` and trace
+- [x] Streamed markdown with numbered `[n]` markers instead of JSON (time to first token); markers stripped across token splits, `[[NOT_FOUND]]` sentinel held back so it never leaks a token
+- [x] Verify cited markers were in the context; others dropped and counted
+- [x] Below threshold: "not found" or the restricted template from `module_catalogue`; partial access answers from allowed docs plus a templated note
+- [x] `RagResponder` replaces the mock with `CHATBOT_RESPONDER=rag`; responders `pin()` their versions so meta, trace and search name the same index version
+
+#### S3.1.3b design (approved 2026-11-20)
+- **Restricted detection never retrieves outside the allowed modules (rule 2).** The
+  question is compared with each module's public catalogue profile (display name,
+  description, UI labels, entity names; added to `module_catalogue.yaml` by `make spec`).
+- **Calibration changed the scorer.** The approved cross-encoder scored profiles near
+  0 (right module 6.9% at best): it judges "does this passage answer", not topic. bge-m3
+  cosine with a relative rule (a lacking module must beat every held module) and floor
+  0.45: restricted pairs get the right module 71.5%, not-found pairs wrongly named a
+  module 6.7%, answerable pairs got a spurious note 0.5% (an absolute cut-off: 14%).
+  Misses fall back to "not found", which reveals nothing.
+- **Partial access:** answer from allowed docs + templated note. The S1.3.1 derivation
+  rule (any missing module => `restricted`) needs an "answer + note" outcome; change it
+  in E5 with refusal accuracy, where response types are scored.
+- Real check (index v3, Claude Haiku 5.5): answer with 2 verified citations; restricted
+  template and not-found with no LLM call; a partial-access question (q-0050, kestrel
+  rep) came back "not found": Products scored 0.573 vs the rep's Quotes 0.579, and the
+  model correctly said the allowed excerpts don't cover price books. A safe miss.
 
 ### S3.1.2 Rewrite and decomposition · est. 1
 Done when: cross-module questions retrieve chunks from every relevant module.
@@ -543,6 +556,9 @@ Done when: every request appears in Phoenix with per-step spans and version meta
 ### S3.2.1 Judge and metrics · est. 1
 Done when: faithfulness, correctness, refusal and citation scores run from `make eval-gen`.
 - [ ] Metrics: faithfulness, correctness, refusal accuracy, citation accuracy
+  - Input from S3.1.3b: partial access now answers from allowed docs + a templated
+    note, so refusal accuracy needs an "answer + note" outcome; revise the S1.3.1
+    derivation rule (any missing module => `restricted`) and `make evals-check` with it
 - [ ] Judge from a different vendor than the generator
 - [ ] Retries with backoff, bounded concurrency
 

@@ -44,6 +44,10 @@ class Settings(BaseSettings):
     database_url: SecretStr = SecretStr(
         "postgresql+psycopg://chatbot:chatbot@localhost:5432/chatbot"
     )
+    # Which responder answers /chat: the deterministic mock, or the real RAG pipeline
+    # (needs `make up`, a live index and OPENROUTER_API_KEY).
+    responder: Literal["mock", "rag"] = "mock"
+    answer_prompt_path: Path = Path("prompts/answer_v1.md")
     # Local signing keys; only read when env == "local".
     keys_dir: Path = Path(".local/keys")
 

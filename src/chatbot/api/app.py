@@ -53,10 +53,16 @@ def create_app(
     if isinstance(entitlements, LocalEntitlementProvider):
         check_covers(catalogue, entitlements.modules)
 
+    rag_pool: Any = None
     if responder is None:
-        if settings.env == "prod":
+        if settings.responder == "rag":
+            from chatbot.adapters.rag_responder import build_rag_responder
+
+            responder, rag_pool = build_rag_responder(settings, catalogue)
+        elif settings.env == "prod":
             raise RuntimeError("no production responder configured")
-        responder = MockResponder(catalogue, token_delay_s=settings.mock_token_delay_s)
+        else:
+            responder = MockResponder(catalogue, token_delay_s=settings.mock_token_delay_s)
 
     if admin is None:
         if settings.env == "prod":
@@ -76,7 +82,11 @@ def create_app(
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+        if rag_pool is not None:
+            await rag_pool.open()
         yield
+        if rag_pool is not None:
+            await rag_pool.close()
         if owned_jwks is not None:
             await owned_jwks.aclose()
 

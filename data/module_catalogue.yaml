@@ -7,27 +7,105 @@ modules:
   core:
     display_name: CRM basics
     description: Navigation, search, notifications and personal settings.
+    keywords:
+    - Home
+    - Global search
+    - Notifications
+    - My settings
+    - user profile
+    - notification
+    - saved search
   contacts:
     display_name: Contacts
     description: People and companies, imports, and contact fields.
+    keywords:
+    - Contacts
+    - Companies
+    - Import contacts
+    - Field settings
+    - contact
+    - company
+    - custom field
+    - import
   deals:
     display_name: Deals
     description: Pipelines, deal stages and stage automation.
+    keywords:
+    - Deals
+    - Pipeline board
+    - Stage settings
+    - Automations
+    - deal
+    - pipeline
+    - stage
+    - stage automation
   campaigns:
     display_name: Campaigns
     description: Email campaigns, audiences and triggered emails.
+    keywords:
+    - Campaigns
+    - Audiences
+    - Templates
+    - Triggered emails
+    - campaign
+    - audience
+    - email template
+    - triggered email
   reports:
     display_name: Reports
     description: Dashboards, saved reports and scheduled exports.
+    keywords:
+    - Reports
+    - Dashboards
+    - Report builder
+    - Scheduled exports
+    - report
+    - dashboard
+    - widget
+    - scheduled export
   activities:
     display_name: Activities
     description: Tasks, calls, meetings and reminders linked to records.
+    keywords:
+    - Activities
+    - My tasks
+    - Log a call
+    - Calendar
+    - task
+    - call log
+    - meeting
+    - reminder
   quotes:
     display_name: Quotes
     description: Quotes built from deals, approvals and PDF sending.
+    keywords:
+    - Quotes
+    - Quote builder
+    - Approvals
+    - Send quote
+    - quote
+    - line item
+    - discount
+    - approval
   products:
     display_name: Products
     description: The product catalogue, price books and product bundles.
+    keywords:
+    - Products
+    - Price books
+    - Bundles
+    - product
+    - price book
+    - bundle
   support:
     display_name: Support
     description: Tickets, queues, SLAs and escalations.
+    keywords:
+    - Tickets
+    - Queues
+    - SLA policies
+    - Escalations
+    - ticket
+    - queue
+    - SLA policy
+    - escalation

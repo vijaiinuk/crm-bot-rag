@@ -22,7 +22,7 @@ from chatbot.events import (
     WireEvent,
 )
 from chatbot.ports.entitlements import Principal
-from chatbot.ports.responder import Query, Responder
+from chatbot.ports.responder import Query, Responder, Versions
 from chatbot.tracing.log import TraceRecord, emit_trace
 
 log = logging.getLogger(__name__)
@@ -56,7 +56,13 @@ async def stream_events(
 ) -> AsyncGenerator[WireEvent, None]:
     """`on_complete(trace, answer_text)` runs once after the trace is emitted, on
     every outcome. It must not raise; the answer may be partial or a refusal."""
-    versions = responder.versions
+    pin_failed = False
+    try:
+        versions = await responder.pin()
+    except Exception:  # e.g. no live index: still a well-formed stream, ending in error
+        log.exception("responder could not pin versions (trace_id=%s)", trace_id)
+        versions = Versions("unavailable", "unavailable", "unavailable")
+        pin_failed = True
     record = TraceRecord(
         trace_id=trace_id,
         conversation_id=query.conversation_id,
@@ -79,11 +85,17 @@ async def stream_events(
             prompt_version=versions.prompt_version,
             model_id=versions.model_id,
         )
+        if pin_failed:
+            record.outcome = "error"
+            yield GENERIC_ERROR
+            return
         state: State = "start"
         usage = TokenUsage()
         refusal_kind = ""
         try:
-            async with aclosing(responder.respond(query, principal, allowed_modules)) as events:
+            async with aclosing(
+                responder.respond(query, principal, allowed_modules, versions)
+            ) as events:
                 async for event in events:
                     if isinstance(event, Usage):
                         usage = event.usage

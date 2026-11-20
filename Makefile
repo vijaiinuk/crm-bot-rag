@@ -110,7 +110,7 @@ fmt:
 
 Q ?= how do I email contacts when a deal changes stage
 
-chat:          ## stream a mock answer: make chat PERSONA=sales_rep@globex Q="..."
+chat:          ## stream an answer from the running API (mock, or real with CHATBOT_RESPONDER=rag): make chat PERSONA=sales_rep@globex Q="..."
 	@curl -sN -X POST localhost:8000/chat \
 	  -H "Authorization: Bearer $$(uv run python -m tools.mint_token --persona $(PERSONA))" \
 	  -H "Content-Type: application/json" \

@@ -31,13 +31,30 @@ class Scripted:
 
     versions = Versions(index_version="idx-7", prompt_version="answer@3", model_id="m-1")
 
-    def __init__(self, script: Sequence[ContentEvent], raise_after: Exception | None = None):
+    def __init__(
+        self,
+        script: Sequence[ContentEvent],
+        raise_after: Exception | None = None,
+        pin_error: Exception | None = None,
+    ):
         self.script = script
         self.raise_after = raise_after
+        self.pin_error = pin_error
+        self.pinned: list[Versions] = []
+
+    async def pin(self) -> Versions:
+        if self.pin_error:
+            raise self.pin_error
+        return self.versions
 
     async def respond(
-        self, query: Query, principal: Principal, allowed_modules: frozenset[str]
+        self,
+        query: Query,
+        principal: Principal,
+        allowed_modules: frozenset[str],
+        versions: Versions,
     ) -> AsyncGenerator[ContentEvent, None]:
+        self.pinned.append(versions)
         for event in self.script:
             yield event
         if self.raise_after:
@@ -167,3 +184,18 @@ async def test_client_disconnect_still_traces_once() -> None:
     await anext(gen)  # first token
     await gen.aclose()
     assert [t.outcome for t in traces] == ["cancelled"]
+
+
+async def test_respond_gets_exactly_the_versions_meta_and_the_trace_name() -> None:
+    responder = Scripted([Token(text="hi"), Citations(items=[CITATION])])
+    events, traces = await run(responder)
+    assert responder.pinned == [Scripted.versions]
+    assert isinstance(events[0], Meta) and events[0].index_version == "idx-7"
+    assert traces[0].index_version == "idx-7"
+
+
+async def test_a_pin_failure_is_still_a_well_formed_stream() -> None:
+    events, traces = await run(Scripted([], pin_error=RuntimeError("no live index")))
+    assert types(events) == ["meta", "error"]
+    assert isinstance(events[0], Meta) and events[0].index_version == "unavailable"
+    assert traces[0].outcome == "error"

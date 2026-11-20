@@ -7,7 +7,7 @@ from chatbot.adapters.local_catalogue import load_catalogue
 from chatbot.adapters.mock_responder import MOCK_DOCS, MockResponder
 from chatbot.events import Citations, ContentEvent, Refusal, Token
 from chatbot.ports.entitlements import Principal
-from chatbot.ports.responder import Query
+from chatbot.ports.responder import Query, Versions
 from chatbot.refusals import not_found_message, restricted_message
 
 DATA = Path(__file__).parents[2] / "data"
@@ -32,7 +32,8 @@ SCENARIOS = [
 async def collect(message: str, allowed: frozenset[str]) -> list[ContentEvent]:
     responder = MockResponder(CATALOGUE)
     principal = Principal(sub="u", tenant="t", role="r")
-    return [e async for e in responder.respond(Query(message, "c"), principal, allowed)]
+    versions = Versions("mock", "mock", "mock")
+    return [e async for e in responder.respond(Query(message, "c"), principal, allowed, versions)]
 
 
 def text_of(events: list[ContentEvent]) -> str:
@@ -88,7 +89,9 @@ async def test_keywords_match_whole_word_prefixes_only() -> None:
 
 async def test_simulated_error_raises_mid_stream() -> None:
     responder = MockResponder(CATALOGUE)
-    gen = responder.respond(Query("simulate:error", "c"), Principal("u", "t", "r"), MANAGER)
+    gen = responder.respond(
+        Query("simulate:error", "c"), Principal("u", "t", "r"), MANAGER, Versions("m", "m", "m")
+    )
     assert isinstance(await anext(gen), Token)
     with pytest.raises(RuntimeError):
         async for _ in gen:

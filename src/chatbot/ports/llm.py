@@ -1,4 +1,4 @@
-from collections.abc import Sequence
+from collections.abc import AsyncIterator, Sequence
 from dataclasses import dataclass
 from typing import Literal, Protocol
 
@@ -39,3 +39,11 @@ class LLMClient(Protocol):
     """
 
     async def complete(self, messages: Sequence[Message], *, role: str) -> Completion: ...
+
+
+class StreamingLLMClient(LLMClient, Protocol):
+    """An LLMClient that can also stream (answer generation, S3.1.3b)."""
+
+    def stream(self, messages: Sequence[Message], *, role: str) -> AsyncIterator[str | Completion]:
+        """Text deltas as they arrive, then exactly one Completion (full text, usage)."""
+        ...

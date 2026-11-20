@@ -19,6 +19,18 @@ def restricted_message(missing_modules: Iterable[str], catalogue: ModuleCatalogu
     )
 
 
+def partial_access_note(missing_modules: Iterable[str], catalogue: ModuleCatalogue) -> str:
+    """Appended to an answer built from allowed docs when the question also seems to
+    involve modules the user lacks. Templated from the catalogue, never generated."""
+    names = sorted(catalogue.display_name(m) for m in missing_modules)
+    if not names:
+        raise ValueError("a partial-access note needs at least one module")
+    return (
+        f"Parts of this may involve {_join(names)}, which isn't included in your current "
+        f"access, so this answer covers only what you can use. {catalogue.restricted_contact}"
+    )
+
+
 def not_found_message() -> str:
     return (
         "I couldn't find this in the help documentation. "

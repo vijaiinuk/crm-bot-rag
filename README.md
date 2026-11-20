@@ -121,6 +121,10 @@ eval labels, the permission suite, recall regression vs the live version, module
 makes it live only if the gate passes. `CONFIRM_WIDENING=1` accepts a doc that drops a module;
 nothing else skips the gate.
 `make index-list`, `make promote V=n` and `make rollback` manage versions.
+To answer from the real pipeline instead of the mock (live index, bge-m3, reranker and the
+`answer` model via OpenRouter), restart the API with `CHATBOT_RESPONDER=rag make restart S=api`;
+`make restart S=api` goes back to the mock.
+
 `make eval` runs the retrieval evals on the live index (recall, complete recall and MRR per
 category, hybrid and reranked) and the zero-tolerance permission suite, saves a report to
 `evals/reports/retrieval/`, and fails on any leak. `make eval-baseline` also refreshes the

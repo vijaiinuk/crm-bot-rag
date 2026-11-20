@@ -34,9 +34,9 @@ These are correctness and security invariants. Never relax them, even temporaril
 3. Rewrite (skip on first turn): one small-model call returning structured output `{standalone: str, sub_queries: list[str]}` (0-3 sub-queries for cross-module questions). Validate with Pydantic. If a module hint list is given to the model, give only allowed modules.
 4. For each query, in parallel: hybrid search = exact vector search + Postgres FTS, both with the module filter -> reciprocal rank fusion. Merge, dedupe by chunk ID.
 5. Rerank against the standalone query with the cross-encoder. Apply per-module diversity, then parent-section expansion.
-6. If top rerank score < threshold: skip the LLM; return "not found" or the restricted-module template (module catalogue lookup).
-7. Generate via LiteLLM: versioned prompt, static prefix first (for prompt caching), chunks labelled by chunk ID. Structured output `{answer, steps, citations}`.
-8. Verify every cited chunk ID was in the context; drop or flag any that were not.
+6. If top rerank score < threshold: skip the LLM; return "not found" or the restricted-module template. Which modules the user lacks a question concerns is decided only by embedding similarity to the **public** `module_catalogue` profiles (relative rule + floor), never by retrieving outside the allowed modules (rule 2).
+7. Generate via LiteLLM, streamed: versioned prompt, static prefix first (for prompt caching), excerpts numbered `[1]..[n]` (mapped to chunk IDs server-side). Markdown answer with `[n]` citation markers, stripped from the stream; `[[NOT_FOUND]]` sentinel becomes the not-found refusal. Partial access (allowed docs answer, a lacking module is also involved): answer plus a templated catalogue note, never LLM-written.
+8. Verify every cited marker was in the context; drop and count any that were not.
 9. Stream the response; emit the trace.
 
 ### Ingestion path (admin publish, or `make ingest` for dev/CI)
@@ -89,7 +89,7 @@ Keep these as `typing.Protocol`s in `src/chatbot/ports/`. Production adapters re
 - `EntitlementProvider.resolve(claims) -> frozenset[str]` (local: reads `personas.yaml`; prod: CRM entitlement API)
 - `Retriever.search(query, allowed_modules, k) -> list[Candidate]`
 - `Reranker.rerank(query, candidates, k) -> list[Candidate]`
-- `LLMClient.complete(prompt, schema, model) -> ParsedResponse`
+- `LLMClient.complete(messages, *, role) -> Completion`; `StreamingLLMClient.stream(messages, *, role)` yields text deltas then one `Completion`
 - `Guardrail.check_input(...)` / `check_output(...)`
 
 ## Data formats (the contract for swapping in real data)

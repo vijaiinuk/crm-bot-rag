@@ -7,6 +7,13 @@ class ModuleInfo:
     name: str
     display_name: str
     description: str
+    keywords: tuple[str, ...] = ()  # public UI labels and entity names
+
+    @property
+    def profile(self) -> str:
+        """Public text describing the module: what a restricted-module match is scored on."""
+        words = f" Terms: {', '.join(self.keywords)}." if self.keywords else ""
+        return f"{self.display_name}: {self.description}{words}"
 
 
 @dataclass(frozen=True, slots=True)

@@ -1,7 +1,7 @@
 """LLMClient over LiteLLM. OpenRouter in development, Bedrock later (ADR-0002)."""
 
 import time
-from collections.abc import Sequence
+from collections.abc import AsyncIterator, Sequence
 from typing import Any
 
 import litellm
@@ -68,6 +68,64 @@ class LiteLLMClient:
             provider=served or expected,
             usage=usage_of(response),
             latency_ms=latency_ms,
+        )
+
+    async def stream(
+        self, messages: Sequence[Message], *, role: str
+    ) -> AsyncIterator[str | Completion]:
+        try:
+            m = self._config.models[role]
+        except KeyError:
+            raise LLMError(f"no model configured for role {role!r}") from None
+        key = self._keys.get(m.provider)
+        expected = m.route.order[0]
+        if limiter := self._limiters.get(role):
+            await limiter.acquire()
+        started = time.monotonic()
+        try:
+            response: Any = await litellm.acompletion(
+                model=f"{m.provider}/{m.model_id}",
+                messages=[{"role": msg.role, "content": msg.content} for msg in messages],
+                api_base=self._config.providers[m.provider].api_base,
+                api_key=key.get_secret_value() if key else None,
+                temperature=m.params.temperature,
+                max_tokens=m.params.max_tokens,
+                extra_body={"provider": m.route.model_dump()},
+                num_retries=NUM_RETRIES,
+                stream=True,
+                stream_options={"include_usage": True},
+            )
+        except Exception as e:
+            raise LLMError(f"{role} ({m.model_id}) failed: {e}") from e
+
+        parts: list[str] = []
+        usage = Usage(0, 0)
+        served: str | None = None
+        try:
+            async for chunk in response:
+                if (p := served_provider(chunk)) is not None:
+                    if p.lower() != expected.lower():
+                        raise LLMError(f"{role} was served by {p!r}, not the pinned {expected!r}")
+                    served = p
+                if getattr(chunk, "usage", None) is not None:
+                    usage = usage_of(chunk)
+                delta = chunk.choices[0].delta.content if chunk.choices else None
+                if delta:
+                    parts.append(delta)
+                    yield delta
+        except LLMError:
+            raise
+        except Exception as e:
+            raise LLMError(f"{role} ({m.model_id}) stream failed: {e}") from e
+        text = "".join(parts)
+        if not text.strip():
+            raise LLMError(f"{role} ({m.model_id}) returned no text")
+        yield Completion(
+            text=text,
+            model_id=m.model_id,
+            provider=served or expected,
+            usage=usage,
+            latency_ms=int((time.monotonic() - started) * 1000),
         )
 
 

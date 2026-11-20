@@ -112,12 +112,15 @@ class MockResponder:
         self._catalogue = catalogue
         self._delay = token_delay_s
 
-    @property
-    def versions(self) -> Versions:
+    async def pin(self) -> Versions:
         return Versions(index_version="mock", prompt_version="mock", model_id="mock")
 
     async def respond(
-        self, query: Query, principal: Principal, allowed_modules: frozenset[str]
+        self,
+        query: Query,
+        principal: Principal,
+        allowed_modules: frozenset[str],
+        versions: Versions,
     ) -> AsyncGenerator[ContentEvent, None]:
         message = query.message
         if ERROR_TRIGGER in message.lower():
