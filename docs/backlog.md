@@ -469,11 +469,12 @@ Done when: `make eval` prints recall@k, complete recall@k and MRR by category an
 - **Outputs:** terminal table; JSON (provenance + per-pair rankings) and Markdown in
   `evals/reports/retrieval/` (gitignored; S2.3.2 commits a named baseline).
 
-### S2.3.2 Permission suite · est. 0.5 · [Pair]
+### S2.3.2 Permission suite · est. 0.5 · [Pair] · ✅ done
 Done when: zero violations across the persona matrix and property tests; any leak fails the build.
-- [ ] Tests first: persona-matrix assertion `chunk.modules ⊆ allowed`
-- [ ] Hypothesis property test with random entitlement sets
-- [ ] Record the retrieval baseline
+- [x] Tests first: persona-matrix assertion `chunk.modules ⊆ allowed` (`chatbot/evals/permissions.py`), plus non-vacuity: a visible chunk queried by its own text must be found; broken retrievers (post-filtering, empty, injecting reranker) are proven to fail it
+- [x] Hypothesis property tests: SQL filter == `set(modules) <= allowed` on random tags; random entitlement sets on the corpus (200 examples each)
+- [x] Record the retrieval baseline: `make eval-baseline` writes `evals/baselines/retrieval.{md,json}` (committed)
+- Live index v2, real models: 26 entitlement sets x 275 queries (golden + self-retrieval), 107,525 candidates, 0 leaks, 0 vacuous. `make eval` exits non-zero on any leak. In `make check` the matrix uses self-retrieval queries only (fake embedder), about 20 s
 
 ### S2.4.1 Gate in `make ingest` · est. 0.5
 Done when: a version is promoted only if the permission suite, retrieval thresholds and orphaned-label check all pass.

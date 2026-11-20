@@ -119,7 +119,9 @@ With the database up, `make ingest` validates, chunks and embeds `data/docs/` in
 version (bge-m3 on MPS; the first run downloads about 2.3 GB) and makes it live.
 `make index-list`, `make promote V=n` and `make rollback` manage versions.
 `make eval` runs the retrieval evals on the live index (recall, complete recall and MRR per
-category, hybrid and reranked) and saves a report to `evals/reports/retrieval/`.
+category, hybrid and reranked) and the zero-tolerance permission suite, saves a report to
+`evals/reports/retrieval/`, and fails on any leak. `make eval-baseline` also refreshes the
+committed baseline in `evals/baselines/`.
 Override the connection with `CHATBOT_DATABASE_URL`. Tests marked `db` skip when Postgres is down;
 `REQUIRE_DB=1 make test` makes that a failure.
 
