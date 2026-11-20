@@ -2,11 +2,13 @@
 `make rollback`, `make embed-smoke`.
 
 `build` validates, chunks and embeds (cache first) into a new index version. With
-`--promote` it then goes live, ungated: the S2.4.1 publish gate does not exist yet,
-and the version records that it skipped it.
+`--promote` it then runs the publish gate (S2.4.1: orphaned labels, permission suite,
+recall regression vs live, module widening) and goes live only if the gate passes.
+There is no way to skip the gate.
 """
 
 import argparse
+import asyncio
 import sys
 import time
 from pathlib import Path
@@ -14,23 +16,33 @@ from pathlib import Path
 import psycopg
 
 from chatbot.adapters.local_catalogue import load_catalogue
+from chatbot.adapters.memo_embedder import MemoEmbedder
 from chatbot.adapters.st_embedder import SentenceTransformerEmbedder
 from chatbot.config import Settings
 from chatbot.db import libpq_url
+from chatbot.evals import permissions
+from chatbot.evals.retrieval import load_golden
 from chatbot.ingest.build import (
     BuildFailed,
     PromotionError,
     build_index,
     list_versions,
     promote,
+    record_gate,
     rollback,
 )
 from chatbot.ingest.chunker import Chunker
+from chatbot.ingest.gate import GateReport, load_gate_config, run_gate
 from chatbot.ingest.validate import DocValidator, IngestAborted, load_frontmatter_schema
 from chatbot.models_config import load_models_config
+from chatbot.retrieval.hybrid import PgHybridRetriever, make_pool
+from chatbot.retrieval.rerank import CrossEncoderReranker
+from chatbot.retrieval.rerank_cache import CachingReranker
 
 DOCS = Path("data/docs")
 SCHEMA = Path("data/spec/doc_frontmatter.schema.json")
+GOLDEN = sorted(Path("evals/golden").glob("*.yaml"))
+GATE_CONFIG = Path("config/gate.yaml")
 
 
 def _embedder(settings: Settings) -> SentenceTransformerEmbedder:
@@ -47,12 +59,66 @@ def _connect(settings: Settings) -> psycopg.Connection[tuple[object, ...]]:
         raise SystemExit(f"cannot reach Postgres (run `make up`): {e}") from e
 
 
-def cmd_build(settings: Settings, *, promote_after: bool) -> int:
+async def gate(settings: Settings, version: int, live: int | None, *, confirm: bool) -> GateReport:
+    config = load_models_config(settings.models_path)
+    if config.embeddings is None or config.reranker is None:
+        raise SystemExit(f"{settings.models_path} needs `embeddings:` and `reranker:`")
+    personas = settings.load_personas()
+    matrix = permissions.entitlement_matrix(
+        personas, sorted(load_catalogue(settings.catalogue_path).modules)
+    )
+    async with make_pool(libpq_url(settings.database_url.get_secret_value())) as pool:
+        return await run_gate(
+            pool,
+            version,
+            live,
+            retriever=PgHybridRetriever(
+                pool, MemoEmbedder(SentenceTransformerEmbedder(config.embeddings))
+            ),
+            reranker=CachingReranker(CrossEncoderReranker(config.reranker), pool),
+            golden=load_golden(GOLDEN),
+            personas=personas,
+            entitlements=matrix,
+            threshold=config.reranker.threshold,
+            config=load_gate_config(GATE_CONFIG),
+            confirm_widening=confirm,
+        )
+
+
+def print_gate(report: GateReport) -> None:
+    print(f"gate for version {report.version} (vs live {report.live_version or 'none'}):")
+    if report.orphans:
+        print(f"  orphaned labels: {', '.join(report.orphans)}")
+    if report.permissions:
+        p = report.permissions
+        print(
+            f"  permissions: {p['searches']} searches, {p['checked']} candidates, "
+            f"{len(p['violations'])} leaks, {len(p['vacuous'])} vacuous"
+        )
+    if report.regression:
+        r = report.regression
+        if "live" in r:
+            changes = ", ".join(f"{m} {r['live'][m]:.3f} -> {r['new'][m]:.3f}" for m in r["new"])
+            print(f"  regression (tolerance {r['tolerance']}): {changes}")
+        else:
+            print(f"  regression: {r.get('note')}")
+    if report.widening:
+        w = report.widening
+        print(
+            f"  widening: {len(w['widened'])} widened, {len(w['new_docs'])} new docs"
+            + (" (confirmed)" if w["confirmed"] else "")
+        )
+    print("  PASSED" if report.passed else "  FAILED:\n    " + "\n    ".join(report.failures))
+
+
+def cmd_build(
+    settings: Settings, *, promote_after: bool, docs_dir: Path = DOCS, confirm: bool = False
+) -> int:
     started = time.monotonic()
     catalogue = load_catalogue(settings.catalogue_path)
     validator = DocValidator(frozenset(catalogue.modules), load_frontmatter_schema(SCHEMA))
     try:
-        docs = validator.read_corpus(DOCS)
+        docs = validator.read_corpus(docs_dir)
     except IngestAborted as e:
         print(f"ABORTED, nothing written. {e}", file=sys.stderr)
         return 1
@@ -73,8 +139,15 @@ def cmd_build(settings: Settings, *, promote_after: bool) -> int:
             f"({time.monotonic() - started:.1f}s)"
         )
         if promote_after:
-            promote(conn, r.index_version, ungated=True)
-            print(f"version {r.index_version} is live (ungated: no publish gate until S2.4.1)")
+            live = next((v.index_version for v in list_versions(conn) if "live" in v.aliases), None)
+            report = asyncio.run(gate(settings, r.index_version, live, confirm=confirm))
+            record_gate(conn, r.index_version, report.to_json())
+            print_gate(report)
+            if not report.passed:
+                print(f"version {r.index_version} NOT promoted; live stays {live}", file=sys.stderr)
+                return 1
+            promote(conn, r.index_version)
+            print(f"version {r.index_version} is live")
     return 0
 
 
@@ -98,11 +171,11 @@ def cmd_list(settings: Settings) -> int:
 def cmd_promote(settings: Settings, version: int) -> int:
     with _connect(settings) as conn:
         try:
-            promote(conn, version, ungated=True)
+            promote(conn, version)
         except PromotionError as e:
             print(f"REFUSED: {e}", file=sys.stderr)
             return 1
-    print(f"version {version} is live (ungated)")
+    print(f"version {version} is live")
     return 0
 
 
@@ -146,9 +219,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="cmd", required=True)
     b = sub.add_parser("build", help="build a new index version from data/docs")
-    b.add_argument("--promote", action="store_true", help="then make it live (ungated)")
+    b.add_argument("--promote", action="store_true", help="then gate it; live only if it passes")
+    b.add_argument("--docs", type=Path, default=DOCS, help="docs directory (default data/docs)")
+    b.add_argument("--confirm-widening", action="store_true", help="accept docs that drop a module")
     sub.add_parser("list", help="list index versions")
-    p = sub.add_parser("promote", help="make a complete version live (ungated)")
+    p = sub.add_parser("promote", help="make a version that passed the gate live")
     p.add_argument("version", type=int)
     sub.add_parser("rollback", help="undo the last repoint of the live alias")
     sub.add_parser("embed-smoke", help="load the real embedding model and sanity-check it")
@@ -156,7 +231,12 @@ def main(argv: list[str] | None = None) -> int:
     settings = Settings()
     match args.cmd:
         case "build":
-            return cmd_build(settings, promote_after=args.promote)
+            return cmd_build(
+                settings,
+                promote_after=args.promote,
+                docs_dir=args.docs,
+                confirm=args.confirm_widening,
+            )
         case "list":
             return cmd_list(settings)
         case "promote":

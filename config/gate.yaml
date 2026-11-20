@@ -1,0 +1,8 @@
+# S2.4.1: the publish gate in front of every promotion (make ingest, admin publish).
+# Permission leaks and orphaned eval labels block with zero tolerance; they have no
+# settings here on purpose. Only the recall-regression check is tunable.
+regression:
+  # Reranked results on the new version vs the live one, overall, same golden set.
+  # A drop larger than this blocks promotion (0.02 is about 4 of 207 pairs).
+  metrics: [complete@5, recall@5, mrr]
+  tolerance: 0.02

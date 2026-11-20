@@ -323,7 +323,8 @@ Goal: a versioned, permission-tagged index built by `make ingest`.
   but `REQUIRE_DB=1` turns a skip into a failure (CI, and `make check` once
   Docker is part of the dev setup).
 - Until the S2.4.1 gate exists, `make ingest` promotes with `ungated: true`
-  recorded on the index version; S2.4.1 makes the gate mandatory.
+  recorded on the index version; S2.4.1 makes the gate mandatory. (Done: versions 1
+  and 2 are the only ungated ones.)
 - Known modules come from the module catalogue (the `ModuleCatalogue` port).
 
 ### S1.4.1 Compose and DB baseline · est. 0.5 · [Delegate] · ✅ done
@@ -476,11 +477,14 @@ Done when: zero violations across the persona matrix and property tests; any lea
 - [x] Record the retrieval baseline: `make eval-baseline` writes `evals/baselines/retrieval.{md,json}` (committed)
 - Live index v2, real models: 26 entitlement sets x 275 queries (golden + self-retrieval), 107,525 candidates, 0 leaks, 0 vacuous. `make eval` exits non-zero on any leak. In `make check` the matrix uses self-retrieval queries only (fake embedder), about 20 s
 
-### S2.4.1 Gate in `make ingest` · est. 0.5
+### S2.4.1 Gate in `make ingest` · est. 0.5 · ✅ done
 Done when: a version is promoted only if the permission suite, retrieval thresholds and orphaned-label check all pass.
-- [ ] Permission suite gate
-- [ ] Recall regression vs. the live version
-- [ ] Orphaned `doc_id#anchor` labels block promotion
+- [x] Permission suite gate (full matrix, golden + self-retrieval, zero tolerance)
+- [x] Recall regression vs. the live version: reranked overall complete@5, recall@5, MRR; tolerance 0.02 in `config/gate.yaml`
+- [x] Orphaned `doc_id#anchor` labels block promotion
+- [x] Module widening (architecture §4, added on approval): a doc dropping a module the live version required blocks unless `CONFIRM_WIDENING=1`, recorded in the gate report
+- `chatbot/ingest/gate.py`; shared `chatbot/evals/runner.py` (`make eval` uses it too); migration `0004` (`gate_report`, `gated_at`). `promote` requires a passing report; `ungated` removed; rollback needs no gate. `make ingest DOCS=dir` for other corpora
+- Real runs: v3 passed (7,150 searches, 0 leaks; metrics equal to v2) and went live in 56 s; a renamed labelled heading (v4) and a doc dropping `deals` (v5) were each blocked with v3 left live. The widened doc passed the permission suite and the metrics, which is why widening needs its own check
 
 ---
 

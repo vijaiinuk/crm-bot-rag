@@ -12,7 +12,7 @@ Connections must be in autocommit mode; every step opens its own transaction.
 
 import hashlib
 import json
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
@@ -217,21 +217,41 @@ def _insert_chunks(
 # --- promote and roll back ------------------------------------------------------------------
 
 
-def promote(
-    conn: psycopg.Connection[Any], index_version: int, *, alias: str = LIVE, ungated: bool = False
+def record_gate(
+    conn: psycopg.Connection[Any], index_version: int, report: Mapping[str, Any]
 ) -> None:
-    """Point `alias` at a complete version. Until the S2.4.1 publish gate exists, this
-    must be asked for explicitly with `ungated=True`, which is recorded on the version."""
+    """Store the publish gate's report on a complete version. A failed gate marks the
+    version `failed` with the reasons; it can never be promoted."""
     _require_autocommit(conn)
-    if not ungated:
-        raise PromotionError(
-            "the publish gate (S2.4.1) does not exist yet: promote with ungated=True "
-            "(make ingest does), and it is recorded on the version"
-        )
+    passed = report.get("passed") is True
+    reasons = "; ".join(str(f) for f in report.get("failures", [])) or "gate failed"
     with conn.transaction():
-        conn.execute(
-            "UPDATE index_versions SET ungated = true WHERE index_version = %s", (index_version,)
-        )
+        row = conn.execute(
+            "UPDATE index_versions SET gate_report = %s, gated_at = now(), "
+            "status = CASE WHEN %s THEN status ELSE 'failed' END, "
+            "error = CASE WHEN %s THEN error ELSE %s END "
+            "WHERE index_version = %s AND status = 'gate' RETURNING index_version",
+            (json.dumps(report), passed, passed, f"gate: {reasons}", index_version),
+        ).fetchone()
+    if row is None:
+        raise PromotionError(f"version {index_version} is not awaiting the gate")
+
+
+def promote(conn: psycopg.Connection[Any], index_version: int, *, alias: str = LIVE) -> None:
+    """Point `alias` at a version that passed the publish gate (S2.4.1). There is no way
+    around the gate; rollback (repointing to an earlier live version) needs none."""
+    _require_autocommit(conn)
+    with conn.transaction():
+        row = conn.execute(
+            "SELECT gate_report->>'passed' FROM index_versions WHERE index_version = %s",
+            (index_version,),
+        ).fetchone()
+        if row is None:
+            raise PromotionError(f"no index version {index_version}")
+        if row[0] != "true":
+            raise PromotionError(
+                f"version {index_version} has not passed the publish gate (make ingest runs it)"
+            )
         _repoint(conn, alias, index_version, "promote")
 
 

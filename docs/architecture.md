@@ -157,7 +157,7 @@ stateDiagram-v2
 3. Write a complete new index under the release's `index_version`.
 4. **The publish gate**, all automatic and LLM-free:
    - **Permission suite:** for every persona and every golden question, each retrieved chunk's modules ⊆ allowed. **Zero tolerance.**
-   - **Retrieval evals:** recall@k and complete recall@k must not regress beyond threshold compared with the live release.
+   - **Retrieval evals:** recall@k and complete recall@k must not regress beyond threshold compared with the live release (reranked overall complete@5, recall@5 and MRR; tolerance in `config/gate.yaml`).
    - **Orphaned eval labels:** any accepted eval question pointing at a `doc_id#anchor` that no longer exists blocks publishing until an admin re-points it. Without this check, renaming a heading silently breaks evals.
    - **Module diff:** if any doc's modules changed in a way that **widens access** (for example `[deals]` → `[core]`), the release pauses for explicit publisher confirmation, recorded in `audit_log`. Narrowing access needs no confirmation. **Definition:** a new version widens access if it **drops any module** the live version required, because a chunk is visible only to holders of all its modules. So `[deals]→[campaigns]` counts as widened even though a module was added; adding modules only narrows; a brand-new doc is shown as "new" (the permission suite covers it).
 5. Repoint `active_index`. **Rollback** points it at the previous release, instantly.

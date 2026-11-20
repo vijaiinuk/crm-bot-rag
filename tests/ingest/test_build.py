@@ -22,6 +22,7 @@ from chatbot.ingest.build import (
     build_index,
     list_versions,
     promote,
+    record_gate,
     rollback,
 )
 from chatbot.ingest.chunker import Chunker
@@ -138,10 +139,16 @@ def live(conn: psycopg.Connection[Any]) -> int:
     return int(one(conn, "SELECT index_version FROM active_index WHERE alias = 'live'"))
 
 
+def gated(conn: psycopg.Connection[Any], version: int) -> int:
+    """Stand-in for the S2.4.1 gate (tested in test_gate_db): record a passing report."""
+    record_gate(conn, version, {"passed": True, "failures": []})
+    return version
+
+
 def test_promote_and_rollback_repoint_the_live_alias(conn: psycopg.Connection[Any]) -> None:
-    v1, v2 = build(conn).index_version, build(conn).index_version
-    promote(conn, v1, ungated=True)
-    promote(conn, v2, ungated=True)
+    v1, v2 = gated(conn, build(conn).index_version), gated(conn, build(conn).index_version)
+    promote(conn, v1)
+    promote(conn, v2)
     assert live(conn) == v2
     assert {v.index_version: v.status for v in list_versions(conn)} == {
         v1: "superseded",
@@ -164,33 +171,44 @@ def test_promote_and_rollback_repoint_the_live_alias(conn: psycopg.Connection[An
         (v2, v1, "rollback"),
         (v1, v2, "rollback"),
     ]
-    assert all(v.ungated for v in list_versions(conn)), "skipping the gate is recorded"
+    assert not any(v.ungated for v in list_versions(conn)), "nothing skips the gate any more"
 
 
 def test_rollback_needs_an_earlier_version(conn: psycopg.Connection[Any]) -> None:
     with pytest.raises(PromotionError, match="points nowhere"):
         rollback(conn)
-    promote(conn, build(conn).index_version, ungated=True)
+    promote(conn, gated(conn, build(conn).index_version))
     with pytest.raises(PromotionError, match="no earlier one"):
         rollback(conn)
 
 
-def test_promotion_is_refused_without_ungated_or_a_complete_version(
+def test_promotion_is_refused_without_a_passing_gate_or_a_complete_version(
     conn: psycopg.Connection[Any],
 ) -> None:
     v1 = build(conn).index_version
-    with pytest.raises(PromotionError, match="publish gate"):
+    with pytest.raises(PromotionError, match="has not passed the publish gate"):
         promote(conn, v1)
     with pytest.raises(PromotionError, match="no index version 99"):
-        promote(conn, 99, ungated=True)
+        promote(conn, 99)
     with pytest.raises(BuildFailed):
         build(conn, embedder=FakeEmbedder(fail=True))
-    with pytest.raises(PromotionError, match="'failed'"):
-        promote(conn, 2, ungated=True)
-    promote(conn, v1, ungated=True)
+    with pytest.raises(PromotionError, match="not awaiting the gate"):
+        record_gate(conn, 2, {"passed": True})  # a failed build can't be gated
+    promote(conn, gated(conn, v1))
     with pytest.raises(PromotionError, match="already"):
-        promote(conn, v1, ungated=True)
+        promote(conn, v1)
     assert live(conn) == v1
+
+
+def test_a_failed_gate_marks_the_version_failed_with_its_reasons(
+    conn: psycopg.Connection[Any],
+) -> None:
+    v = build(conn).index_version
+    record_gate(conn, v, {"passed": False, "failures": ["permission leaks: 3"]})
+    row = list_versions(conn)[-1]
+    assert row.status == "failed" and row.error == "gate: permission leaks: 3"
+    with pytest.raises(PromotionError, match="has not passed"):
+        promote(conn, v)
 
 
 # --- fail closed ----------------------------------------------------------------------------
@@ -210,8 +228,8 @@ def test_a_module_missing_from_the_catalogue_aborts_with_nothing_written(
 def test_an_embedding_failure_marks_the_version_failed_and_leaves_live_alone(
     conn: psycopg.Connection[Any],
 ) -> None:
-    v1 = build(conn).index_version
-    promote(conn, v1, ungated=True)
+    v1 = gated(conn, build(conn).index_version)
+    promote(conn, v1)
     with pytest.raises(BuildFailed, match="exploded"):
         build(conn, embedder=FakeEmbedder("new-model@1", fail=True))
     failed = list_versions(conn)[-1]

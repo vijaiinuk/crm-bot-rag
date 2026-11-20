@@ -22,13 +22,13 @@ migrate:       ## apply database migrations (alembic upgrade head)
 
 # --- index versions (S2.1.3); needs `make up` -----------------------------------
 
-ingest:        ## validate, chunk, embed (cache first) data/docs into a new index version and make it live (ungated until S2.4.1)
-	uv run python -m tools.ingest build --promote
+ingest:        ## build data/docs (or DOCS=dir) into a new index version, run the publish gate, promote only if it passes; CONFIRM_WIDENING=1 accepts docs that drop a module
+	uv run python -m tools.ingest build --promote $(if $(DOCS),--docs $(DOCS)) $(if $(CONFIRM_WIDENING),--confirm-widening)
 
 index-list:    ## list index versions and which one is live
 	@uv run python -m tools.ingest list
 
-promote:       ## make a complete index version live: make promote V=3
+promote:       ## make a version that passed the gate live again: make promote V=3
 	@test -n "$(V)" || { echo "usage: make promote V=<index version>"; exit 2; }
 	uv run python -m tools.ingest promote $(V)
 

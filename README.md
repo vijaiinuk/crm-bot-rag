@@ -116,7 +116,10 @@ Only Postgres and Phoenix run in containers, on [Colima](https://github.com/abio
 
 Postgres: `localhost:5432`, database `chatbot` (tests use `chatbot_test`). Phoenix: http://localhost:6006.
 With the database up, `make ingest` validates, chunks and embeds `data/docs/` into a new index
-version (bge-m3 on MPS; the first run downloads about 2.3 GB) and makes it live.
+version (bge-m3 on MPS; the first run downloads about 2.3 GB), runs the publish gate (orphaned
+eval labels, the permission suite, recall regression vs the live version, module widening) and
+makes it live only if the gate passes. `CONFIRM_WIDENING=1` accepts a doc that drops a module;
+nothing else skips the gate.
 `make index-list`, `make promote V=n` and `make rollback` manage versions.
 `make eval` runs the retrieval evals on the live index (recall, complete recall and MRR per
 category, hybrid and reranked) and the zero-tolerance permission suite, saves a report to

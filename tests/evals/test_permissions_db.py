@@ -28,7 +28,7 @@ from chatbot.evals.permissions import (
     run_permission_suite,
     self_retrieval_queries,
 )
-from chatbot.ingest.build import build_index, promote
+from chatbot.ingest.build import build_index, promote, record_gate
 from chatbot.ingest.chunker import Chunker
 from chatbot.retrieval.hybrid import PgHybridRetriever
 from chatbot.retrieval.rerank import CrossEncoderReranker
@@ -89,7 +89,8 @@ def corpus(env: Env, pg_url: str) -> dict[str, Any]:
     with psycopg.connect(pg_url, autocommit=True) as conn:
         chunker = Chunker(env.embedder.count_tokens, tokenizer_name=env.embedder.key)
         r = build_index(conn, CORPUS, chunker=chunker, embedder=env.embedder, catalogue=CATALOGUE)
-        promote(conn, r.index_version, ungated=True)
+        record_gate(conn, r.index_version, {"passed": True, "failures": []})  # test setup
+        promote(conn, r.index_version)
         rows = conn.execute(
             "SELECT chunk_id, modules, breadcrumb || E'\\n\\n' || content FROM chunks "
             "WHERE index_version = %s ORDER BY chunk_id",
